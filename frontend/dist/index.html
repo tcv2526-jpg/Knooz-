@@ -1,0 +1,2389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Knooz ERP</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet"/>
+<style>
+body{background:#f1f5f9;font-family:system-ui,-apple-system,sans-serif;margin:0}
+.sidebar{width:230px;min-height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;flex-shrink:0}
+.nav-section{font-size:10px;font-weight:700;letter-spacing:.08em;color:#475569;padding:14px 16px 4px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 12px;cursor:pointer;font-size:13px;border-radius:7px;margin:1px 8px;transition:all .15s;color:#94a3b8}
+.nav-item:hover{background:#1e293b;color:#e2e8f0}
+.nav-item.active{background:#2563eb;color:#fff}
+.card{background:#fff;border-radius:12px;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.stat-card{background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.btn{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.btn-primary{background:#2563eb;color:#fff}.btn-primary:hover{background:#1d4ed8}
+.btn-secondary{background:#f8fafc;color:#475569;border:1px solid #e2e8f0}.btn-secondary:hover{background:#f1f5f9}
+.btn-danger{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}.btn-danger:hover{background:#fee2e2}
+.btn-sm{padding:4px 10px;font-size:12px;border-radius:6px}
+.input{width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;background:#fff;color:#0f172a}
+.input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:9999px;font-size:11px;font-weight:600;white-space:nowrap}
+.b-blue{background:#dbeafe;color:#1e40af}.b-green{background:#dcfce7;color:#166534}
+.b-yellow{background:#fef9c3;color:#854d0e}.b-red{background:#fee2e2;color:#991b1b}
+.b-gray{background:#f1f5f9;color:#475569}.b-purple{background:#ede9fe;color:#6d28d9}
+.b-orange{background:#ffedd5;color:#c2410c}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:11px 14px;font-size:11px;font-weight:600;color:#64748b;background:#f8fafc;border-bottom:1px solid #e2e8f0}
+td{padding:11px 14px;border-bottom:1px solid #f1f5f9;color:#334155;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f8fafc}
+.alert{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px}
+.alert-error{background:#fee2e2;color:#991b1b}.alert-success{background:#dcfce7;color:#166534}
+.page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px}
+.page-title{font-size:18px;font-weight:700;color:#0f172a;margin:0}
+.page-sub{color:#64748b;font-size:13px;margin:3px 0 0}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-label{font-size:11px;font-weight:600;color:#374151;display:block;margin-bottom:4px}
+.section-label{font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.logo{display:flex;align-items:center;gap:10px;padding:18px 16px 14px;border-bottom:1px solid #1e293b}
+.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,#2563eb,#7c3aed);border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:15px;flex-shrink:0}
+.settings-box{background:#1e293b;border-radius:10px;padding:14px;margin:8px;font-size:12px;color:#94a3b8}
+
+[dir="rtl"] .sidebar { border-right: none; border-left: 1px solid #1e293b; }
+[dir="rtl"] table { text-align: right; }
+[dir="rtl"] th { text-align: right; }
+[dir="rtl"] .page-header { flex-direction: row-reverse; }
+[dir="rtl"] .form-grid { direction: rtl; }
+[dir="rtl"] .logo { flex-direction: row; }
+</style>
+<style>
+[dir="rtl"] table { text-align: right; }
+[dir="rtl"] th { text-align: right; }
+[dir="rtl"] .page-header { flex-direction: row-reverse; }
+[dir="rtl"] .form-grid { direction: rtl; }
+</style>
+<style>[dir="rtl"] table{text-align:right}[dir="rtl"] th{text-align:right}[dir="rtl"] .page-header{flex-direction:row-reverse}@keyframes spin{to{transform:rotate(360deg)}}</style>
+
+<style id="print-css">
+@media print {
+  .sidebar, .btn, .page-header button, select, input[type=date], .alert { display: none !important; }
+  body { background: white !important; }
+  .card { box-shadow: none !important; border: 1px solid #ccc !important; }
+  .page-title { font-size: 18px !important; }
+  table { font-size: 11px !important; }
+  th, td { padding: 5px 8px !important; }
+  @page { margin: 1.5cm; }
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect} = React;
+
+// ── API URL config: reads from localStorage so user can set their Railway backend URL ──
+const getApiUrl = () => localStorage.getItem('api_url') || 'https://knooz-production.up.railway.app';
+const API = axios.create({baseURL: getApiUrl() + '/api'});
+API.interceptors.request.use(c=>{
+  // Update baseURL dynamically in case it was changed
+  c.baseURL = getApiUrl() + '/api';
+  const t=localStorage.getItem('token');
+  if(t) c.headers.Authorization=`Bearer ${t}`;
+  return c;
+});
+API.interceptors.response.use(r=>r,e=>{
+  if(e.response?.status===401){localStorage.removeItem('token');localStorage.removeItem('user');window.location.reload();}
+  return Promise.reject(e);
+});
+
+const Ic=({p,s=15})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={p}/></svg>;
+const I={
+  home:"M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z",
+  users:"M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75",
+  trend:"M22 12h-4l-3 9L9 3l-3 9H2",check:"M22 11.08V12a10 10 0 11-5.93-9.14M22 4L12 14.01l-3-3",
+  box:"M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z",
+  file:"M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8",
+  dollar:"M12 1v22M17 5H9.5a3.5 3.5 0 100 7h5a3.5 3.5 0 110 7H6",
+  person:"M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8",
+  calendar:"M3 4h18v18H3zM16 2v4M8 2v4M3 10h18",
+  cart:"M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0",
+  plus:"M12 5v14M5 12h14",trash:"M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6",
+  logout:"M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9",
+  warn:"M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01",
+  clock:"M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zM12 6v6l4 2",
+  barChart:"M18 20V10M12 20V4M6 20v-6",
+  settings:"M12 15a3 3 0 100-6 3 3 0 000 6zM19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z",
+};
+
+const statusBadge={
+  new:'b-blue',contacted:'b-yellow',qualified:'b-green',lost:'b-red',
+  prospecting:'b-blue',proposal:'b-yellow',negotiation:'b-orange',closed_won:'b-green',closed_lost:'b-red',
+  draft:'b-gray',sent:'b-blue',paid:'b-green',overdue:'b-red',cancelled:'b-gray',
+  pending:'b-yellow',confirmed:'b-blue',shipped:'b-purple',delivered:'b-green',
+  approved:'b-green',rejected:'b-red',
+  full_time:'b-blue',part_time:'b-yellow',contract:'b-gray',
+  income:'b-green',expense:'b-red',
+};
+
+const SAR=v=>'SAR '+Number(v||0).toLocaleString('en',{minimumFractionDigits:0,maximumFractionDigits:2});
+const today=()=>new Date().toISOString().split('T')[0];
+
+
+/* ── i18n Translations ── */
+const translations = {
+  en: {
+    appName: 'Knooz ERP', appSub: 'Business Suite',
+    dashboard: 'Dashboard', overview: 'Overview',
+    crm: 'CRM', contacts: 'Contacts', leads: 'Leads', deals: 'Deals',
+    inventory: 'Inventory', products: 'Products', salesOrders: 'Sales Orders',
+    accounting: 'Accounting', invoices: 'Invoices', transactions: 'Transactions',
+    hr: 'HR & Payroll', employees: 'Employees', leaveRequests: 'Leave Requests', payroll: 'Payroll',
+    reports: 'Reports', settings: 'Settings',
+    welcome: 'Welcome back — business overview',
+    totalContacts: 'Contacts', totalLeads: 'Leads', totalDeals: 'Deals', pipelineValue: 'Pipeline Value',
+    totalIncome: 'Total Income', totalExpenses: 'Total Expenses', netProfit: 'Net Profit', outstanding: 'Outstanding',
+    totalProducts: 'Products', totalOrders: 'Orders', lowStock: 'Low Stock', stockValue: 'Stock Value',
+    totalEmployees: 'Employees', pendingLeaves: 'Pending Leaves', payrollTotal: 'Payroll Total',
+    addNew: 'Add New', save: 'Save', cancel: 'Cancel', delete: 'Delete',
+    records: 'records', noRecords: 'No records yet — click "Add New" to get started',
+    scanDoc: 'Scan Document', newInvoice: 'New Invoice', newOrder: 'New Order',
+    signIn: 'Sign in', signInTo: 'Sign in to your workspace', signingIn: 'Signing in…',
+    email: 'Email address', password: 'Password',
+    salesReport: 'Sales Report', financialReport: 'Financial Report',
+    inventoryReport: 'Inventory Report', hrReport: 'HR Report',
+    refresh: '↻ Refresh', loading: 'Loading…', saving: 'Saving…',
+    backendUrl: 'Backend API URL', connect: 'Connect & Continue', connecting: 'Testing connection…',
+    aiScanner: 'AI Document Scanner', aiSub: 'Upload an invoice or receipt — AI will extract the data automatically',
+    scanBtn: '🤖 Scan & Auto-fill', scanning: 'Scanning…',
+    paidInvoices: 'paid invoices', needReorder: 'Need reorder',
+    signOut: 'Sign out', changeBackend: 'Change backend URL',
+    name: 'Name', sku: 'SKU', category: 'Category', unit: 'Unit', price: 'Price', cost: 'Cost',
+    stock: 'Stock', reorderLevel: 'Reorder Level', description: 'Description',
+    firstName: 'First Name', lastName: 'Last Name', emailField: 'Email', phone: 'Phone',
+    department: 'Department', position: 'Position', employmentType: 'Employment Type',
+    salary: 'Salary (SAR)', hireDate: 'Hire Date', type: 'Type', amount: 'Amount (SAR)',
+    date: 'Date', reference: 'Reference', clientName: 'Client Name', clientEmail: 'Client Email',
+    issueDate: 'Issue Date', dueDate: 'Due Date', taxRate: 'Tax Rate %', notes: 'Notes',
+    lineItems: 'Line Items', addLine: '+ Add line', subtotal: 'Subtotal', tax: 'Tax', total: 'Total',
+    customerName: 'Customer Name', customerEmail: 'Customer Email',
+    employeeId: 'Employee ID', month: 'Month (1-12)', year: 'Year',
+    allowances: 'Allowances (SAR)', deductions: 'Deductions (SAR)',
+    leaveType: 'Leave Type', startDate: 'Start Date', endDate: 'End Date', reason: 'Reason',
+    source: 'Source', estValue: 'Est. Value (SAR)', stage: 'Stage', value: 'Value (SAR)',
+    action: 'Action', status: 'Status', title: 'Title',
+    markPaid: '✓ Paid', send: 'Send',
+    dropzone: 'Drag & drop or click to upload',
+    dropzoneSub: 'Supports JPG, PNG, PDF — invoices, receipts, bills',
+    pdfReady: 'PDF ready to scan', poweredBy: 'Powered by Claude AI · Works with invoices, receipts, purchase orders',
+    howToGet: '📋 How to get your backend URL:',
+  },
+  ar: {
+    appName: 'كنوز ERP', appSub: 'نظام إدارة الأعمال',
+    dashboard: 'لوحة التحكم', overview: 'نظرة عامة',
+    crm: 'إدارة العملاء', contacts: 'جهات الاتصال', leads: 'العملاء المحتملون', deals: 'الصفقات',
+    inventory: 'المخزون', products: 'المنتجات', salesOrders: 'أوامر البيع',
+    accounting: 'المحاسبة', invoices: 'الفواتير', transactions: 'المعاملات',
+    hr: 'الموارد البشرية', employees: 'الموظفون', leaveRequests: 'طلبات الإجازة', payroll: 'الرواتب',
+    reports: 'التقارير', settings: 'الإعدادات',
+    welcome: 'مرحباً — نظرة عامة على الأعمال',
+    totalContacts: 'جهات الاتصال', totalLeads: 'العملاء المحتملون', totalDeals: 'الصفقات', pipelineValue: 'قيمة المبيعات',
+    totalIncome: 'إجمالي الدخل', totalExpenses: 'إجمالي المصروفات', netProfit: 'صافي الربح', outstanding: 'المستحقات',
+    totalProducts: 'المنتجات', totalOrders: 'الطلبات', lowStock: 'مخزون منخفض', stockValue: 'قيمة المخزون',
+    totalEmployees: 'الموظفون', pendingLeaves: 'إجازات معلقة', payrollTotal: 'إجمالي الرواتب',
+    addNew: 'إضافة جديد', save: 'حفظ', cancel: 'إلغاء', delete: 'حذف',
+    records: 'سجلات', noRecords: 'لا توجد سجلات — انقر على "إضافة جديد" للبدء',
+    scanDoc: 'مسح المستند', newInvoice: 'فاتورة جديدة', newOrder: 'طلب جديد',
+    signIn: 'تسجيل الدخول', signInTo: 'تسجيل الدخول إلى نظامك', signingIn: 'جارٍ تسجيل الدخول…',
+    email: 'البريد الإلكتروني', password: 'كلمة المرور',
+    salesReport: 'تقرير المبيعات', financialReport: 'التقرير المالي',
+    inventoryReport: 'تقرير المخزون', hrReport: 'تقرير الموارد البشرية',
+    refresh: '↻ تحديث', loading: 'جارٍ التحميل…', saving: 'جارٍ الحفظ…',
+    backendUrl: 'رابط الخادم الخلفي', connect: 'اتصال ومتابعة', connecting: 'جارٍ الاختبار…',
+    aiScanner: 'ماسح المستندات الذكي', aiSub: 'ارفع فاتورة أو إيصال — سيستخرج الذكاء الاصطناعي البيانات تلقائياً',
+    scanBtn: '🤖 مسح وتعبئة تلقائية', scanning: 'جارٍ المسح…',
+    paidInvoices: 'فواتير مدفوعة', needReorder: 'تحتاج إعادة طلب',
+    signOut: 'تسجيل الخروج', changeBackend: 'تغيير رابط الخادم',
+    name: 'الاسم', sku: 'رمز المنتج', category: 'الفئة', unit: 'الوحدة', price: 'السعر', cost: 'التكلفة',
+    stock: 'المخزون', reorderLevel: 'حد إعادة الطلب', description: 'الوصف',
+    firstName: 'الاسم الأول', lastName: 'الاسم الأخير', emailField: 'البريد الإلكتروني', phone: 'الهاتف',
+    department: 'القسم', position: 'المنصب', employmentType: 'نوع التوظيف',
+    salary: 'الراتب (ريال)', hireDate: 'تاريخ التوظيف', type: 'النوع', amount: 'المبلغ (ريال)',
+    date: 'التاريخ', reference: 'المرجع', clientName: 'اسم العميل', clientEmail: 'بريد العميل',
+    issueDate: 'تاريخ الإصدار', dueDate: 'تاريخ الاستحقاق', taxRate: 'نسبة الضريبة %', notes: 'ملاحظات',
+    lineItems: 'بنود الفاتورة', addLine: '+ إضافة بند', subtotal: 'المجموع الفرعي', tax: 'الضريبة', total: 'الإجمالي',
+    customerName: 'اسم العميل', customerEmail: 'بريد العميل',
+    employeeId: 'رقم الموظف', month: 'الشهر (1-12)', year: 'السنة',
+    allowances: 'البدلات (ريال)', deductions: 'الخصومات (ريال)',
+    leaveType: 'نوع الإجازة', startDate: 'تاريخ البداية', endDate: 'تاريخ النهاية', reason: 'السبب',
+    source: 'المصدر', estValue: 'القيمة المقدرة (ريال)', stage: 'المرحلة', value: 'القيمة (ريال)',
+    action: 'إجراء', status: 'الحالة', title: 'العنوان',
+    markPaid: '✓ مدفوع', send: 'إرسال',
+    dropzone: 'اسحب وأفلت أو انقر للرفع',
+    dropzoneSub: 'يدعم JPG و PNG و PDF — فواتير وإيصالات وأوامر شراء',
+    pdfReady: 'PDF جاهز للمسح', poweredBy: 'مدعوم بـ Claude AI · يعمل مع الفواتير والإيصالات',
+    howToGet: '📋 كيف تحصل على رابط الخادم:',
+  }
+};
+
+
+
+
+/* i18n */
+const AR={"Knooz ERP":"كنوز ERP","Business Suite":"نظام إدارة الأعمال","Dashboard":"لوحة التحكم","Overview":"نظرة عامة","CRM":"إدارة العملاء","Contacts":"جهات الاتصال","Leads":"العملاء المحتملون","Deals":"الصفقات","Inventory":"المخزون","Products":"المنتجات","Sales Orders":"أوامر البيع","Accounting":"المحاسبة","Invoices":"الفواتير","Transactions":"المعاملات","HR & Payroll":"الموارد البشرية","Employees":"الموظفون","Leave Requests":"طلبات الإجازة","Payroll":"الرواتب","Reports":"التقارير","Welcome back — business overview":"مرحباً — نظرة عامة","Add New":"إضافة جديد","Save":"حفظ","Cancel":"إلغاء","Delete":"حذف","Sign in":"تسجيل الدخول","Sign in to your workspace":"تسجيل الدخول","Email address":"البريد الإلكتروني","Password":"كلمة المرور","New Invoice":"فاتورة جديدة","Scan Document":"مسح المستند","records":"سجلات","Loading…":"جارٍ التحميل","Saving…":"جارٍ الحفظ","Sales Report":"تقرير المبيعات","Financial Report":"التقرير المالي","Inventory Report":"تقرير المخزون","HR Report":"تقرير الموارد البشرية","Business analytics & insights":"تحليلات الأعمال"};
+
+const LangCtx=React.createContext({ar:false,toggle:()=>{}});
+const useLang=()=>React.useContext(LangCtx);
+const T=({k})=>{const {ar}=useLang();return ar&&AR[k]?AR[k]:k;};
+
+function LangProvider({children}){
+  const [ar,setAr]=React.useState(()=>localStorage.getItem('lang')==='ar');
+  const toggle=()=>{const n=!ar;localStorage.setItem('lang',n?'ar':'en');setAr(n);};
+  return(
+    <LangCtx.Provider value={{ar,toggle}}>
+      <div dir={ar?'rtl':'ltr'} style={{fontFamily:ar?"'Segoe UI',Tahoma,Arial,sans-serif":"system-ui,-apple-system,sans-serif"}}>
+        {children}
+      </div>
+    </LangCtx.Provider>
+  );
+}
+
+function LangToggle(){
+  const {ar,toggle}=useLang();
+  return <button onClick={toggle} style={{background:'#1e293b',border:'1px solid #334155',color:'#94a3b8',borderRadius:8,padding:'5px 10px',cursor:'pointer',fontSize:12,fontWeight:700,flexShrink:0}}>{ar?'EN':'عر'}</button>;
+}
+
+/* ── Setup Screen ── */
+function SetupScreen({onDone}){
+  const [url,setUrl]=useState(localStorage.getItem('api_url')||'');
+  const [testing,setTesting]=useState(false);
+  const [status,setStatus]=useState('');
+
+  const test=async()=>{
+    setTesting(true);setStatus('');
+    try{
+      const r=await axios.get(url.replace(/\/$/,'')+'/health');
+      if(r.data.status==='ok'){localStorage.setItem('api_url',url.replace(/\/$/,''));setStatus('ok');setTimeout(onDone,800);}
+      else setStatus('err');
+    }catch{setStatus('err');}
+    finally{setTesting(false);}
+  };
+
+  return(
+    <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'linear-gradient(135deg,#0f172a,#1e293b)'}}>
+      <div style={{width:480}}>
+        <div style={{textAlign:'center',marginBottom:28}}>
+          <div style={{width:56,height:56,background:'linear-gradient(135deg,#2563eb,#7c3aed)',borderRadius:16,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px',fontSize:24,fontWeight:800,color:'#fff'}}>K</div>
+          <h1 style={{fontSize:24,fontWeight:800,color:'#fff',margin:0}}>Knooz ERP</h1>
+          <p style={{color:'#64748b',fontSize:14,marginTop:6}}>Connect to your backend</p>
+        </div>
+        <div className="card" style={{padding:28}}>
+          <h3 style={{fontSize:14,fontWeight:700,color:'#0f172a',marginBottom:4}}>Backend API URL</h3>
+          <p style={{fontSize:12,color:'#64748b',marginBottom:14}}>Enter your Railway backend URL (e.g. <code style={{background:'#f1f5f9',padding:'1px 5px',borderRadius:4}}>https://knooz-backend.up.railway.app</code>)</p>
+          <input className="input" style={{marginBottom:12}} placeholder="https://your-backend.up.railway.app" value={url} onChange={e=>setUrl(e.target.value)}/>
+          {status==='ok'&&<div className="alert alert-success">✅ Connected! Redirecting…</div>}
+          {status==='err'&&<div className="alert alert-error">❌ Could not connect. Check the URL and make sure the backend is running.</div>}
+          <button className="btn btn-primary" style={{width:'100%',justifyContent:'center',padding:'10px'}} onClick={test} disabled={testing||!url}>
+            {testing?'Testing connection…':'Connect & Continue'}
+          </button>
+          <div style={{marginTop:20,padding:14,background:'#f8fafc',borderRadius:8,fontSize:12,color:'#64748b'}}>
+            <p style={{fontWeight:600,color:'#374151',margin:'0 0 6px'}}>📋 How to get your backend URL:</p>
+            <ol style={{margin:0,paddingLeft:16,lineHeight:2}}>
+              <li>Deploy backend to Railway (see README)</li>
+              <li>Go to Railway dashboard → your backend service</li>
+              <li>Click <strong>Settings → Domains → Generate Domain</strong></li>
+              <li>Copy the URL and paste it above</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Login ── */
+function Login({onLogin}){
+  const {ar,toggle}=useLang();
+  const [email,setEmail]=useState('admin@knooz.com');
+  const [pass,setPass]=useState('admin123');
+  const [err,setErr]=useState('');
+  const [busy,setBusy]=useState(false);
+  const go=async e=>{
+    e.preventDefault();setBusy(true);setErr('');
+    try{const r=await API.post('/auth/login',{email,password:pass});
+      localStorage.setItem('token',r.data.access_token);
+      localStorage.setItem('user',JSON.stringify(r.data.user));
+      onLogin(r.data.user);}
+    catch{setErr('Invalid credentials');}finally{setBusy(false);}
+  };
+  return(
+    <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'linear-gradient(135deg,#0f172a,#1e293b)'}}>
+      <div style={{width:380}}>
+        <div style={{textAlign:'center',marginBottom:28}}>
+          <div style={{width:52,height:52,background:'linear-gradient(135deg,#2563eb,#7c3aed)',borderRadius:14,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px',fontSize:22,fontWeight:800,color:'#fff'}}>K</div>
+          <h1 style={{fontSize:22,fontWeight:800,color:'#fff',margin:0}}>Knooz ERP</h1>
+          <p style={{color:'#64748b',fontSize:13,marginTop:5}}>Sign in to your workspace</p>
+        </div>
+        <div className="card" style={{padding:28}}>
+          <form onSubmit={go}>
+            {err&&<div className="alert alert-error">{err}</div>}
+            <div style={{marginBottom:14}}>
+              <label className="form-label">Email address</label>
+              <input className="input" type="email" value={email} onChange={e=>setEmail(e.target.value)} required/>
+            </div>
+            <div style={{marginBottom:18}}>
+              <label className="form-label">Password</label>
+              <input className="input" type="password" value={pass} onChange={e=>setPass(e.target.value)} required/>
+            </div>
+            <button className="btn btn-primary" style={{width:'100%',justifyContent:'center',padding:'9px 14px'}} disabled={busy}>{busy?'Signing in…':'Sign in'}</button>
+          </form>
+          <p style={{textAlign:'center',fontSize:11,color:'#94a3b8',marginTop:12}}>Default: admin@knooz.com / admin123</p><div style={{display:'flex',justifyContent:'center',marginTop:8}}><LangToggle/></div>
+                    <button onClick={()=>{localStorage.removeItem('api_url');window.location.reload();}} style={{width:'100%',marginTop:8,background:'none',border:'none',color:'#475569',fontSize:11,cursor:'pointer',textDecoration:'underline'}}>Change backend URL</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Stat Card ── */
+const StatCard=({title,value,icon,color,sub})=>(
+  <div className="stat-card">
+    <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+      <div>
+        <p style={{fontSize:11,color:'#64748b',fontWeight:600,margin:0,textTransform:'uppercase',letterSpacing:'.05em'}}>{title}</p>
+        <p style={{fontSize:22,fontWeight:800,color:'#0f172a',margin:'5px 0 0'}}>{value}</p>
+        {sub&&<p style={{fontSize:11,color:'#94a3b8',margin:'3px 0 0'}}>{sub}</p>}
+      </div>
+      <div style={{width:40,height:40,borderRadius:11,background:color+'18',display:'flex',alignItems:'center',justifyContent:'center',color,flexShrink:0}}><Ic p={I[icon]} s={19}/></div>
+    </div>
+  </div>
+);
+
+/* ── Dashboard ── */
+function Dashboard(){
+  const {ar}=useLang();
+  const [s,setS]=useState({crm:{},inv:{},acc:{},hr:{}});
+  useEffect(()=>{
+    Promise.allSettled([API.get('/crm/stats'),API.get('/inventory/stats'),API.get('/accounting/stats'),API.get('/hr/stats')])
+      .then(([c,i,a,h])=>setS({crm:c.value?.data||{},inv:i.value?.data||{},acc:a.value?.data||{},hr:h.value?.data||{}}));
+  },[]);
+  const fmt=n=>Number(n||0).toLocaleString();
+  return(
+    <div style={{padding:28}}>
+      <div style={{marginBottom:24}}><h1 className='page-title'>{ar?'لوحة التحكم':'Dashboard'}</h1><p className='page-sub'>{ar?'مرحباً — نظرة عامة':'Welcome back — business overview'}</p></div>
+      <p className='section-label'>{ar?'إدارة العملاء':'CRM'}</p>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:24}}>
+        <StatCard title={ar?'جهات الاتصال':'Contacts'} value={fmt(s.crm.total_contacts)} icon="users" color="#2563eb"/>
+        <StatCard title={ar?'العملاء المحتملون':'Leads'} value={fmt(s.crm.total_leads)} icon="trend" color="#7c3aed"/>
+        <StatCard title={ar?'الصفقات':'Deals'} value={fmt(s.crm.total_deals)} icon="check" color="#059669"/>
+        <StatCard title={ar?'قيمة المبيعات':'Pipeline Value'} value={SAR(s.crm.total_deal_value)} icon="dollar" color="#0891b2"/>
+      </div>
+      <p className='section-label'>{ar?'المحاسبة':'Accounting'}</p>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:24}}>
+        <StatCard title={ar?'إجمالي الدخل':'Total Income'} value={SAR(s.acc.total_income)} icon="dollar" color="#059669" sub={`${s.acc.paid_invoices||0} paid invoices`}/>
+        <StatCard title={ar?'إجمالي المصروفات':'Total Expenses'} value={SAR(s.acc.total_expenses)} icon="file" color="#dc2626"/>
+        <StatCard title={ar?'صافي الربح':'Net Profit'} value={SAR(s.acc.net_profit)} icon="trend" color="#0891b2"/>
+        <StatCard title={ar?'المستحقات':'Outstanding'} value={SAR(s.acc.outstanding_amount)} icon="clock" color="#d97706"/>
+      </div>
+      <p className='section-label'>{ar?'المخزون':'Inventory'}</p>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:24}}>
+        <StatCard title={ar?'المنتجات':'Products'} value={fmt(s.inv.total_products)} icon="box" color="#ea580c"/>
+        <StatCard title={ar?'الطلبات':'Orders'} value={fmt(s.inv.total_orders)} icon="cart" color="#0284c7"/>
+        <StatCard title={ar?'مخزون منخفض':'Low Stock'} value={fmt(s.inv.low_stock_count)} icon="warn" color="#dc2626"/>
+        <StatCard title={ar?'قيمة المخزون':'Stock Value'} value={SAR(s.inv.total_stock_value)} icon="dollar" color="#7c3aed"/>
+      </div>
+      <p className='section-label'>{ar?'الموارد البشرية':'HR & Payroll'}</p>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14}}>
+        <StatCard title={ar?'الموظفون':'Employees'} value={fmt(s.hr.total_employees)} icon="person" color="#7c3aed"/>
+        <StatCard title={ar?'إجازات معلقة':'Pending Leaves'} value={fmt(s.hr.pending_leaves)} icon="calendar" color="#db2777"/>
+        <StatCard title={ar?'إجمالي الرواتب':'Payroll Total'} value={SAR(s.hr.total_payroll)} icon="dollar" color="#059669"/>
+      </div>
+    </div>
+  );
+}
+
+/* ── Modal ── */
+function Modal({title,onClose,children}){
+  return(
+    <div style={{position:'fixed',inset:0,background:'rgba(15,23,42,.5)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200,padding:16}} onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+      <div className="card" style={{padding:24,width:540,maxWidth:'100%',maxHeight:'90vh',overflowY:'auto'}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:18}}>
+          <h3 style={{margin:0,fontSize:15,fontWeight:700,color:'#0f172a'}}>{title}</h3>
+          <button onClick={onClose} style={{background:'none',border:'none',cursor:'pointer',color:'#94a3b8',fontSize:22,lineHeight:1,padding:'0 4px'}}>×</button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+const Field=({label,children,full})=>(
+  <div style={{gridColumn:full?'1/-1':'auto'}}>
+    <label className="form-label">{label}</label>
+    {children}
+  </div>
+);
+
+/* ── Generic CRUD Page ── */
+function CRUDPage({title,endpoint,columns,fields,blank,extraHeader}){
+  const {ar}=useLang();
+  const [rows,setRows]=useState([]);
+  const [loading,setLoading]=useState(true);
+  const [showModal,setShowModal]=useState(false);
+  const [form,setForm]=useState(blank);
+  const [saving,setSaving]=useState(false);
+  const [msg,setMsg]=useState(null);
+  const load=()=>{setLoading(true);API.get(endpoint).then(r=>setRows(r.data)).catch(()=>setRows([])).finally(()=>setLoading(false));};
+  useEffect(()=>{load();},[endpoint]);
+  const set=(k,v)=>setForm(p=>({...p,[k]:v}));
+  const save=async()=>{
+    setSaving(true);
+    try{await API.post(endpoint,form);setMsg({t:'s',m:'Saved!'});setShowModal(false);setForm(blank);load();}
+    catch(e){setMsg({t:'e',m:e.response?.data?.detail||'Save failed'});}
+    finally{setSaving(false);setTimeout(()=>setMsg(null),4000);}
+  };
+  const del=async id=>{if(!confirm('Delete?'))return;try{await API.delete(`${endpoint}/${id}`);load();}catch{alert('Delete failed');}};
+  return(
+    <div style={{padding:28}}>
+      <div className="page-header">
+        <div><h1 className="page-title">{title}</h1><p className="page-sub">{rows.length} records</p></div>
+        <div style={{display:"flex",gap:8,alignItems:"center"}}>{extraHeader}<button className="btn btn-primary" onClick={()=>{setForm(blank);setShowModal(true);}}><Ic p={I.plus} s={14}/>Add New</button></div>
+      </div>
+      {msg&&<div className={`alert alert-${msg.t==='s'?'success':'error'}`}>{msg.m}</div>}
+      <div className="card" style={{overflow:'hidden'}}>
+        {loading?<p style={{padding:20,color:'#64748b',fontSize:13}}>Loading…</p>:(
+          <table>
+            <thead><tr>{columns.map(c=><th key={c.k}>{c.l}</th>)}<th style={{width:80}}>Action</th></tr></thead>
+            <tbody>
+              {rows.map(row=>(
+                <tr key={row.id}>
+                  {columns.map(c=>(
+                    <td key={c.k}>{c.badge?<span className={`badge ${statusBadge[row[c.k]]||'b-gray'}`}>{row[c.k]}</span>:c.fmt?c.fmt(row[c.k],row):row[c.k]??'—'}</td>
+                  ))}
+                  <td><button className="btn btn-danger btn-sm" onClick={()=>del(row.id)}><Ic p={I.trash} s={12}/>Del</button></td>
+                </tr>
+              ))}
+              {rows.length===0&&<tr><td colSpan={columns.length+1} style={{textAlign:'center',color:'#94a3b8',padding:36,fontSize:13}}>No records yet</td></tr>}
+            </tbody>
+          </table>
+        )}
+      </div>
+      {showModal&&(
+        <Modal title={`New ${title.replace(/s$/,'')}`} onClose={()=>setShowModal(false)}>
+          <div className="form-grid">
+            {fields.map(f=>(
+              <Field key={f.k} label={f.l} full={f.full}>
+                {f.opts?<select className="input" value={form[f.k]||''} onChange={e=>set(f.k,e.target.value)}>{f.opts.map(o=><option key={o.v} value={o.v}>{o.l}</option>)}</select>
+                :f.ta?<textarea className="input" rows={2} value={form[f.k]||''} onChange={e=>set(f.k,e.target.value)}/>
+                :<input className="input" type={f.t||'text'} value={form[f.k]||''} onChange={e=>set(f.k,f.t==='number'?+e.target.value:e.target.value)}/>}
+              </Field>
+            ))}
+          </div>
+          <div style={{display:'flex',gap:8,marginTop:18}}>
+            <button className="btn btn-primary" onClick={save} disabled={saving}>{saving?'Saving…':'Save'}</button>
+            <button className="btn btn-secondary" onClick={()=>setShowModal(false)}>Cancel</button>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+const Contacts=()=>{const {ar}=useLang();return <CRUDPage title={ar?'جهات الاتصال':'Contacts'} endpoint="/crm/contacts"
+  columns={[{k:'first_name',l:'First'},{k:'last_name',l:'Last'},{k:'email',l:'Email'},{k:'phone',l:'Phone'},{k:'company',l:'Company'},{k:'position',l:'Position'}]}
+  fields={[{k:'first_name',l:'First Name'},{k:'last_name',l:'Last Name'},{k:'email',l:'Email',t:'email'},{k:'phone',l:'Phone'},{k:'company',l:'Company'},{k:'position',l:'Position'},{k:'notes',l:'Notes',ta:true,full:true}]}
+  blank={{first_name:'',last_name:'',email:'',phone:'',company:'',position:'',notes:''}}/>;}
+
+const Leads=()=>{const {ar}=useLang();return <CRUDPage title={ar?'العملاء المحتملون':'Leads'} endpoint="/crm/leads"
+  columns={[{k:'title',l:'Title'},{k:'status',l:'Status',badge:true},{k:'source',l:'Source'},{k:'estimated_value',l:'Value',fmt:SAR}]}
+  fields={[{k:'title',l:'Title',full:true},{k:'status',l:'Status',opts:[{v:'new',l:'New'},{v:'contacted',l:'Contacted'},{v:'qualified',l:'Qualified'},{v:'lost',l:'Lost'}]},{k:'source',l:'Source'},{k:'estimated_value',l:'Est. Value (SAR)',t:'number'},{k:'notes',l:'Notes',ta:true,full:true}]}
+  blank={{title:'',status:'new',source:'',estimated_value:0,notes:''}}/>;}
+
+const Deals=()=>{const {ar}=useLang();return <CRUDPage title={ar?'الصفقات':'Deals'} endpoint="/crm/deals"
+  columns={[{k:'title',l:'Title'},{k:'stage',l:'Stage',badge:true},{k:'value',l:'Value',fmt:SAR}]}
+  fields={[{k:'title',l:'Title',full:true},{k:'stage',l:'Stage',opts:[{v:'prospecting',l:'Prospecting'},{v:'proposal',l:'Proposal'},{v:'negotiation',l:'Negotiation'},{v:'closed_won',l:'Closed Won'},{v:'closed_lost',l:'Closed Lost'}]},{k:'value',l:'Value (SAR)',t:'number'},{k:'notes',l:'Notes',ta:true,full:true}]}
+  blank={{title:'',stage:'prospecting',value:0,notes:''}}/>;}
+
+const Products=()=>{const {ar}=useLang();return <CRUDPage title={ar?'المنتجات':'Products'} endpoint="/inventory/products"
+  columns={[{k:'name',l:'Name'},{k:'sku',l:'SKU'},{k:'category',l:'Category'},{k:'price',l:'Price',fmt:SAR},{k:'stock_qty',l:'Stock'},{k:'unit',l:'Unit'}]}
+  fields={[{k:'name',l:'Name'},{k:'sku',l:'SKU'},{k:'category',l:'Category'},{k:'unit',l:'Unit'},{k:'price',l:'Price (SAR)',t:'number'},{k:'cost',l:'Cost (SAR)',t:'number'},{k:'stock_qty',l:'Opening Stock',t:'number'},{k:'reorder_level',l:'Reorder Level',t:'number'},{k:'description',l:'Description',ta:true,full:true}]}
+  blank={{name:'',sku:'',description:'',price:0,cost:0,stock_qty:0,reorder_level:10,category:'',unit:'pcs'}}/>;}
+
+/* ── Orders ── */
+function Orders(){
+  const [rows,setRows]=useState([]);
+  const [loading,setLoading]=useState(true);
+  const [products,setProducts]=useState([]);
+  const [showModal,setShowModal]=useState(false);
+  const [form,setForm]=useState({customer_name:'',customer_email:'',notes:'',items:[{product_id:'',quantity:1,unit_price:0}]});
+  const [saving,setSaving]=useState(false);
+  const [msg,setMsg]=useState(null);
+  const load=()=>{setLoading(true);Promise.all([API.get('/inventory/orders'),API.get('/inventory/products')]).then(([o,p])=>{setRows(o.data);setProducts(p.data);}).catch(()=>{}).finally(()=>setLoading(false));};
+  useEffect(()=>{load();},[]);
+  const setItem=(i,k,v)=>setForm(p=>{const items=[...p.items];items[i]={...items[i],[k]:k==='quantity'||k==='unit_price'?+v:v};return{...p,items};});
+  const onProd=(i,pid)=>{const prod=products.find(p=>p.id===+pid);setItem(i,'product_id',pid);if(prod)setItem(i,'unit_price',prod.price);};
+  const total=form.items.reduce((a,i)=>a+(i.quantity*i.unit_price),0);
+  const save=async()=>{setSaving(true);try{await API.post('/inventory/orders',form);setMsg({t:'s',m:'Order created!'});setShowModal(false);load();}catch(e){setMsg({t:'e',m:e.response?.data?.detail||'Failed'});}finally{setSaving(false);setTimeout(()=>setMsg(null),4000);}};
+  return(
+    <div style={{padding:28}}>
+      <div className="page-header">
+        <div><h1 className="page-title">Sales Orders</h1><p className="page-sub">{rows.length} orders</p></div>
+        <button className="btn btn-primary" onClick={()=>setShowModal(true)}><Ic p={I.plus} s={14}/>New Order</button>
+      </div>
+      {msg&&<div className={`alert alert-${msg.t==='s'?'success':'error'}`}>{msg.m}</div>}
+      <div className="card" style={{overflow:'hidden'}}>
+        {loading?<p style={{padding:20,color:'#64748b',fontSize:13}}>Loading…</p>:(
+          <table>
+            <thead><tr><th>Order #</th><th>Customer</th><th>Status</th><th>Items</th><th>Total</th><th>Date</th></tr></thead>
+            <tbody>
+              {rows.map(r=><tr key={r.id}><td style={{fontWeight:600,color:'#2563eb',fontFamily:'monospace'}}>{r.order_number}</td><td>{r.customer_name}</td><td><span className={`badge ${statusBadge[r.status]||'b-gray'}`}>{r.status}</span></td><td>{r.items?.length||0}</td><td style={{fontWeight:600}}>{SAR(r.total_amount)}</td><td style={{color:'#64748b'}}>{r.created_at?.split('T')[0]}</td></tr>)}
+              {rows.length===0&&<tr><td colSpan={6} style={{textAlign:'center',color:'#94a3b8',padding:36}}>No orders yet</td></tr>}
+            </tbody>
+          </table>
+        )}
+      </div>
+      {showModal&&(
+        <Modal title="New Sales Order" onClose={()=>setShowModal(false)}>
+          <div className="form-grid" style={{marginBottom:14}}>
+            <Field label="Customer Name" full><input className="input" value={form.customer_name} onChange={e=>setForm(p=>({...p,customer_name:e.target.value}))}/></Field>
+            <Field label="Customer Email"><input className="input" type="email" value={form.customer_email} onChange={e=>setForm(p=>({...p,customer_email:e.target.value}))}/></Field>
+            <Field label="Notes"><input className="input" value={form.notes} onChange={e=>setForm(p=>({...p,notes:e.target.value}))}/></Field>
+          </div>
+          <p className="form-label" style={{marginBottom:8}}>Line Items</p>
+          {form.items.map((item,i)=>(
+            <div key={i} style={{display:'grid',gridTemplateColumns:'2fr 1fr 1fr auto',gap:8,marginBottom:8,alignItems:'end'}}>
+              <div><label className="form-label">Product</label><select className="input" value={item.product_id} onChange={e=>onProd(i,e.target.value)}><option value="">Select…</option>{products.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></div>
+              <div><label className="form-label">Qty</label><input className="input" type="number" min="1" value={item.quantity} onChange={e=>setItem(i,'quantity',e.target.value)}/></div>
+              <div><label className="form-label">Price</label><input className="input" type="number" value={item.unit_price} onChange={e=>setItem(i,'unit_price',e.target.value)}/></div>
+              <button onClick={()=>setForm(p=>({...p,items:p.items.filter((_,j)=>j!==i)}))} className="btn btn-danger btn-sm" style={{marginTop:18}}>×</button>
+            </div>
+          ))}
+          <button onClick={()=>setForm(p=>({...p,items:[...p.items,{product_id:'',quantity:1,unit_price:0}]}))} style={{fontSize:12,color:'#2563eb',background:'none',border:'none',cursor:'pointer',padding:'4px 0',marginBottom:14}}>+ Add item</button>
+          <div style={{background:'#f8fafc',borderRadius:8,padding:'10px 14px',marginBottom:16,display:'flex',justifyContent:'space-between'}}>
+            <span style={{fontWeight:600,fontSize:13}}>Total</span><span style={{fontWeight:800,fontSize:15}}>{SAR(total)}</span>
+          </div>
+          <div style={{display:'flex',gap:8}}><button className="btn btn-primary" onClick={save} disabled={saving}>{saving?'Creating…':'Create Order'}</button><button className="btn btn-secondary" onClick={()=>setShowModal(false)}>Cancel</button></div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+/* ── Invoices ── */
+
+/* ── AI Document Scanner ── */
+function DocScanner({type, onFill, onClose}){
+  const {ar}=useLang();
+  const [file,setFile]=useState(null);
+  const [preview,setPreview]=useState(null);
+  const [scanning,setScanning]=useState(false);
+  const [error,setError]=useState('');
+  const [dragOver,setDragOver]=useState(false);
+  const fileRef=React.useRef();
+
+  const handleFile=f=>{
+    if(!f)return;
+    const ok=['image/jpeg','image/png','image/jpg','application/pdf'];
+    if(!ok.includes(f.type)){setError('Only JPG, PNG or PDF');return;}
+    setFile(f);setError('');
+    if(f.type.startsWith('image/')){
+      const r=new FileReader();
+      r.onload=e=>setPreview(e.target.result);
+      r.readAsDataURL(f);
+    }else{setPreview('pdf');}
+  };
+
+  const scan=async()=>{
+    if(!file)return;
+    setScanning(true);setError('');
+    try{
+      const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(file);});
+      const resp=await API.post('/ai/scan',{media_type:file.type,data:b64,doc_type:type});
+      onFill(resp.data);
+      onClose();
+    }catch(e){setError('Scan failed: '+(e.response?.data?.detail||e.message||'Check API key'));}
+    finally{setScanning(false);}
+  };
+
+  return(
+    <div style={{position:'fixed',inset:0,background:'rgba(15,23,42,.6)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:300,padding:16}}>
+      <div style={{background:'#fff',borderRadius:16,padding:28,width:500,maxWidth:'95vw'}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+          <div>
+            <h3 style={{margin:0,fontSize:16,fontWeight:800,color:'#0f172a'}}>{ar?'ماسح المستندات الذكي':'AI Document Scanner'}</h3>
+            <p style={{margin:'4px 0 0',fontSize:12,color:'#64748b'}}>{ar?'ارفع مستنداً وسيستخرج الذكاء الاصطناعي البيانات':'Upload a document — AI extracts data automatically'}</p>
+          </div>
+          <button onClick={onClose} style={{background:'none',border:'none',cursor:'pointer',fontSize:22,color:'#94a3b8'}}>x</button>
+        </div>
+        <div
+          onDragOver={e=>{e.preventDefault();setDragOver(true);}}
+          onDragLeave={()=>setDragOver(false)}
+          onDrop={e=>{e.preventDefault();setDragOver(false);handleFile(e.dataTransfer.files[0]);}}
+          onClick={()=>fileRef.current.click()}
+          style={{border:'2px dashed '+(dragOver?'#2563eb':'#e2e8f0'),borderRadius:12,padding:28,textAlign:'center',cursor:'pointer',background:dragOver?'#eff6ff':'#f8fafc',marginBottom:14}}
+        >
+          <input ref={fileRef} type="file" accept="image/*,.pdf" style={{display:'none'}} onChange={e=>handleFile(e.target.files[0])}/>
+          {preview?(
+            preview==='pdf'?(
+              <div><div style={{fontSize:48}}>📄</div><p style={{color:'#059669',fontWeight:600,fontSize:13,margin:0}}>{file.name}</p></div>
+            ):(
+              <div><img src={preview} style={{maxHeight:140,maxWidth:'100%',borderRadius:8,marginBottom:8}} alt="preview"/><p style={{color:'#059669',fontWeight:600,fontSize:13,margin:0}}>{file.name}</p></div>
+            )
+          ):(
+            <div><div style={{fontSize:40,marginBottom:8}}>📂</div><p style={{color:'#374151',fontWeight:600,fontSize:14,margin:0}}>{ar?'اسحب وأفلت أو انقر للرفع':'Drag & drop or click to upload'}</p><p style={{color:'#94a3b8',fontSize:12,margin:'6px 0 0'}}>{ar?'يدعم JPG و PNG و PDF':'Supports JPG, PNG, PDF'}</p></div>
+          )}
+        </div>
+        {error&&<div style={{background:'#fee2e2',color:'#991b1b',padding:'10px 14px',borderRadius:8,fontSize:13,marginBottom:12}}>{error}</div>}
+        {scanning&&<div style={{background:'#eff6ff',border:'1px solid #bfdbfe',borderRadius:8,padding:'10px 14px',marginBottom:12,fontSize:13,color:'#1e40af'}}>{ar?'جارٍ المسح...':'AI is reading your document...'}</div>}
+        <div style={{display:'flex',gap:8}}>
+          <button onClick={scan} disabled={!file||scanning} style={{flex:1,padding:10,borderRadius:8,border:'none',cursor:file&&!scanning?'pointer':'not-allowed',background:file&&!scanning?'#2563eb':'#e2e8f0',color:file&&!scanning?'#fff':'#94a3b8',fontWeight:700,fontSize:14}}>
+            {scanning?(ar?'جارٍ المسح...':'Scanning...'):(ar?'مسح وتعبئة تلقائية':'Scan & Auto-fill')}
+          </button>
+          <button onClick={onClose} style={{padding:'10px 18px',borderRadius:8,border:'1px solid #e2e8f0',background:'#f8fafc',cursor:'pointer',fontWeight:500}}>Cancel</button>
+        </div>
+        <p style={{fontSize:11,color:'#94a3b8',marginTop:10,textAlign:'center'}}>Powered by Claude AI</p>
+      </div>
+    </div>
+  );
+}
+
+function Invoices(){
+  const [rows,setRows]=useState([]);
+  const [loading,setLoading]=useState(true);
+  const [showModal,setShowModal]=useState(false);
+  const [showScanner,setShowScanner]=useState(false);
+  const [form,setForm]=useState({client_name:'',client_email:'',issue_date:today(),due_date:today(),tax_rate:15,notes:'',items:[{description:'',quantity:1,unit_price:0}]});
+  const [saving,setSaving]=useState(false);
+  const [msg,setMsg]=useState(null);
+  const fillFromScan=(parsed)=>{
+    setForm(p=>({...p,
+      client_name:parsed.client_name||p.client_name,
+      client_email:parsed.client_email||p.client_email,
+      issue_date:parsed.issue_date||p.issue_date,
+      due_date:parsed.due_date||p.due_date,
+      tax_rate:parsed.tax_rate||p.tax_rate,
+      notes:parsed.notes||p.notes,
+      items:parsed.items&&parsed.items.length>0?parsed.items:[{description:'',quantity:1,unit_price:0}]
+    }));
+    setShowModal(true);
+    setMsg({t:'s',m:'✅ Document scanned! Review and save the auto-filled data.'});
+  };
+  const load=()=>{setLoading(true);API.get('/accounting/invoices').then(r=>setRows(r.data)).catch(()=>setRows([])).finally(()=>setLoading(false));};
+  useEffect(()=>{load();},[]);
+  const setItem=(i,k,v)=>setForm(p=>{const items=[...p.items];items[i]={...items[i],[k]:k==='description'?v:+v};return{...p,items};});
+  const subtotal=form.items.reduce((a,i)=>a+(i.quantity*i.unit_price),0);
+  const tax=subtotal*form.tax_rate/100;
+  const save=async()=>{setSaving(true);try{await API.post('/accounting/invoices',form);setMsg({t:'s',m:'Invoice created!'});setShowModal(false);load();}catch(e){setMsg({t:'e',m:e.response?.data?.detail||'Failed'});}finally{setSaving(false);setTimeout(()=>setMsg(null),4000);}};
+  const markPaid=async id=>{try{await API.put(`/accounting/invoices/${id}/status`,null,{params:{status:'paid'}});load();}catch{alert('Failed');}};
+  const del=async id=>{if(!confirm('Delete?'))return;try{await API.delete(`/accounting/invoices/${id}`);load();}catch{alert('Failed');}};
+  return(
+    <div style={{padding:28}}>
+      <div className="page-header">
+        <div><h1 className="page-title">Invoices</h1><p className="page-sub">{rows.length} invoices</p></div>
+        <div style={{display:'flex',gap:8}}>
+          <button className="btn btn-secondary" onClick={()=>setShowScanner(true)} style={{display:'flex',alignItems:'center',gap:5}}>🤖 Scan Document</button>
+          <button className="btn btn-primary" onClick={()=>setShowModal(true)}><Ic p={I.plus} s={14}/>New Invoice</button>
+        </div>
+      </div>
+      {msg&&<div className={`alert alert-${msg.t==='s'?'success':'error'}`}>{msg.m}</div>}
+      <div className="card" style={{overflow:'hidden'}}>
+        {loading?<p style={{padding:20,color:'#64748b',fontSize:13}}>Loading…</p>:(
+          <table>
+            <thead><tr><th>Invoice #</th><th>Client</th><th>Status</th><th>Subtotal</th><th>Tax</th><th>Total</th><th>Due</th><th>Actions</th></tr></thead>
+            <tbody>
+              {rows.map(r=>(
+                <tr key={r.id}>
+                  <td style={{fontWeight:600,color:'#2563eb',fontFamily:'monospace'}}>{r.invoice_number}</td>
+                  <td style={{fontWeight:500}}>{r.client_name}</td>
+                  <td><span className={`badge ${statusBadge[r.status]||'b-gray'}`}>{r.status}</span></td>
+                  <td>{SAR(r.subtotal)}</td><td>{SAR(r.tax_amount)}</td>
+                  <td style={{fontWeight:700}}>{SAR(r.total)}</td>
+                  <td style={{color:'#64748b'}}>{r.due_date}</td>
+                  <td><div style={{display:'flex',gap:4}}>
+                    {r.status!=='paid'&&<button className="btn btn-sm" style={{background:'#dcfce7',color:'#166534',border:'none',cursor:'pointer'}} onClick={()=>markPaid(r.id)}>✓ Paid</button>}
+                    <button className="btn btn-danger btn-sm" onClick={()=>del(r.id)}>Del</button>
+                  </div></td>
+                </tr>
+              ))}
+              {rows.length===0&&<tr><td colSpan={8} style={{textAlign:'center',color:'#94a3b8',padding:36}}>No invoices yet</td></tr>}
+            </tbody>
+          </table>
+        )}
+      </div>
+      {showScanner&&<DocScanner type="invoice" onFill={fillFromScan} onClose={()=>setShowScanner(false)}/>}
+      {showModal&&(
+        <Modal title="New Invoice" onClose={()=>setShowModal(false)}>
+          <div className="form-grid" style={{marginBottom:14}}>
+            <Field label="Client Name"><input className="input" value={form.client_name} onChange={e=>setForm(p=>({...p,client_name:e.target.value}))}/></Field>
+            <Field label="Client Email"><input className="input" type="email" value={form.client_email} onChange={e=>setForm(p=>({...p,client_email:e.target.value}))}/></Field>
+            <Field label="Issue Date"><input className="input" type="date" value={form.issue_date} onChange={e=>setForm(p=>({...p,issue_date:e.target.value}))}/></Field>
+            <Field label="Due Date"><input className="input" type="date" value={form.due_date} onChange={e=>setForm(p=>({...p,due_date:e.target.value}))}/></Field>
+            <Field label="Tax Rate %"><input className="input" type="number" value={form.tax_rate} onChange={e=>setForm(p=>({...p,tax_rate:+e.target.value}))}/></Field>
+            <Field label="Notes"><input className="input" value={form.notes} onChange={e=>setForm(p=>({...p,notes:e.target.value}))}/></Field>
+          </div>
+          <p className="form-label" style={{marginBottom:8}}>Line Items</p>
+          {form.items.map((item,i)=>(
+            <div key={i} style={{display:'grid',gridTemplateColumns:'3fr 1fr 1fr auto',gap:8,marginBottom:8,alignItems:'end'}}>
+              <div><label className="form-label">Description</label><input className="input" value={item.description} onChange={e=>setItem(i,'description',e.target.value)}/></div>
+              <div><label className="form-label">Qty</label><input className="input" type="number" value={item.quantity} onChange={e=>setItem(i,'quantity',e.target.value)}/></div>
+              <div><label className="form-label">Price</label><input className="input" type="number" value={item.unit_price} onChange={e=>setItem(i,'unit_price',e.target.value)}/></div>
+              <button onClick={()=>setForm(p=>({...p,items:p.items.filter((_,j)=>j!==i)}))} className="btn btn-danger btn-sm" style={{marginTop:18}}>×</button>
+            </div>
+          ))}
+          <button onClick={()=>setForm(p=>({...p,items:[...p.items,{description:'',quantity:1,unit_price:0}]}))} style={{fontSize:12,color:'#2563eb',background:'none',border:'none',cursor:'pointer',padding:'4px 0',marginBottom:14}}>+ Add line</button>
+          <div style={{background:'#f8fafc',borderRadius:8,padding:'10px 14px',marginBottom:16}}>
+            <div style={{display:'flex',justifyContent:'space-between',fontSize:12,color:'#64748b',marginBottom:4}}><span>Subtotal</span><span>{SAR(subtotal)}</span></div>
+            <div style={{display:'flex',justifyContent:'space-between',fontSize:12,color:'#64748b',marginBottom:4}}><span>Tax ({form.tax_rate}%)</span><span>{SAR(tax)}</span></div>
+            <div style={{display:'flex',justifyContent:'space-between',fontSize:14,fontWeight:800,color:'#0f172a',borderTop:'1px solid #e2e8f0',paddingTop:8,marginTop:4}}><span>Total</span><span>{SAR(subtotal+tax)}</span></div>
+          </div>
+          <div style={{display:'flex',gap:8}}><button className="btn btn-primary" onClick={save} disabled={saving}>{saving?'Creating…':'Create Invoice'}</button><button className="btn btn-secondary" onClick={()=>setShowModal(false)}>Cancel</button></div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+function Transactions(){
+  const {ar}=useLang();
+  const [showScanner,setShowScanner]=useState(false);
+  const [prefill,setPrefill]=useState(null);
+  const blank={type:'income',amount:0,description:'',category:'',date:today(),reference:''};
+  const fillFromScan=(parsed)=>{
+    setPrefill({...blank,...parsed});
+    setShowScanner(false);
+  };
+  return(
+    <div>
+      {showScanner&&<DocScanner type="transaction" onFill={fillFromScan} onClose={()=>setShowScanner(false)}/>}
+      <CRUDPage
+        title="Transactions"
+        endpoint="/accounting/transactions"
+        columns={[{k:'date',l:'Date'},{k:'type',l:'Type',badge:true},{k:'description',l:'Description'},{k:'category',l:'Category'},{k:'amount',l:'Amount',fmt:SAR}]}
+        fields={[{k:'type',l:'Type',opts:[{v:'income',l:'Income'},{v:'expense',l:'Expense'}]},{k:'amount',l:'Amount (SAR)',t:'number'},{k:'description',l:'Description',full:true},{k:'category',l:'Category'},{k:'date',l:'Date',t:'date'},{k:'reference',l:'Reference'}]}
+        blank={prefill||blank}
+        extraHeader={
+          <button className="btn btn-secondary" onClick={()=>setShowScanner(true)} style={{marginRight:8}}>🤖 Scan Document</button>
+        }
+      />
+    </div>
+  );
+}
+
+const Employees=()=>{const {ar}=useLang();return <CRUDPage title={ar?'الموظفون':'Employees'} endpoint="/hr/employees"
+  columns={[{k:'employee_id',l:'ID'},{k:'first_name',l:'First'},{k:'last_name',l:'Last'},{k:'department',l:'Dept'},{k:'position',l:'Position'},{k:'employment_type',l:'Type',badge:true},{k:'salary',l:'Salary',fmt:SAR}]}
+  fields={[{k:'first_name',l:'First Name'},{k:'last_name',l:'Last Name'},{k:'email',l:'Email',t:'email'},{k:'phone',l:'Phone'},{k:'department',l:'Department'},{k:'position',l:'Position'},{k:'employment_type',l:'Type',opts:[{v:'full_time',l:'Full Time'},{v:'part_time',l:'Part Time'},{v:'contract',l:'Contract'}]},{k:'salary',l:'Salary (SAR)',t:'number'},{k:'hire_date',l:'Hire Date',t:'date'}]}
+  blank={{first_name:'',last_name:'',email:'',phone:'',department:'',position:'',employment_type:'full_time',salary:0,hire_date:today()}}/>;}
+
+const Leaves=()=>{const {ar}=useLang();return <CRUDPage title={ar?'طلبات الإجازة':'Leave Requests'} endpoint="/hr/leaves"
+  columns={[{k:'employee_id',l:'Emp'},{k:'leave_type',l:'Type'},{k:'start_date',l:'From'},{k:'end_date',l:'To'},{k:'days',l:'Days'},{k:'status',l:'Status',badge:true}]}
+  fields={[{k:'employee_id',l:'Employee ID',t:'number'},{k:'leave_type',l:'Type',opts:[{v:'annual',l:'Annual'},{v:'sick',l:'Sick'},{v:'unpaid',l:'Unpaid'},{v:'maternity',l:'Maternity'}]},{k:'start_date',l:'Start Date',t:'date'},{k:'end_date',l:'End Date',t:'date'},{k:'reason',l:'Reason',ta:true,full:true}]}
+  blank={{employee_id:'',leave_type:'annual',start_date:today(),end_date:today(),reason:''}}/>;}
+
+const Payroll=()=>{const {ar}=useLang();return <CRUDPage title={ar?'الرواتب':'Payroll'} endpoint="/hr/payroll"
+  columns={[{k:'employee_id',l:'Emp'},{k:'period_month',l:'Month'},{k:'period_year',l:'Year'},{k:'base_salary',l:'Base',fmt:SAR},{k:'allowances',l:'Allowances',fmt:SAR},{k:'deductions',l:'Deductions',fmt:SAR},{k:'net_salary',l:'Net Salary',fmt:SAR}]}
+  fields={[{k:'employee_id',l:'Employee ID',t:'number'},{k:'period_month',l:'Month (1-12)',t:'number'},{k:'period_year',l:'Year',t:'number'},{k:'allowances',l:'Allowances (SAR)',t:'number'},{k:'deductions',l:'Deductions (SAR)',t:'number'}]}
+  blank={{employee_id:'',period_month:new Date().getMonth()+1,period_year:new Date().getFullYear(),allowances:0,deductions:0}}/>;}
+
+
+
+/* ── Full Reports Module ── */
+function FullReports(){
+  const {ar}=useLang();
+  const [tab,setTab]=useState('sales');
+  const [data,setData]=useState({});
+  const [loading,setLoading]=useState(true);
+
+  const load=()=>{
+    setLoading(true);
+    Promise.allSettled([
+      API.get('/crm/stats'),API.get('/crm/contacts'),API.get('/crm/leads'),API.get('/crm/deals'),
+      API.get('/inventory/stats'),API.get('/inventory/products'),API.get('/inventory/orders'),
+      API.get('/accounting/stats'),API.get('/accounting/invoices'),API.get('/accounting/transactions'),
+      API.get('/hr/stats'),API.get('/hr/employees'),API.get('/hr/payroll'),
+    ]).then(([cs,cc,cl,cd,is_,ip,io,as_,ai,at_,hs,he,hp])=>setData({
+      crmStats:cs.value?.data||{},contacts:cc.value?.data||[],leads:cl.value?.data||[],deals:cd.value?.data||[],
+      invStats:is_.value?.data||{},products:ip.value?.data||[],orders:io.value?.data||[],
+      accStats:as_.value?.data||{},invoices:ai.value?.data||[],transactions:at_.value?.data||[],
+      hrStats:hs.value?.data||{},employees:he.value?.data||[],payroll:hp.value?.data||[],
+    })).finally(()=>setLoading(false));
+  };
+  useEffect(()=>{load();},[]);
+
+  const fmt=n=>Number(n||0).toLocaleString();
+  const SAR2=v=>'SAR '+Number(v||0).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  const tabs=[
+    {id:'sales',l:ar?'تقرير المبيعات':'Sales Report'},
+    {id:'purchase',l:ar?'تقرير المشتريات':'Purchase Report'},
+    {id:'tax',l:ar?'تقرير الضريبة':'Tax Report'},
+    {id:'cashflow',l:ar?'التدفق النقدي':'Cash Flow'},
+    {id:'aged',l:ar?'الذمم المدينة/الدائنة':'Aged Receivable/Payable'},
+    {id:'payroll_report',l:ar?'تقرير الرواتب':'Payroll Report'},
+    {id:'inventory_val',l:ar?'تقييم المخزون':'Inventory Valuation'},
+  ];
+
+  const Box=({label,value,color='#2563eb',sub})=>(
+    <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:10,padding:'14px 18px',borderLeft:`4px solid ${color}`}}>
+      <p style={{fontSize:11,color:'#64748b',fontWeight:600,margin:0,textTransform:'uppercase',letterSpacing:'.05em'}}>{label}</p>
+      <p style={{fontSize:20,fontWeight:800,color:'#0f172a',margin:'4px 0 0'}}>{value}</p>
+      {sub&&<p style={{fontSize:11,color:'#94a3b8',margin:'2px 0 0'}}>{sub}</p>}
+    </div>
+  );
+
+  const SectionTitle=({children})=><p style={{fontSize:13,fontWeight:700,color:'#0f172a',margin:'20px 0 10px',paddingBottom:6,borderBottom:'1px solid #e2e8f0'}}>{children}</p>;
+
+  const Table=({cols,rows,empty})=>(
+    <div style={{overflow:'auto',marginBottom:16}}>
+      <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
+        <thead><tr style={{background:'#f8fafc'}}>{cols.map(c=><th key={c.k} style={{padding:'8px 12px',textAlign:c.r?'right':'left',fontWeight:600,color:'#64748b',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>{c.l}</th>)}</tr></thead>
+        <tbody>
+          {rows.length===0?<tr><td colSpan={cols.length} style={{textAlign:'center',padding:24,color:'#94a3b8',fontSize:12}}>{empty||'—'}</td></tr>
+          :rows.map((row,i)=>(
+            <tr key={i} style={{borderBottom:'1px solid #f1f5f9'}}>
+              {cols.map(c=><td key={c.k} style={{padding:'8px 12px',textAlign:c.r?'right':'left',color:'#334155'}}>{c.fmt?c.fmt(row[c.k],row):row[c.k]??'—'}</td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  const Bar=({label,value,max,color})=>{
+    const pct=max>0?Math.min(100,Math.round((value/max)*100)):0;
+    return(
+      <div style={{marginBottom:10}}>
+        <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:3}}>
+          <span style={{color:'#374151',fontWeight:500}}>{label}</span>
+          <span style={{color:'#64748b'}}>{SAR2(value)}</span>
+        </div>
+        <div style={{background:'#f1f5f9',borderRadius:4,height:8,overflow:'hidden'}}>
+          <div style={{width:pct+'%',height:'100%',background:color||'#2563eb',borderRadius:4,transition:'width .4s'}}/>
+        </div>
+      </div>
+    );
+  };
+
+  // ── Sales Report ──
+  const renderSales=()=>{
+    const d=data;
+    const totalOrders=d.orders?.length||0;
+    const totalOrderValue=d.orders?.reduce((a,o)=>a+(o.total_amount||0),0)||0;
+    const avgOrder=totalOrders>0?totalOrderValue/totalOrders:0;
+    const statusMap={pending:0,confirmed:0,shipped:0,delivered:0,cancelled:0};
+    d.orders?.forEach(o=>{if(statusMap[o.status]!==undefined)statusMap[o.status]++;});
+    const leadMap={new:0,contacted:0,qualified:0,lost:0};
+    d.leads?.forEach(l=>{if(leadMap[l.status]!==undefined)leadMap[l.status]++;});
+    const convRate=d.leads?.length>0?Math.round(((leadMap.qualified||0)/d.leads.length)*100):0;
+    const topDeals=[...(d.deals||[])].sort((a,b)=>(b.value||0)-(a.value||0)).slice(0,5);
+    const invoiceByStatus={draft:0,sent:0,paid:0,overdue:0};
+    d.invoices?.forEach(i=>{if(invoiceByStatus[i.status]!==undefined)invoiceByStatus[i.status]++;});
+    return(
+      <div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
+          <Box label={ar?'إجمالي الطلبات':'Total Orders'} value={fmt(totalOrders)} color="#2563eb"/>
+          <Box label={ar?'قيمة المبيعات':'Revenue'} value={SAR2(totalOrderValue)} color="#059669"/>
+          <Box label={ar?'متوسط الطلب':'Avg Order'} value={SAR2(avgOrder)} color="#7c3aed"/>
+          <Box label={ar?'معدل التحويل':'Conversion Rate'} value={convRate+'%'} color="#ea580c" sub={`${d.leads?.length||0} ${ar?'عميل محتمل':'leads'}`}/>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+          <div>
+            <SectionTitle>{ar?'حالة الطلبات':'Orders by Status'}</SectionTitle>
+            {Object.entries(statusMap).map(([s,c])=><Bar key={s} label={ar?{pending:'معلق',confirmed:'مؤكد',shipped:'مشحون',delivered:'مسلّم',cancelled:'ملغى'}[s]:s} value={c} max={totalOrders} color="#2563eb"/>)}
+          </div>
+          <div>
+            <SectionTitle>{ar?'العملاء المحتملون':'Lead Pipeline'}</SectionTitle>
+            {Object.entries(leadMap).map(([s,c])=><Bar key={s} label={ar?{new:'جديد',contacted:'تم التواصل',qualified:'مؤهل',lost:'خسارة'}[s]:s} value={c} max={d.leads?.length||1} color="#7c3aed"/>)}
+          </div>
+        </div>
+        <SectionTitle>{ar?'أفضل 5 صفقات':'Top 5 Deals'}</SectionTitle>
+        <Table cols={[{k:'title',l:ar?'العنوان':'Title'},{k:'stage',l:ar?'المرحلة':'Stage'},{k:'value',l:ar?'القيمة':'Value',r:true,fmt:v=>SAR2(v)}]} rows={topDeals} empty={ar?'لا توجد صفقات':'No deals'}/>
+        <SectionTitle>{ar?'ملخص الفواتير':'Invoice Summary'}</SectionTitle>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10}}>
+          {Object.entries(invoiceByStatus).map(([s,c])=>(
+            <div key={s} style={{background:'#f8fafc',borderRadius:8,padding:'10px 14px',textAlign:'center'}}>
+              <p style={{fontSize:20,fontWeight:800,color:'#0f172a',margin:0}}>{c}</p>
+              <p style={{fontSize:11,color:'#64748b',margin:'2px 0 0',textTransform:'capitalize'}}>{ar?{draft:'مسودة',sent:'مرسلة',paid:'مدفوعة',overdue:'متأخرة'}[s]:s}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  // ── Purchase Report ──
+  const renderPurchase=()=>{
+    const expenses=data.transactions?.filter(t=>t.type==='expense')||[];
+    const totalExp=expenses.reduce((a,t)=>a+(t.amount||0),0);
+    const catMap={};
+    expenses.forEach(t=>{const c=t.category||'Uncategorized';catMap[c]=(catMap[c]||0)+(t.amount||0);});
+    const cats=Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
+    const maxCat=cats[0]?.[1]||1;
+    const monthly={};
+    expenses.forEach(t=>{const m=t.date?.substring(0,7)||'Unknown';monthly[m]=(monthly[m]||0)+(t.amount||0);});
+    const monthlyList=Object.entries(monthly).sort((a,b)=>a[0].localeCompare(b[0]));
+    return(
+      <div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:16}}>
+          <Box label={ar?'إجمالي المصروفات':'Total Expenses'} value={SAR2(totalExp)} color="#dc2626"/>
+          <Box label={ar?'عدد المعاملات':'Transactions'} value={fmt(expenses.length)} color="#7c3aed"/>
+          <Box label={ar?'متوسط المعاملة':'Avg Transaction'} value={SAR2(expenses.length>0?totalExp/expenses.length:0)} color="#ea580c"/>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+          <div>
+            <SectionTitle>{ar?'المصروفات حسب الفئة':'Expenses by Category'}</SectionTitle>
+            {cats.length===0?<p style={{color:'#94a3b8',fontSize:12}}>{ar?'لا توجد بيانات':'No data'}</p>
+            :cats.map(([cat,val])=><Bar key={cat} label={cat} value={val} max={maxCat} color="#dc2626"/>)}
+          </div>
+          <div>
+            <SectionTitle>{ar?'المصروفات الشهرية':'Monthly Expenses'}</SectionTitle>
+            {monthlyList.length===0?<p style={{color:'#94a3b8',fontSize:12}}>{ar?'لا توجد بيانات':'No data'}</p>
+            :monthlyList.map(([m,v])=><Bar key={m} label={m} value={v} max={Math.max(...monthlyList.map(x=>x[1]))||1} color="#f97316"/>)}
+          </div>
+        </div>
+        <SectionTitle>{ar?'سجل المصروفات':'Expense Transactions'}</SectionTitle>
+        <Table cols={[{k:'date',l:ar?'التاريخ':'Date'},{k:'description',l:ar?'الوصف':'Description'},{k:'category',l:ar?'الفئة':'Category'},{k:'reference',l:ar?'المرجع':'Ref'},{k:'amount',l:ar?'المبلغ':'Amount',r:true,fmt:v=>SAR2(v)}]} rows={expenses.slice(0,20)} empty={ar?'لا توجد مصروفات':'No expenses'}/>
+      </div>
+    );
+  };
+
+  // ── Tax Report ──
+  const renderTax=()=>{
+    const paidInv=data.invoices?.filter(i=>i.status==='paid')||[];
+    const allInv=data.invoices||[];
+    const totalTax=allInv.reduce((a,i)=>a+(i.tax_amount||0),0);
+    const paidTax=paidInv.reduce((a,i)=>a+(i.tax_amount||0),0);
+    const pendingTax=totalTax-paidTax;
+    const totalSales=allInv.reduce((a,i)=>a+(i.subtotal||0),0);
+    const vatRate=allInv.length>0?(allInv[0].tax_rate||15):15;
+    return(
+      <div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
+          <Box label={ar?'إجمالي الضريبة':'Total VAT'} value={SAR2(totalTax)} color="#7c3aed"/>
+          <Box label={ar?'ضريبة مدفوعة':'VAT Collected'} value={SAR2(paidTax)} color="#059669"/>
+          <Box label={ar?'ضريبة معلقة':'VAT Pending'} value={SAR2(pendingTax)} color="#d97706"/>
+          <Box label={ar?'نسبة الضريبة':'VAT Rate'} value={vatRate+'%'} color="#2563eb"/>
+        </div>
+        <SectionTitle>{ar?'تفاصيل الضريبة على الفواتير':'VAT Details by Invoice'}</SectionTitle>
+        <Table
+          cols={[
+            {k:'invoice_number',l:ar?'رقم الفاتورة':'Invoice #'},
+            {k:'client_name',l:ar?'العميل':'Client'},
+            {k:'issue_date',l:ar?'التاريخ':'Date'},
+            {k:'status',l:ar?'الحالة':'Status'},
+            {k:'subtotal',l:ar?'المبلغ قبل الضريبة':'Subtotal',r:true,fmt:v=>SAR2(v)},
+            {k:'tax_amount',l:ar?'مبلغ الضريبة (15%)':'VAT (15%)',r:true,fmt:v=>SAR2(v)},
+            {k:'total',l:ar?'الإجمالي':'Total',r:true,fmt:v=>SAR2(v)},
+          ]}
+          rows={allInv}
+          empty={ar?'لا توجد فواتير':'No invoices'}
+        />
+        <div style={{background:'#f0fdf4',border:'1px solid #bbf7d0',borderRadius:10,padding:'16px 20px',marginTop:16}}>
+          <p style={{fontSize:13,fontWeight:700,color:'#166534',margin:'0 0 8px'}}>{ar?'ملخص ضريبة القيمة المضافة':'VAT Summary'}</p>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,fontSize:13}}>
+            <span style={{color:'#374151'}}>{ar?'إجمالي المبيعات (قبل الضريبة):':'Total Sales (excl. VAT):'}</span><span style={{fontWeight:700,textAlign:'right'}}>{SAR2(totalSales)}</span>
+            <span style={{color:'#374151'}}>{ar?'ضريبة القيمة المضافة المستحقة (15%):':'VAT Due (15%):'}</span><span style={{fontWeight:700,textAlign:'right'}}>{SAR2(totalTax)}</span>
+            <span style={{color:'#374151'}}>{ar?'تم تحصيله:':'Collected:'}</span><span style={{fontWeight:700,color:'#059669',textAlign:'right'}}>{SAR2(paidTax)}</span>
+            <span style={{color:'#374151'}}>{ar?'المتبقي للتحصيل:':'Remaining:'}</span><span style={{fontWeight:700,color:'#d97706',textAlign:'right'}}>{SAR2(pendingTax)}</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // ── Cash Flow ──
+  const renderCashFlow=()=>{
+    const income=data.transactions?.filter(t=>t.type==='income')||[];
+    const expenses=data.transactions?.filter(t=>t.type==='expense')||[];
+    const totalIn=income.reduce((a,t)=>a+(t.amount||0),0);
+    const totalOut=expenses.reduce((a,t)=>a+(t.amount||0),0);
+    const netFlow=totalIn-totalOut;
+    const monthly={};
+    data.transactions?.forEach(t=>{
+      const m=t.date?.substring(0,7)||'Unknown';
+      if(!monthly[m])monthly[m]={in:0,out:0};
+      if(t.type==='income')monthly[m].in+=t.amount||0;
+      else monthly[m].out+=t.amount||0;
+    });
+    const monthlyList=Object.entries(monthly).sort((a,b)=>a[0].localeCompare(b[0]));
+    const maxFlow=Math.max(...monthlyList.map(([,v])=>Math.max(v.in,v.out)),1);
+    return(
+      <div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
+          <Box label={ar?'إجمالي التدفقات الداخلة':'Cash Inflow'} value={SAR2(totalIn)} color="#059669"/>
+          <Box label={ar?'إجمالي التدفقات الخارجة':'Cash Outflow'} value={SAR2(totalOut)} color="#dc2626"/>
+          <Box label={ar?'صافي التدفق النقدي':'Net Cash Flow'} value={SAR2(netFlow)} color={netFlow>=0?'#059669':'#dc2626'}/>
+          <Box label={ar?'عدد المعاملات':'Transactions'} value={fmt(data.transactions?.length)} color="#7c3aed"/>
+        </div>
+        <SectionTitle>{ar?'التدفق النقدي الشهري':'Monthly Cash Flow'}</SectionTitle>
+        {monthlyList.length===0?<p style={{color:'#94a3b8',fontSize:12}}>{ar?'لا توجد بيانات':'No data'}</p>:(
+          <div>
+            {monthlyList.map(([m,v])=>(
+              <div key={m} style={{marginBottom:12}}>
+                <p style={{fontSize:12,fontWeight:600,color:'#374151',marginBottom:4}}>{m}</p>
+                <Bar label={ar?'داخل':'Inflow'} value={v.in} max={maxFlow} color="#059669"/>
+                <Bar label={ar?'خارج':'Outflow'} value={v.out} max={maxFlow} color="#dc2626"/>
+                <div style={{fontSize:11,color:v.in-v.out>=0?'#059669':'#dc2626',textAlign:'right',fontWeight:600}}>{ar?'الصافي':'Net'}: {SAR2(v.in-v.out)}</div>
+              </div>
+            ))}
+          </div>
+        )}
+        <SectionTitle>{ar?'سجل المعاملات':'Transaction History'}</SectionTitle>
+        <Table
+          cols={[{k:'date',l:ar?'التاريخ':'Date'},{k:'type',l:ar?'النوع':'Type',fmt:v=>v==='income'?(ar?'دخل':'Income'):(ar?'مصروف':'Expense')},{k:'description',l:ar?'الوصف':'Description'},{k:'category',l:ar?'الفئة':'Category'},{k:'amount',l:ar?'المبلغ':'Amount',r:true,fmt:v=>SAR2(v)}]}
+          rows={(data.transactions||[]).slice(0,20)} empty={ar?'لا توجد معاملات':'No transactions'}/>
+      </div>
+    );
+  };
+
+  // ── Aged Receivable/Payable ──
+  const renderAged=()=>{
+    const today_=new Date();
+    const buckets={'0-30':[],'31-60':[],'61-90':[],'90+':[]};
+    const overdue=data.invoices?.filter(i=>['sent','overdue'].includes(i.status))||[];
+    overdue.forEach(inv=>{
+      const due=new Date(inv.due_date);
+      const days=Math.floor((today_-due)/(1000*60*60*24));
+      if(days<=30)buckets['0-30'].push(inv);
+      else if(days<=60)buckets['31-60'].push(inv);
+      else if(days<=90)buckets['61-90'].push(inv);
+      else buckets['90+'].push(inv);
+    });
+    const bucketTotal=b=>b.reduce((a,i)=>a+(i.total||0),0);
+    const totalOutstanding=overdue.reduce((a,i)=>a+(i.total||0),0);
+    return(
+      <div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
+          <Box label={ar?'0-30 يوم':'0-30 Days'} value={SAR2(bucketTotal(buckets['0-30']))} color="#059669" sub={`${buckets['0-30'].length} ${ar?'فاتورة':'invoices'}`}/>
+          <Box label={ar?'31-60 يوم':'31-60 Days'} value={SAR2(bucketTotal(buckets['31-60']))} color="#d97706" sub={`${buckets['31-60'].length} ${ar?'فاتورة':'invoices'}`}/>
+          <Box label={ar?'61-90 يوم':'61-90 Days'} value={SAR2(bucketTotal(buckets['61-90']))} color="#ea580c" sub={`${buckets['61-90'].length} ${ar?'فاتورة':'invoices'}`}/>
+          <Box label={ar?'أكثر من 90 يوم':'+90 Days'} value={SAR2(bucketTotal(buckets['90+']))} color="#dc2626" sub={`${buckets['90+'].length} ${ar?'فاتورة':'invoices'}`}/>
+        </div>
+        <div style={{background:'#fff7ed',border:'1px solid #fed7aa',borderRadius:10,padding:'12px 16px',marginBottom:16,display:'flex',justifyContent:'space-between'}}>
+          <span style={{fontWeight:700,color:'#c2410c'}}>{ar?'إجمالي المستحقات':'Total Outstanding'}</span>
+          <span style={{fontWeight:800,fontSize:16,color:'#c2410c'}}>{SAR2(totalOutstanding)}</span>
+        </div>
+        {Object.entries(buckets).map(([bucket,invs])=>invs.length>0&&(
+          <div key={bucket}>
+            <SectionTitle>{ar?`الفواتير (${bucket} يوم)`:bucket+' Days'}</SectionTitle>
+            <Table
+              cols={[{k:'invoice_number',l:ar?'رقم الفاتورة':'Invoice#'},{k:'client_name',l:ar?'العميل':'Client'},{k:'due_date',l:ar?'تاريخ الاستحقاق':'Due Date'},{k:'status',l:ar?'الحالة':'Status'},{k:'total',l:ar?'المبلغ':'Amount',r:true,fmt:v=>SAR2(v)}]}
+              rows={invs} empty=""/>
+          </div>
+        ))}
+        {overdue.length===0&&<div style={{textAlign:'center',padding:40,color:'#94a3b8',fontSize:13}}>{ar?'لا توجد مستحقات متأخرة 🎉':'No outstanding receivables 🎉'}</div>}
+      </div>
+    );
+  };
+
+  // ── Payroll Report ──
+  const renderPayroll=()=>{
+    const totalPayroll=data.payroll?.reduce((a,p)=>a+(p.net_salary||0),0)||0;
+    const totalAllowances=data.payroll?.reduce((a,p)=>a+(p.allowances||0),0)||0;
+    const totalDeductions=data.payroll?.reduce((a,p)=>a+(p.deductions||0),0)||0;
+    const deptMap={};
+    data.employees?.forEach(e=>{const d=e.department||'Unassigned';if(!deptMap[d])deptMap[d]={count:0,salary:0};deptMap[d].count++;deptMap[d].salary+=e.salary||0;});
+    const deptList=Object.entries(deptMap).sort((a,b)=>b[1].salary-a[1].salary);
+    const maxSal=deptList[0]?.[1].salary||1;
+    const empWithPayroll=data.employees?.map(e=>{
+      const pays=data.payroll?.filter(p=>p.employee_id===e.id)||[];
+      const lastPay=pays[pays.length-1];
+      return {...e,last_net:lastPay?.net_salary||0,last_month:lastPay?`${lastPay.period_year}/${lastPay.period_month}`:'-'};
+    })||[];
+    return(
+      <div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
+          <Box label={ar?'إجمالي الرواتب':'Total Payroll'} value={SAR2(totalPayroll)} color="#7c3aed"/>
+          <Box label={ar?'إجمالي البدلات':'Total Allowances'} value={SAR2(totalAllowances)} color="#059669"/>
+          <Box label={ar?'إجمالي الخصومات':'Total Deductions'} value={SAR2(totalDeductions)} color="#dc2626"/>
+          <Box label={ar?'عدد الموظفين':'Employees'} value={fmt(data.employees?.length)} color="#0891b2"/>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+          <div>
+            <SectionTitle>{ar?'الرواتب حسب القسم':'Payroll by Department'}</SectionTitle>
+            {deptList.map(([d,{count,salary}])=><Bar key={d} label={`${d} (${count})`} value={salary} max={maxSal} color="#7c3aed"/>)}
+          </div>
+          <div>
+            <SectionTitle>{ar?'توزيع نوع التوظيف':'Employment Type'}</SectionTitle>
+            {['full_time','part_time','contract'].map(type=>{
+              const count=data.employees?.filter(e=>e.employment_type===type).length||0;
+              const label=ar?{full_time:'دوام كامل',part_time:'دوام جزئي',contract:'عقد'}[type]:type.replace('_',' ');
+              return <Bar key={type} label={`${label} (${count})`} value={count} max={data.employees?.length||1} color="#0891b2"/>;
+            })}
+          </div>
+        </div>
+        <SectionTitle>{ar?'كشف رواتب الموظفين':'Employee Payroll Summary'}</SectionTitle>
+        <Table
+          cols={[{k:'employee_id',l:'ID'},{k:'first_name',l:ar?'الاسم':'Name',fmt:(v,r)=>`${v} ${r.last_name}`},{k:'department',l:ar?'القسم':'Dept'},{k:'salary',l:ar?'الراتب الأساسي':'Base',r:true,fmt:v=>SAR2(v)},{k:'last_net',l:ar?'آخر صافي':'Last Net',r:true,fmt:v=>SAR2(v)},{k:'last_month',l:ar?'آخر شهر':'Last Period'}]}
+          rows={empWithPayroll} empty={ar?'لا يوجد موظفون':'No employees'}/>
+      </div>
+    );
+  };
+
+  // ── Inventory Valuation ──
+  const renderInventory=()=>{
+    const totalCostVal=data.products?.reduce((a,p)=>a+(p.stock_qty*p.cost),0)||0;
+    const totalSaleVal=data.products?.reduce((a,p)=>a+(p.stock_qty*p.price),0)||0;
+    const potentialProfit=totalSaleVal-totalCostVal;
+    const lowStock=data.products?.filter(p=>p.stock_qty<=p.reorder_level)||[];
+    const outOfStock=data.products?.filter(p=>p.stock_qty===0)||[];
+    const byCategory={};
+    data.products?.forEach(p=>{const c=p.category||'Uncategorized';if(!byCategory[c])byCategory[c]={count:0,costVal:0,saleVal:0};byCategory[c].count++;byCategory[c].costVal+=p.stock_qty*p.cost;byCategory[c].saleVal+=p.stock_qty*p.price;});
+    const cats=Object.entries(byCategory).sort((a,b)=>b[1].costVal-a[1].costVal);
+    const maxVal=cats[0]?.[1].costVal||1;
+    const topProducts=[...(data.products||[])].sort((a,b)=>(b.stock_qty*b.cost)-(a.stock_qty*a.cost)).slice(0,10);
+    return(
+      <div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
+          <Box label={ar?'قيمة المخزون (التكلفة)':'Stock Value (Cost)'} value={SAR2(totalCostVal)} color="#7c3aed"/>
+          <Box label={ar?'قيمة البيع المتوقعة':'Potential Revenue'} value={SAR2(totalSaleVal)} color="#059669"/>
+          <Box label={ar?'هامش الربح المتوقع':'Potential Profit'} value={SAR2(potentialProfit)} color="#0891b2"/>
+          <Box label={ar?'منتجات منخفضة المخزون':'Low Stock Items'} value={fmt(lowStock.length)} color="#dc2626" sub={`${outOfStock.length} ${ar?'نفذ':'out of stock'}`}/>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+          <div>
+            <SectionTitle>{ar?'قيمة المخزون حسب الفئة':'Stock Value by Category'}</SectionTitle>
+            {cats.map(([c,{count,costVal}])=><Bar key={c} label={`${c} (${count})`} value={costVal} max={maxVal} color="#7c3aed"/>)}
+          </div>
+          <div>
+            <SectionTitle>{ar?'تنبيهات المخزون المنخفض':'Low Stock Alerts'}</SectionTitle>
+            {lowStock.length===0?<p style={{color:'#059669',fontWeight:600,fontSize:12}}>✅ {ar?'جميع المنتجات لديها مخزون كافٍ':'All products well stocked'}</p>:(
+              <Table cols={[{k:'name',l:ar?'المنتج':'Product'},{k:'stock_qty',l:ar?'المخزون':'Stock',r:true},{k:'reorder_level',l:ar?'الحد الأدنى':'Min',r:true}]} rows={lowStock} empty=""/>
+            )}
+          </div>
+        </div>
+        <SectionTitle>{ar?'أعلى 10 منتجات حسب قيمة المخزون':'Top 10 Products by Stock Value'}</SectionTitle>
+        <Table
+          cols={[{k:'name',l:ar?'المنتج':'Product'},{k:'sku',l:'SKU'},{k:'category',l:ar?'الفئة':'Category'},{k:'stock_qty',l:ar?'الكمية':'Qty',r:true},{k:'cost',l:ar?'التكلفة':'Cost',r:true,fmt:v=>SAR2(v)},{k:'price',l:ar?'السعر':'Price',r:true,fmt:v=>SAR2(v)},{k:'cost',l:ar?'إجمالي القيمة':'Total Value',r:true,fmt:(v,r)=>SAR2(r.stock_qty*v)}]}
+          rows={topProducts} empty={ar?'لا توجد منتجات':'No products'}/>
+      </div>
+    );
+  };
+
+  return(
+    <div style={{padding:28}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+        <div><h1 className="page-title">{ar?'التقارير':'Reports'}</h1><p className="page-sub">{ar?'تحليلات الأعمال والرؤى':'Business analytics & insights'}</p></div>
+        <div style={{display:'flex',gap:8}}>
+          <button className="btn btn-secondary" onClick={()=>window.print()} style={{display:'flex',alignItems:'center',gap:6}}>🖨️ {ar?'طباعة':'Print'}</button>
+          <button className="btn btn-primary" onClick={load} disabled={loading}>{loading?(ar?'جارٍ التحميل...':'Loading...'):(ar?'↻ تحديث':'↻ Refresh')}</button>
+        </div>
+      </div>
+
+      {/* Tab bar */}
+      <div style={{display:'flex',gap:4,background:'#f1f5f9',padding:4,borderRadius:10,marginBottom:20,flexWrap:'wrap'}}>
+        {tabs.map(t=>(
+          <button key={t.id} onClick={()=>setTab(t.id)} style={{padding:'7px 14px',borderRadius:8,border:'none',cursor:'pointer',fontSize:12,fontWeight:600,transition:'all .15s',background:tab===t.id?'#fff':'transparent',color:tab===t.id?'#0f172a':'#64748b',boxShadow:tab===t.id?'0 1px 3px rgba(0,0,0,.1)':'none'}}>
+            {t.l}
+          </button>
+        ))}
+      </div>
+
+      {loading?<div style={{textAlign:'center',padding:60,color:'#64748b',fontSize:13}}>{ar?'جارٍ تحميل بيانات التقرير...':'Loading report data...'}</div>:(
+        <div>
+          {tab==='sales'&&renderSales()}
+          {tab==='purchase'&&renderPurchase()}
+          {tab==='tax'&&renderTax()}
+          {tab==='cashflow'&&renderCashFlow()}
+          {tab==='aged'&&renderAged()}
+          {tab==='payroll_report'&&renderPayroll()}
+          {tab==='inventory_val'&&renderInventory()}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+
+/* ── Chart of Accounts ── */
+function ChartOfAccounts(){
+  const {ar}=useLang();
+  const [rows,setRows]=useState([]);
+  const [loading,setLoading]=useState(true);
+  const [showModal,setShowModal]=useState(false);
+  const [form,setForm]=useState({code:'',name:'',name_ar:'',account_type:'asset',balance:0});
+  const [msg,setMsg]=useState(null);
+  const [seeding,setSeeding]=useState(false);
+  const load=()=>{setLoading(true);API.get('/accounting/accounts').then(r=>setRows(r.data)).catch(()=>setRows([])).finally(()=>setLoading(false));};
+  useEffect(()=>{load();},[]);
+  const typeColor={'asset':'b-blue','liability':'b-red','equity':'b-purple','income':'b-green','expense':'b-orange'};
+  const typeAr={'asset':'أصول','liability':'خصوم','equity':'حقوق ملكية','income':'إيرادات','expense':'مصروفات'};
+  const seed=async()=>{
+    setSeeding(true);
+    try{await API.post('/accounting/accounts/seed');setMsg({t:'s',m:ar?'تم إنشاء الحسابات':'Accounts created!'});load();}
+    catch(e){setMsg({t:'e',m:e.response?.data?.detail||'Failed'});}
+    finally{setSeeding(false);setTimeout(()=>setMsg(null),4000);}
+  };
+  const save=async()=>{
+    try{await API.post('/accounting/accounts',form);setMsg({t:'s',m:ar?'تم الحفظ':'Saved!'});setShowModal(false);load();}
+    catch(e){setMsg({t:'e',m:e.response?.data?.detail||'Failed'});}
+    finally{setTimeout(()=>setMsg(null),4000);}
+  };
+  const del=async id=>{if(!confirm(ar?'حذف؟':'Delete?'))return;try{await API.delete(`/accounting/accounts/${id}`);load();}catch{alert('Failed');}};
+  return(
+    <div style={{padding:28}}>
+      <div className="page-header">
+        <div><h1 className="page-title">{ar?'دليل الحسابات':'Chart of Accounts'}</h1><p className="page-sub">{rows.length} {ar?'حساب':'accounts'}</p></div>
+        <div style={{display:'flex',gap:8}}>
+          {rows.length===0&&<button className="btn btn-secondary" onClick={seed} disabled={seeding}>{seeding?(ar?'جارٍ...':'Seeding...'):(ar?'إنشاء الحسابات الافتراضية':'Seed Default Accounts')}</button>}
+          <button className="btn btn-primary" onClick={()=>setShowModal(true)}><Ic p={I.plus} s={14}/>{ar?'إضافة حساب':'Add Account'}</button>
+        </div>
+      </div>
+      {msg&&<div className={`alert alert-${msg.t==='s'?'success':'error'}`}>{msg.m}</div>}
+      <div className="card" style={{overflow:'hidden'}}>
+        {loading?<p style={{padding:20,color:'#64748b',fontSize:13}}>{ar?'جارٍ التحميل':'Loading...'}</p>:(
+          <table>
+            <thead><tr><th>{ar?'الكود':'Code'}</th><th>{ar?'اسم الحساب':'Account Name'}</th><th>{ar?'النوع':'Type'}</th><th style={{textAlign:'right'}}>{ar?'الرصيد':'Balance'}</th><th></th></tr></thead>
+            <tbody>
+              {rows.map(r=>(
+                <tr key={r.id}>
+                  <td style={{fontFamily:'monospace',fontWeight:600,color:'#2563eb'}}>{r.code}</td>
+                  <td><div style={{fontWeight:500}}>{ar&&r.name_ar?r.name_ar:r.name}</div></td>
+                  <td><span className={`badge ${typeColor[r.account_type]||'b-gray'}`}>{ar?typeAr[r.account_type]:r.account_type}</span></td>
+                  <td style={{textAlign:'right',fontWeight:600,color:r.balance>=0?'#059669':'#dc2626'}}>{SAR(r.balance)}</td>
+                  <td><button className="btn btn-danger btn-sm" onClick={()=>del(r.id)}><Ic p={I.trash} s={12}/></button></td>
+                </tr>
+              ))}
+              {rows.length===0&&<tr><td colSpan={5} style={{textAlign:'center',color:'#94a3b8',padding:36}}>{ar?'لا توجد حسابات — انقر على "إنشاء الحسابات الافتراضية"':'No accounts — click Seed Default Accounts'}</td></tr>}
+            </tbody>
+          </table>
+        )}
+      </div>
+      {showModal&&(
+        <Modal title={ar?'حساب جديد':'New Account'} onClose={()=>setShowModal(false)}>
+          <div className="form-grid">
+            <Field label={ar?'كود الحساب':'Code'}><input className="input" value={form.code} onChange={e=>setForm(p=>({...p,code:e.target.value}))}/></Field>
+            <Field label={ar?'نوع الحساب':'Type'}>
+              <select className="input" value={form.account_type} onChange={e=>setForm(p=>({...p,account_type:e.target.value}))}>
+                <option value="asset">{ar?'أصول':'Asset'}</option>
+                <option value="liability">{ar?'خصوم':'Liability'}</option>
+                <option value="equity">{ar?'حقوق ملكية':'Equity'}</option>
+                <option value="income">{ar?'إيرادات':'Income'}</option>
+                <option value="expense">{ar?'مصروفات':'Expense'}</option>
+              </select>
+            </Field>
+            <Field label={ar?'الاسم بالإنجليزية':'Name (EN)'} full><input className="input" value={form.name} onChange={e=>setForm(p=>({...p,name:e.target.value}))}/></Field>
+            <Field label={ar?'الاسم بالعربية':'Name (AR)'} full><input className="input" value={form.name_ar} onChange={e=>setForm(p=>({...p,name_ar:e.target.value}))}/></Field>
+            <Field label={ar?'الرصيد الافتتاحي':'Opening Balance'}><input className="input" type="number" value={form.balance} onChange={e=>setForm(p=>({...p,balance:+e.target.value}))}/></Field>
+          </div>
+          <div style={{display:'flex',gap:8,marginTop:18}}>
+            <button className="btn btn-primary" onClick={save}>{ar?'حفظ':'Save'}</button>
+            <button className="btn btn-secondary" onClick={()=>setShowModal(false)}>{ar?'إلغاء':'Cancel'}</button>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+/* ── Journal Entries ── */
+function JournalEntries(){
+  const {ar}=useLang();
+  const [rows,setRows]=useState([]);
+  const [loading,setLoading]=useState(true);
+  const [accounts,setAccounts]=useState([]);
+  const [showModal,setShowModal]=useState(false);
+  const [msg,setMsg]=useState(null);
+  const blank={journal_type:'general',date:today(),description:'',reference:'',lines:[{account_id:'',description:'',debit:0,credit:0},{account_id:'',description:'',debit:0,credit:0}]};
+  const [form,setForm]=useState(blank);
+  const load=()=>{
+    setLoading(true);
+    Promise.all([API.get('/accounting/journals'),API.get('/accounting/accounts')])
+      .then(([j,a])=>{setRows(j.data);setAccounts(a.data);}).catch(()=>{}).finally(()=>setLoading(false));
+  };
+  useEffect(()=>{load();},[]);
+  const setLine=(i,k,v)=>setForm(p=>{const lines=[...p.lines];lines[i]={...lines[i],[k]:k==='description'?v:+v};return{...p,lines};});
+  const totalDebit=form.lines.reduce((a,l)=>a+l.debit,0);
+  const totalCredit=form.lines.reduce((a,l)=>a+l.credit,0);
+  const balanced=Math.abs(totalDebit-totalCredit)<0.01;
+  const save=async()=>{
+    try{await API.post('/accounting/journals',form);setMsg({t:'s',m:ar?'تم الحفظ':'Saved!'});setShowModal(false);setForm(blank);load();}
+    catch(e){setMsg({t:'e',m:e.response?.data?.detail||'Failed'});}
+    finally{setTimeout(()=>setMsg(null),5000);}
+  };
+  const post=async id=>{try{await API.put(`/accounting/journals/${id}/post`);load();}catch{alert('Failed');}};
+  const del=async id=>{if(!confirm(ar?'حذف؟':'Delete?'))return;try{await API.delete(`/accounting/journals/${id}`);load();}catch(e){alert(e.response?.data?.detail||'Failed');}};
+  const typeL={general:ar?'عام':'General',sale:ar?'مبيعات':'Sale',purchase:ar?'مشتريات':'Purchase',bank:ar?'بنك':'Bank',cash:ar?'نقدية':'Cash'};
+  return(
+    <div style={{padding:28}}>
+      <div className="page-header">
+        <div><h1 className="page-title">{ar?'قيود اليومية':'Journal Entries'}</h1><p className="page-sub">{rows.length} {ar?'قيد':'entries'}</p></div>
+        <button className="btn btn-primary" onClick={()=>{setForm(blank);setShowModal(true);}}><Ic p={I.plus} s={14}/>{ar?'قيد جديد':'New Entry'}</button>
+      </div>
+      {msg&&<div className={`alert alert-${msg.t==='s'?'success':'error'}`}>{msg.m}</div>}
+      <div className="card" style={{overflow:'hidden'}}>
+        {loading?<p style={{padding:20,color:'#64748b',fontSize:13}}>{ar?'جارٍ التحميل':'Loading...'}</p>:(
+          <table>
+            <thead><tr><th>{ar?'رقم القيد':'Entry #'}</th><th>{ar?'التاريخ':'Date'}</th><th>{ar?'النوع':'Type'}</th><th>{ar?'الوصف':'Description'}</th><th style={{textAlign:'right'}}>{ar?'مدين':'Debit'}</th><th style={{textAlign:'right'}}>{ar?'دائن':'Credit'}</th><th>{ar?'الحالة':'Status'}</th><th></th></tr></thead>
+            <tbody>
+              {rows.map(r=>(
+                <tr key={r.id}>
+                  <td style={{fontFamily:'monospace',fontWeight:600,color:'#2563eb'}}>{r.journal_number}</td>
+                  <td>{r.date}</td>
+                  <td><span className="badge b-gray">{typeL[r.journal_type]||r.journal_type}</span></td>
+                  <td>{r.description}</td>
+                  <td style={{textAlign:'right'}}>{SAR(r.total_debit)}</td>
+                  <td style={{textAlign:'right'}}>{SAR(r.total_credit)}</td>
+                  <td><span className={`badge ${r.is_posted?'b-green':'b-yellow'}`}>{r.is_posted?(ar?'مرحّل':'Posted'):(ar?'مسودة':'Draft')}</span></td>
+                  <td><div style={{display:'flex',gap:4}}>
+                    {!r.is_posted&&<button className="btn btn-sm" style={{background:'#dcfce7',color:'#166534',border:'none',cursor:'pointer'}} onClick={()=>post(r.id)}>{ar?'ترحيل':'Post'}</button>}
+                    {!r.is_posted&&<button className="btn btn-danger btn-sm" onClick={()=>del(r.id)}><Ic p={I.trash} s={12}/></button>}
+                  </div></td>
+                </tr>
+              ))}
+              {rows.length===0&&<tr><td colSpan={8} style={{textAlign:'center',color:'#94a3b8',padding:36}}>{ar?'لا توجد قيود':'No journal entries'}</td></tr>}
+            </tbody>
+          </table>
+        )}
+      </div>
+      {showModal&&(
+        <Modal title={ar?'قيد يومية جديد':'New Journal Entry'} onClose={()=>setShowModal(false)}>
+          <div className="form-grid" style={{marginBottom:14}}>
+            <Field label={ar?'النوع':'Type'}><select className="input" value={form.journal_type} onChange={e=>setForm(p=>({...p,journal_type:e.target.value}))}>{Object.entries(typeL).map(([v,l])=><option key={v} value={v}>{l}</option>)}</select></Field>
+            <Field label={ar?'التاريخ':'Date'}><input className="input" type="date" value={form.date} onChange={e=>setForm(p=>({...p,date:e.target.value}))}/></Field>
+            <Field label={ar?'الوصف':'Description'} full><input className="input" value={form.description} onChange={e=>setForm(p=>({...p,description:e.target.value}))}/></Field>
+            <Field label={ar?'المرجع':'Reference'}><input className="input" value={form.reference} onChange={e=>setForm(p=>({...p,reference:e.target.value}))}/></Field>
+          </div>
+          <div style={{overflowX:'auto'}}>
+            <table style={{width:'100%',fontSize:12,borderCollapse:'collapse'}}>
+              <thead><tr style={{background:'#f8fafc'}}><th style={{padding:'6px 8px',textAlign:'left',fontWeight:600,color:'#64748b'}}>{ar?'الحساب':'Account'}</th><th style={{padding:'6px 8px',textAlign:'left',fontWeight:600,color:'#64748b'}}>{ar?'الوصف':'Desc'}</th><th style={{padding:'6px 8px',textAlign:'right',fontWeight:600,color:'#64748b'}}>{ar?'مدين':'Debit'}</th><th style={{padding:'6px 8px',textAlign:'right',fontWeight:600,color:'#64748b'}}>{ar?'دائن':'Credit'}</th><th></th></tr></thead>
+              <tbody>
+                {form.lines.map((line,i)=>(
+                  <tr key={i}>
+                    <td style={{padding:'4px 6px'}}><select className="input" style={{fontSize:12}} value={line.account_id} onChange={e=>setLine(i,'account_id',e.target.value)}><option value="">{ar?'اختر':'Select...'}</option>{accounts.map(a=><option key={a.id} value={a.id}>{a.code} — {ar&&a.name_ar?a.name_ar:a.name}</option>)}</select></td>
+                    <td style={{padding:'4px 6px'}}><input className="input" style={{fontSize:12}} value={line.description} onChange={e=>setLine(i,'description',e.target.value)}/></td>
+                    <td style={{padding:'4px 6px'}}><input className="input" style={{fontSize:12,textAlign:'right'}} type="number" value={line.debit} onChange={e=>setLine(i,'debit',e.target.value)}/></td>
+                    <td style={{padding:'4px 6px'}}><input className="input" style={{fontSize:12,textAlign:'right'}} type="number" value={line.credit} onChange={e=>setLine(i,'credit',e.target.value)}/></td>
+                    <td style={{padding:'4px 6px'}}>{form.lines.length>2&&<button onClick={()=>setForm(p=>({...p,lines:p.lines.filter((_,j)=>j!==i)}))} style={{background:'none',border:'none',cursor:'pointer',color:'#dc2626',fontSize:16}}>×</button>}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot><tr style={{borderTop:'2px solid #e2e8f0',background:'#f8fafc'}}><td colSpan={2} style={{padding:'8px',fontWeight:700,fontSize:12}}>{ar?'الإجمالي':'Total'}</td><td style={{padding:'8px',textAlign:'right',fontWeight:700,color:balanced?'#059669':'#dc2626'}}>{SAR(totalDebit)}</td><td style={{padding:'8px',textAlign:'right',fontWeight:700,color:balanced?'#059669':'#dc2626'}}>{SAR(totalCredit)}</td><td></td></tr></tfoot>
+            </table>
+          </div>
+          <button onClick={()=>setForm(p=>({...p,lines:[...p.lines,{account_id:'',description:'',debit:0,credit:0}]}))} style={{fontSize:12,color:'#2563eb',background:'none',border:'none',cursor:'pointer',padding:'6px 0',marginTop:6}}>{ar?'+ إضافة سطر':'+ Add line'}</button>
+          {!balanced&&<div style={{background:'#fee2e2',color:'#991b1b',padding:'8px 12px',borderRadius:8,fontSize:12,marginTop:8}}>{ar?'القيد غير متوازن':'Not balanced — debit must equal credit'}</div>}
+          <div style={{display:'flex',gap:8,marginTop:14}}>
+            <button className="btn btn-primary" onClick={save} disabled={!balanced||!form.description}>{ar?'حفظ':'Save'}</button>
+            <button className="btn btn-secondary" onClick={()=>setShowModal(false)}>{ar?'إلغاء':'Cancel'}</button>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+/* AccTable replaced by Section component */
+function AccTable({title,rows,total,color}){
+  const {ar}=useLang();
+  if(!Array.isArray(rows)) return null;
+  return(
+    <div style={{marginBottom:20}}>
+      <p style={{fontSize:13,fontWeight:700,color:'#0f172a',marginBottom:8,paddingBottom:6,borderBottom:'2px solid #e2e8f0'}}>{title}</p>
+      {rows.map((r,i)=>(
+        <div key={i} style={{display:'flex',justifyContent:'space-between',padding:'5px 0',borderBottom:'1px solid #f8fafc',fontSize:13}}>
+          <span style={{color:'#374151'}}><span style={{fontFamily:'monospace',color:'#94a3b8',marginRight:8}}>{r.code}</span>{ar&&r.name_ar?r.name_ar:r.name}</span>
+          <span style={{fontWeight:600,color:color||'#0f172a'}}>{SAR(r.balance||0)}</span>
+        </div>
+      ))}
+      <div style={{display:'flex',justifyContent:'space-between',padding:'8px 0',borderTop:'2px solid #0f172a',marginTop:4,fontWeight:800,fontSize:14}}>
+        <span>{ar?'الإجمالي':'Total'}</span>
+        <span style={{color:color||'#0f172a'}}>{SAR(total||0)}</span>
+      </div>
+    </div>
+  );
+}
+
+/* ── Financial Statements ── */
+function FinancialStatements(){
+  const {ar}=useLang();
+  const [tab,setTab]=useState('balance_sheet');
+  const [rawData,setRawData]=useState(null);
+  const [loading,setLoading]=useState(false);
+  const [error,setError]=useState('');
+
+  const endpointMap={
+    balance_sheet:'/accounting/reports/balance-sheet',
+    p_l:'/accounting/reports/profit-loss',
+    trial_balance:'/accounting/reports/trial-balance',
+    general_ledger:'/accounting/reports/general-ledger'
+  };
+
+  const tabs=[
+    {id:'balance_sheet',l:ar?'الميزانية العمومية':'Balance Sheet'},
+    {id:'p_l',l:ar?'الأرباح والخسائر':'Profit & Loss'},
+    {id:'trial_balance',l:ar?'ميزان المراجعة':'Trial Balance'},
+    {id:'general_ledger',l:ar?'دفتر الأستاذ العام':'General Ledger'}
+  ];
+
+  useEffect(()=>{
+    setLoading(true);
+    setRawData(null);
+    setError('');
+    API.get(endpointMap[tab])
+      .then(r=>{setRawData(r.data);})
+      .catch(e=>{setError(e.response?.data?.detail||'Could not load data. Please rebuild the backend.');})
+      .finally(()=>setLoading(false));
+  },[tab]);
+
+  const Row=({code,name,name_ar,balance,color})=>(
+    <div style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f8fafc',fontSize:13}}>
+      <span><span style={{fontFamily:'monospace',color:'#94a3b8',marginRight:8,fontSize:11}}>{code}</span><span style={{color:'#374151'}}>{ar&&name_ar?name_ar:name}</span></span>
+      <span style={{fontWeight:600,color:color||'#0f172a'}}>{SAR(balance||0)}</span>
+    </div>
+  );
+
+  const Section=({title,items,total,color})=>{
+    if(!items||!Array.isArray(items)) return null;
+    return(
+      <div style={{marginBottom:24}}>
+        <p style={{fontSize:13,fontWeight:700,color:'#0f172a',marginBottom:8,paddingBottom:6,borderBottom:'2px solid #e2e8f0'}}>{title}</p>
+        {items.map((r,i)=><Row key={i} {...r} color={color}/>)}
+        <div style={{display:'flex',justifyContent:'space-between',padding:'8px 0',borderTop:'2px solid #0f172a',marginTop:4,fontWeight:800,fontSize:14}}>
+          <span>{ar?'الإجمالي':'Total'}</span>
+          <span style={{color:color||'#0f172a'}}>{SAR(total||0)}</span>
+        </div>
+      </div>
+    );
+  };
+
+  const renderContent=()=>{
+    if(!rawData||typeof rawData!=='object') return null;
+    if(tab==='general_ledger'){
+      const accs=(rawData.accounts||[]).filter(a=>a.entries&&a.entries.length>0);
+      if(accs.length===0) return <p style={{color:'#94a3b8',fontSize:13,padding:20}}>No journal entries yet. Add journal entries first.</p>;
+      return(
+        <div>
+          {accs.map(acc=>(
+            <div key={acc.account_id} style={{marginBottom:20,border:'1px solid #e2e8f0',borderRadius:10,overflow:'hidden'}}>
+              <div style={{padding:'12px 18px',background:'#f8fafc',borderBottom:'1px solid #e2e8f0',display:'flex',justifyContent:'space-between'}}>
+                <div><span style={{fontFamily:'monospace',fontWeight:700,color:'#2563eb',marginRight:8}}>{acc.code}</span><span style={{fontWeight:700}}>{ar&&acc.name_ar?acc.name_ar:acc.name}</span></div>
+                <span style={{fontWeight:800,color:acc.closing_balance>=0?'#059669':'#dc2626'}}>{SAR(acc.closing_balance||0)}</span>
+              </div>
+              <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
+                <thead><tr style={{background:'#fff'}}>
+                  <th style={{padding:'7px 12px',textAlign:'left',color:'#64748b',fontWeight:600,borderBottom:'1px solid #e2e8f0'}}>{ar?'القيد':'Entry'}</th>
+                  <th style={{padding:'7px 12px',textAlign:'left',color:'#64748b',fontWeight:600,borderBottom:'1px solid #e2e8f0'}}>{ar?'التاريخ':'Date'}</th>
+                  <th style={{padding:'7px 12px',textAlign:'left',color:'#64748b',fontWeight:600,borderBottom:'1px solid #e2e8f0'}}>{ar?'الوصف':'Description'}</th>
+                  <th style={{padding:'7px 12px',textAlign:'right',color:'#64748b',fontWeight:600,borderBottom:'1px solid #e2e8f0'}}>{ar?'مدين':'Debit'}</th>
+                  <th style={{padding:'7px 12px',textAlign:'right',color:'#64748b',fontWeight:600,borderBottom:'1px solid #e2e8f0'}}>{ar?'دائن':'Credit'}</th>
+                  <th style={{padding:'7px 12px',textAlign:'right',color:'#64748b',fontWeight:600,borderBottom:'1px solid #e2e8f0'}}>{ar?'الرصيد':'Balance'}</th>
+                </tr></thead>
+                <tbody>
+                  <tr style={{background:'#f0fdf4'}}><td colSpan={5} style={{padding:'5px 12px',fontSize:11,color:'#166534',fontWeight:600}}>{ar?'الرصيد الافتتاحي':'Opening Balance'}</td><td style={{padding:'5px 12px',textAlign:'right',fontWeight:700,color:'#166534'}}>{SAR(acc.opening_balance||0)}</td></tr>
+                  {acc.entries.map((e,i)=>(
+                    <tr key={i} style={{borderBottom:'1px solid #f1f5f9'}}>
+                      <td style={{padding:'7px 12px',fontFamily:'monospace',color:'#2563eb',fontSize:11}}>{e.journal_number}</td>
+                      <td style={{padding:'7px 12px',color:'#64748b'}}>{e.date}</td>
+                      <td style={{padding:'7px 12px'}}>{e.description}</td>
+                      <td style={{padding:'7px 12px',textAlign:'right',color:'#059669'}}>{e.debit>0?SAR(e.debit):'—'}</td>
+                      <td style={{padding:'7px 12px',textAlign:'right',color:'#dc2626'}}>{e.credit>0?SAR(e.credit):'—'}</td>
+                      <td style={{padding:'7px 12px',textAlign:'right',fontWeight:600,color:e.balance>=0?'#0f172a':'#dc2626'}}>{SAR(e.balance)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot><tr style={{borderTop:'2px solid #0f172a',background:'#f8fafc',fontWeight:700}}>
+                  <td colSpan={3} style={{padding:'8px 12px'}}>{ar?'الإجمالي':'Total'}</td>
+                  <td style={{padding:'8px 12px',textAlign:'right',color:'#059669'}}>{SAR(acc.total_debit||0)}</td>
+                  <td style={{padding:'8px 12px',textAlign:'right',color:'#dc2626'}}>{SAR(acc.total_credit||0)}</td>
+                  <td style={{padding:'8px 12px',textAlign:'right',color:acc.closing_balance>=0?'#059669':'#dc2626'}}>{SAR(acc.closing_balance||0)}</td>
+                </tr></tfoot>
+              </table>
+            </div>
+          ))}
+        </div>
+      );
+    }
+    if(tab==='balance_sheet') return(
+      <div>
+        <Section title={ar?'الأصول':'Assets'} items={rawData.assets} total={rawData.total_assets} color="#2563eb"/>
+        <Section title={ar?'الخصوم':'Liabilities'} items={rawData.liabilities} total={rawData.total_liabilities} color="#dc2626"/>
+        <Section title={ar?'حقوق الملكية':'Equity'} items={rawData.equity} total={rawData.total_equity} color="#7c3aed"/>
+        <div style={{background:'#f8fafc',borderRadius:8,padding:'12px 16px',display:'flex',justifyContent:'space-between',fontWeight:800,fontSize:15}}>
+          <span>{ar?'الخصوم + حقوق الملكية':'Liabilities + Equity'}</span>
+          <span>{SAR((rawData.total_liabilities||0)+(rawData.total_equity||0))}</span>
+        </div>
+      </div>
+    );
+    if(tab==='p_l') return(
+      <div>
+        <Section title={ar?'الإيرادات':'Revenue'} items={rawData.income} total={rawData.total_income} color="#059669"/>
+        <Section title={ar?'المصروفات':'Expenses'} items={rawData.expenses} total={rawData.total_expenses} color="#dc2626"/>
+        <div style={{background:(rawData.net_profit||0)>=0?'#dcfce7':'#fee2e2',borderRadius:8,padding:'12px 16px',display:'flex',justifyContent:'space-between',fontWeight:800,fontSize:15}}>
+          <span>{ar?'صافي الربح / الخسارة':'Net Profit / Loss'}</span>
+          <span style={{color:(rawData.net_profit||0)>=0?'#166534':'#991b1b'}}>{SAR(rawData.net_profit||0)}</span>
+        </div>
+      </div>
+    );
+    if(tab==='trial_balance') return(
+      <table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}>
+        <thead><tr style={{background:'#f8fafc',borderBottom:'2px solid #e2e8f0'}}>
+          <th style={{padding:'10px 12px',textAlign:'left',fontWeight:600,color:'#64748b'}}>{ar?'الكود':'Code'}</th>
+          <th style={{padding:'10px 12px',textAlign:'left',fontWeight:600,color:'#64748b'}}>{ar?'الحساب':'Account'}</th>
+          <th style={{padding:'10px 12px',textAlign:'right',fontWeight:600,color:'#64748b'}}>{ar?'مدين':'Debit'}</th>
+          <th style={{padding:'10px 12px',textAlign:'right',fontWeight:600,color:'#64748b'}}>{ar?'دائن':'Credit'}</th>
+        </tr></thead>
+        <tbody>
+          {Array.isArray(rawData.rows)&&rawData.rows.map((r,i)=>(
+            <tr key={i} style={{borderBottom:'1px solid #f1f5f9'}}>
+              <td style={{padding:'8px 12px',fontFamily:'monospace',color:'#2563eb'}}>{r.code}</td>
+              <td style={{padding:'8px 12px'}}>{ar&&r.name_ar?r.name_ar:r.name}</td>
+              <td style={{padding:'8px 12px',textAlign:'right'}}>{(r.debit||0)>0?SAR(r.debit):'—'}</td>
+              <td style={{padding:'8px 12px',textAlign:'right'}}>{(r.credit||0)>0?SAR(r.credit):'—'}</td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr style={{borderTop:'2px solid #0f172a',background:'#f8fafc',fontWeight:800}}>
+            <td colSpan={2} style={{padding:'10px 12px'}}>{ar?'الإجمالي':'Total'}</td>
+            <td style={{padding:'10px 12px',textAlign:'right'}}>{SAR(rawData.total_debit||0)}</td>
+            <td style={{padding:'10px 12px',textAlign:'right'}}>{SAR(rawData.total_credit||0)}</td>
+          </tr>
+        </tfoot>
+      </table>
+    );
+    return null;
+  };
+
+  return(
+    <div style={{padding:28}}>
+      <div style={{marginBottom:20}}>
+        <h1 className="page-title">{ar?'التقارير المالية':'Financial Statements'}</h1>
+        <p className="page-sub">{ar?'ميزانية عمومية · أرباح وخسائر · ميزان المراجعة':'Balance Sheet · P&L · Trial Balance'}</p>
+      </div>
+      <div style={{display:'flex',gap:4,background:'#f1f5f9',padding:4,borderRadius:10,marginBottom:20,width:'fit-content'}}>
+        {tabs.map(t=>(
+          <button key={t.id} onClick={()=>setTab(t.id)} style={{padding:'7px 16px',borderRadius:8,border:'none',cursor:'pointer',fontSize:13,fontWeight:600,background:tab===t.id?'#fff':'transparent',color:tab===t.id?'#0f172a':'#64748b',boxShadow:tab===t.id?'0 1px 3px rgba(0,0,0,.1)':'none'}}>
+            {t.l}
+          </button>
+        ))}
+      </div>
+      {loading&&<p style={{color:'#64748b',fontSize:13,padding:20}}>{ar?'جارٍ التحميل...':'Loading...'}</p>}
+      {!loading&&error&&(
+        <div className="card" style={{padding:24,textAlign:'center'}}>
+          <p style={{color:'#dc2626',fontWeight:600,fontSize:14}}>{ar?'تعذر تحميل البيانات':'Could not load data'}</p>
+          <p style={{color:'#64748b',fontSize:13,marginTop:8}}>{error}</p>
+          <p style={{color:'#94a3b8',fontSize:12,marginTop:8}}>{ar?'تأكد من تشغيل الخادم الخلفي وإعادة بنائه':'Make sure backend is rebuilt: docker compose up -d --build'}</p>
+        </div>
+      )}
+      {!loading&&!error&&rawData&&(
+        <div className="card" style={{padding:24,maxWidth:740}}>
+          {renderContent()}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+/* __ Ledger __ */
+function LedgerPage(){
+  const {ar}=useLang();
+  const [accounts,setAccounts]=useState([]);
+  const [selAcc,setSelAcc]=useState('');
+  const [dateFrom,setDateFrom]=useState(new Date(new Date().getFullYear(),0,1).toISOString().split('T')[0]);
+  const [dateTo,setDateTo]=useState(today());
+  const [ob,setOb]=useState(0);
+  const [editOb,setEditOb]=useState(false);
+  const [obVal,setObVal]=useState(0);
+  const [entries,setEntries]=useState([]);
+  const [loading,setLoading]=useState(false);
+  const [msg,setMsg]=useState(null);
+
+  useEffect(()=>{
+    API.get('/accounting/accounts').then(r=>{
+      setAccounts(r.data||[]);
+      if(r.data&&r.data.length>0){setSelAcc(String(r.data[0].id));}
+    }).catch(()=>{});
+  },[]);
+
+  useEffect(()=>{
+    const acc=accounts.find(a=>String(a.id)===selAcc);
+    if(acc){setOb(acc.balance||0);setObVal(acc.balance||0);}
+  },[selAcc,accounts]);
+
+  const load=()=>{
+    if(!selAcc)return;
+    setLoading(true);setEntries([]);
+    API.get('/accounting/reports/general-ledger?account_id='+selAcc+'&date_from='+dateFrom+'&date_to='+dateTo)
+      .then(r=>{
+        const acc=(r.data?.accounts||[]).find(a=>String(a.account_id)===selAcc)||{};
+        setEntries(acc.entries||[]);
+      })
+      .catch(e=>setMsg({t:'e',m:e.response?.data?.detail||'Failed'}))
+      .finally(()=>setLoading(false));
+  };
+
+  useEffect(()=>{if(selAcc)load();},[selAcc]);
+
+  const saveOb=async()=>{
+    try{
+      await API.put('/accounting/accounts/'+selAcc+'/balance',{balance:obVal});
+      setOb(obVal);setEditOb(false);
+      setAccounts(p=>p.map(a=>String(a.id)===selAcc?{...a,balance:obVal}:a));
+      setMsg({t:'s',m:ar?'تم الحفظ':'Saved!'});
+      load();
+    }catch(e){setMsg({t:'e',m:'Failed'});}
+    finally{setTimeout(()=>setMsg(null),3000);}
+  };
+
+  const acc=accounts.find(a=>String(a.id)===selAcc);
+  let bal=ob;
+  const rows=entries.map(e=>{bal+=(e.debit||0)-(e.credit||0);return{...e,bal};});
+  const td=entries.reduce((a,e)=>a+(e.debit||0),0);
+  const tc=entries.reduce((a,e)=>a+(e.credit||0),0);
+  const cb=ob+td-tc;
+
+  return(
+    <div style={{padding:28}}>
+      <div style={{marginBottom:20}}>
+        <h1 className="page-title">{ar?'دفتر الأستاذ':'General Ledger'}</h1>
+        <p className="page-sub">{ar?'كشف حساب تفصيلي مع الأرصدة المتحركة':'Detailed account statement with running balances'}</p>
+      </div>
+      <button className="btn btn-secondary" onClick={()=>window.print()} style={{position:'absolute',top:28,right:28,display:'flex',alignItems:'center',gap:6}}>
+        🖨️ {ar?'طباعة':'Print'}
+      </button>
+      {msg&&<div className={"alert alert-"+(msg.t==='s'?'success':'error')} style={{marginBottom:12}}>{msg.m}</div>}
+      <div className="card" style={{padding:'18px 22px',marginBottom:16}}>
+        <div style={{display:'grid',gridTemplateColumns:'2fr 1fr 1fr auto',gap:12,alignItems:'end',marginBottom:14}}>
+          <div>
+            <label style={{fontSize:11,fontWeight:600,color:'#374151',display:'block',marginBottom:4}}>{ar?'الحساب':'Account'}</label>
+            <select className="input" value={selAcc} onChange={e=>setSelAcc(e.target.value)}>
+              <option value="">{ar?'اختر حساباً':'Select...'}</option>
+              {accounts.map(a=><option key={a.id} value={a.id}>{a.code} - {ar&&a.name_ar?a.name_ar:a.name}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={{fontSize:11,fontWeight:600,color:'#374151',display:'block',marginBottom:4}}>{ar?'من':'From'}</label>
+            <input className="input" type="date" value={dateFrom} onChange={e=>setDateFrom(e.target.value)}/>
+          </div>
+          <div>
+            <label style={{fontSize:11,fontWeight:600,color:'#374151',display:'block',marginBottom:4}}>{ar?'إلى':'To'}</label>
+            <input className="input" type="date" value={dateTo} onChange={e=>setDateTo(e.target.value)}/>
+          </div>
+          <button className="btn btn-primary" onClick={load} disabled={loading}>{loading?'...':ar?'عرض':'Show'}</button>
+        </div>
+        <div style={{borderTop:'1px solid #e2e8f0',paddingTop:12,display:'flex',alignItems:'center',gap:16,flexWrap:'wrap'}}>
+          <span style={{fontSize:12,fontWeight:600,color:'#374151'}}>{ar?'الرصيد الافتتاحي:':'Opening Balance:'}</span>
+          {editOb?(
+            <div style={{display:'flex',gap:8,alignItems:'center'}}>
+              <input className="input" type="number" style={{width:130,fontSize:13}} value={obVal} onChange={e=>setObVal(+e.target.value)}/>
+              <button className="btn btn-primary btn-sm" onClick={saveOb}>{ar?'حفظ':'Save'}</button>
+              <button className="btn btn-secondary btn-sm" onClick={()=>{setEditOb(false);setObVal(ob);}}>{ar?'إلغاء':'Cancel'}</button>
+            </div>
+          ):(
+            <div style={{display:'flex',alignItems:'center',gap:8}}>
+              <span style={{fontWeight:700,fontSize:14,color:ob>=0?'#059669':'#dc2626'}}>{SAR(ob)}</span>
+              <button onClick={()=>setEditOb(true)} style={{fontSize:11,color:'#2563eb',background:'none',border:'1px solid #2563eb',borderRadius:6,padding:'3px 10px',cursor:'pointer'}}>{ar?'تعديل':'Edit'}</button>
+            </div>
+          )}
+          {acc&&<span style={{fontSize:11,color:'#64748b',marginLeft:8}}>{acc.code} | {acc.account_type}</span>}
+        </div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
+        {[{l:ar?'الرصيد الافتتاحي':'Opening',v:ob,c:'#2563eb'},{l:ar?'إجمالي مدين':'Total Debit',v:td,c:'#059669'},{l:ar?'إجمالي دائن':'Total Credit',v:tc,c:'#dc2626'},{l:ar?'الرصيد الختامي':'Closing',v:cb,c:cb>=0?'#059669':'#dc2626'}].map(s=>(
+          <div key={s.l} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:10,padding:'14px 18px',borderLeft:'4px solid '+s.c}}>
+            <p style={{fontSize:11,color:'#64748b',fontWeight:600,margin:0}}>{s.l}</p>
+            <p style={{fontSize:18,fontWeight:800,color:s.c,margin:'4px 0 0'}}>{SAR(s.v)}</p>
+          </div>
+        ))}
+      </div>
+      <div className="card" style={{overflow:'hidden'}}>
+        <div style={{padding:'10px 16px',background:'#f8fafc',borderBottom:'1px solid #e2e8f0',display:'flex',justifyContent:'space-between'}}>
+          <span style={{fontWeight:700,fontSize:13}}>{acc?acc.code+' - '+(ar&&acc.name_ar?acc.name_ar:acc.name):''}</span>
+          <span style={{fontSize:12,color:'#64748b'}}>{dateFrom} {ar?'إلى':'to'} {dateTo}</span>
+        </div>
+        <table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}>
+          <thead><tr style={{background:'#f8fafc'}}>
+            <th style={{padding:'9px 14px',textAlign:'left',fontWeight:600,color:'#64748b',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>{ar?'التاريخ':'Date'}</th>
+            <th style={{padding:'9px 14px',textAlign:'left',fontWeight:600,color:'#64748b',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>{ar?'رقم القيد':'Entry'}</th>
+            <th style={{padding:'9px 14px',textAlign:'left',fontWeight:600,color:'#64748b',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>{ar?'الوصف':'Description'}</th>
+            <th style={{padding:'9px 14px',textAlign:'right',fontWeight:600,color:'#64748b',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>{ar?'مدين':'Debit'}</th>
+            <th style={{padding:'9px 14px',textAlign:'right',fontWeight:600,color:'#64748b',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>{ar?'دائن':'Credit'}</th>
+            <th style={{padding:'9px 14px',textAlign:'right',fontWeight:600,color:'#64748b',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>{ar?'الرصيد':'Balance'}</th>
+            <th style={{padding:'9px 14px',textAlign:'center',fontWeight:600,color:'#64748b',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>{ar?'الحالة':'Status'}</th>
+          </tr></thead>
+          <tbody>
+            <tr style={{background:'#f0fdf4',borderBottom:'1px solid #dcfce7'}}>
+              <td style={{padding:'7px 14px',color:'#166534',fontWeight:600,fontSize:12}}>{dateFrom}</td>
+              <td colSpan={2} style={{padding:'7px 14px',color:'#166534',fontWeight:600,fontSize:12}}>— {ar?'رصيد أول المدة':'Opening Balance'}</td>
+              <td style={{padding:'7px 14px',textAlign:'right'}}>—</td>
+              <td style={{padding:'7px 14px',textAlign:'right'}}>—</td>
+              <td style={{padding:'7px 14px',textAlign:'right',fontWeight:700,color:'#166534'}}>{SAR(ob)}</td>
+              <td></td>
+            </tr>
+            {loading?<tr><td colSpan={7} style={{padding:24,textAlign:'center',color:'#64748b'}}>{ar?'جارٍ التحميل...':'Loading...'}</td></tr>
+            :rows.length===0?<tr><td colSpan={7} style={{padding:24,textAlign:'center',color:'#94a3b8'}}>{ar?'لا توجد حركات في هذه الفترة':'No transactions in this period'}</td></tr>
+            :rows.map((e,i)=>(
+              <tr key={i} style={{borderBottom:'1px solid #f1f5f9',background:i%2===0?'#fff':'#fafafa'}}>
+                <td style={{padding:'8px 14px',color:'#374151'}}>{e.date}</td>
+                <td style={{padding:'8px 14px',fontFamily:'monospace',color:'#2563eb',fontSize:11}}>{e.journal_number}</td>
+                <td style={{padding:'8px 14px',color:'#374151'}}>{e.description}</td>
+                <td style={{padding:'8px 14px',textAlign:'right',color:'#059669',fontWeight:(e.debit||0)>0?600:400}}>{(e.debit||0)>0?SAR(e.debit):'—'}</td>
+                <td style={{padding:'8px 14px',textAlign:'right',color:'#dc2626',fontWeight:(e.credit||0)>0?600:400}}>{(e.credit||0)>0?SAR(e.credit):'—'}</td>
+                <td style={{padding:'8px 14px',textAlign:'right',fontWeight:600,color:(e.bal||0)>=0?'#0f172a':'#dc2626'}}>{SAR(e.bal||0)}</td>
+                <td style={{padding:'8px 14px',textAlign:'center'}}><span className={"badge "+(e.is_posted?'b-green':'b-yellow')} style={{fontSize:10}}>{e.is_posted?(ar?'مرحّل':'Posted'):(ar?'مسودة':'Draft')}</span></td>
+              </tr>
+            ))}
+            <tr style={{background:'#f8fafc',borderTop:'2px solid #0f172a'}}>
+              <td style={{padding:'10px 14px',fontWeight:800}}>{dateTo}</td>
+              <td colSpan={2} style={{padding:'10px 14px',fontWeight:800}}>{ar?'رصيد آخر المدة':'Closing Balance'}</td>
+              <td style={{padding:'10px 14px',textAlign:'right',fontWeight:700,color:'#059669'}}>{SAR(td)}</td>
+              <td style={{padding:'10px 14px',textAlign:'right',fontWeight:700,color:'#dc2626'}}>{SAR(tc)}</td>
+              <td style={{padding:'10px 14px',textAlign:'right',fontWeight:800,fontSize:14,color:cb>=0?'#059669':'#dc2626'}}>{SAR(cb)}</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+/* ── Nav ── */
+
+function StockCard(){
+  const {ar}=useLang();
+  const [products,setProducts]=useState([]);
+  const [selProduct,setSelProduct]=useState('');
+  const [dateFrom,setDateFrom]=useState(new Date(new Date().getFullYear(),0,1).toISOString().split('T')[0]);
+  const [dateTo,setDateTo]=useState(today());
+  const [data,setData]=useState(null);
+  const [loading,setLoading]=useState(false);
+  const [showAdj,setShowAdj]=useState(false);
+  const [adjQty,setAdjQty]=useState(1);
+  const [adjType,setAdjType]=useState('in');
+  const [adjReason,setAdjReason]=useState('');
+  const [saving,setSaving]=useState(false);
+  const [msg,setMsg]=useState(null);
+
+  useEffect(()=>{
+    API.get('/inventory/products').then(r=>{
+      const p=r.data||[];
+      setProducts(p);
+      if(p.length>0) setSelProduct(String(p[0].id));
+    }).catch(()=>{});
+  },[]);
+
+  const load=()=>{
+    if(!selProduct)return;
+    setLoading(true);setData(null);
+    API.get('/inventory/stock-card/'+selProduct+'?date_from='+dateFrom+'&date_to='+dateTo)
+      .then(r=>setData(r.data))
+      .catch(e=>setMsg({t:'e',m:e.response&&e.response.data&&e.response.data.detail||'Failed to load'}))
+      .finally(()=>setLoading(false));
+  };
+  useEffect(()=>{if(selProduct)load();},[selProduct]);
+
+  const saveAdj=async()=>{
+    if(!adjQty||adjQty<1){setMsg({t:'e',m:ar?'الكمية يجب أن تكون أكبر من صفر':'Quantity must be > 0'});return;}
+    setSaving(true);
+    try{
+      const res=await API.post('/inventory/stock-adjustment',{
+        product_id:+selProduct,
+        adjustment_qty:+adjQty,
+        reason:adjReason||'Manual adjustment',
+        type:adjType
+      });
+      const d=res.data;
+      setMsg({t:'s',m:(ar?'تم تعديل المخزون: ':'Stock adjusted: ')+d.old_stock+' -> '+d.new_stock+' '+((data&&data.product&&data.product.unit)||'')});
+      setShowAdj(false);setAdjQty(1);setAdjReason('');
+      setProducts(prev=>prev.map(p=>String(p.id)===selProduct?{...p,stock_qty:d.new_stock}:p));
+      load();
+    }catch(e){setMsg({t:'e',m:(e.response&&e.response.data&&e.response.data.detail)||'Adjustment failed'});}
+    finally{setSaving(false);setTimeout(()=>setMsg(null),5000);}
+  };
+
+  const prod=data&&data.product;
+  const movements=(data&&data.movements)||[];
+  const openingStock=(data&&data.opening_stock)||0;
+  const closingStock=(data&&data.closing_stock)||0;
+  const totalIn=(data&&data.total_in)||0;
+  const totalOut=(data&&data.total_out)||0;
+  const selProd=products.find(p=>String(p.id)===selProduct);
+
+  return(
+    <div style={{padding:28}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:20}}>
+        <div>
+          <h1 className="page-title">{ar?'بطاقة المخزون':'Stock Card'}</h1>
+          <p className="page-sub">{ar?'حركة المخزون التفصيلية لكل منتج':'Detailed stock movement per product'}</p>
+        </div>
+        <div style={{display:'flex',gap:8}}>
+          <button className="btn btn-secondary" onClick={()=>window.print()}>Print</button>
+          <button className="btn btn-primary" onClick={()=>{setShowAdj(true);setMsg(null);}}>{ar?'+ تعديل مخزون':'+ Adjust Stock'}</button>
+        </div>
+      </div>
+      {msg&&<div className={"alert alert-"+(msg.t==='s'?'success':'error')} style={{marginBottom:12}}>{msg.m}</div>}
+
+      <div className="card" style={{padding:'16px 20px',marginBottom:14}}>
+        <div style={{display:'grid',gridTemplateColumns:'2fr 1fr 1fr auto',gap:12,alignItems:'end'}}>
+          <div>
+            <label style={{fontSize:11,fontWeight:600,color:'#374151',display:'block',marginBottom:4}}>{ar?'المنتج':'Product'}</label>
+            <select className="input" value={selProduct} onChange={e=>setSelProduct(e.target.value)}>
+              <option value="">{ar?'اختر منتجاً':'Select product...'}</option>
+              {products.map(p=>(
+                <option key={p.id} value={p.id}>{p.sku} - {p.name} ({ar?'مخزون:':'Stock:'} {p.stock_qty} {p.unit})</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label style={{fontSize:11,fontWeight:600,color:'#374151',display:'block',marginBottom:4}}>{ar?'من تاريخ':'From'}</label>
+            <input className="input" type="date" value={dateFrom} onChange={e=>setDateFrom(e.target.value)}/>
+          </div>
+          <div>
+            <label style={{fontSize:11,fontWeight:600,color:'#374151',display:'block',marginBottom:4}}>{ar?'إلى تاريخ':'To'}</label>
+            <input className="input" type="date" value={dateTo} onChange={e=>setDateTo(e.target.value)}/>
+          </div>
+          <button className="btn btn-primary" onClick={load} disabled={loading||!selProduct}>
+            {loading?'...':(ar?'عرض':'Show')}
+          </button>
+        </div>
+        {selProd&&(
+          <div style={{marginTop:12,paddingTop:12,borderTop:'1px solid #e2e8f0',display:'flex',gap:20,fontSize:12,color:'#64748b',flexWrap:'wrap'}}>
+            <span>{ar?'الكود:':'SKU:'} <strong style={{color:'#0f172a'}}>{selProd.sku}</strong></span>
+            <span>{ar?'الفئة:':'Category:'} <strong style={{color:'#0f172a'}}>{selProd.category||'-'}</strong></span>
+            <span>{ar?'الوحدة:':'Unit:'} <strong style={{color:'#0f172a'}}>{selProd.unit}</strong></span>
+            <span>{ar?'سعر البيع:':'Price:'} <strong style={{color:'#059669'}}>{SAR(selProd.price)}</strong></span>
+            <span>{ar?'سعر التكلفة:':'Cost:'} <strong style={{color:'#dc2626'}}>{SAR(selProd.cost)}</strong></span>
+            <span>{ar?'حد إعادة الطلب:':'Reorder Level:'} <strong style={{color:'#d97706'}}>{selProd.reorder_level} {selProd.unit}</strong></span>
+          </div>
+        )}
+      </div>
+
+      {prod&&(
+        <div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:12,marginBottom:14}}>
+            {[
+              {l:ar?'الرصيد الافتتاحي':'Opening Stock',v:openingStock+' '+(prod.unit||''),c:'#2563eb'},
+              {l:ar?'إجمالي الوارد':'Total In',v:totalIn+' '+(prod.unit||''),c:'#059669'},
+              {l:ar?'إجمالي الصادر':'Total Out',v:totalOut+' '+(prod.unit||''),c:'#dc2626'},
+              {l:ar?'الرصيد الختامي':'Closing Stock',v:closingStock+' '+(prod.unit||''),c:closingStock<=prod.reorder_level?'#dc2626':'#7c3aed'},
+              {l:ar?'قيمة المخزون':'Stock Value',v:SAR(closingStock*(prod.cost||0)),c:'#0891b2'},
+            ].map(s=>(
+              <div key={s.l} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:10,padding:'12px 16px',borderLeft:'4px solid '+s.c}}>
+                <p style={{fontSize:10,color:'#64748b',fontWeight:600,margin:0,textTransform:'uppercase'}}>{s.l}</p>
+                <p style={{fontSize:16,fontWeight:800,color:s.c,margin:'4px 0 0'}}>{s.v}</p>
+              </div>
+            ))}
+          </div>
+
+          {closingStock<=prod.reorder_level&&(
+            <div style={{background:'#fef2f2',border:'1px solid #fecaca',borderRadius:8,padding:'10px 14px',marginBottom:12,display:'flex',alignItems:'center',gap:10}}>
+              <span style={{fontSize:18}}>!</span>
+              <div>
+                <p style={{margin:0,fontWeight:700,color:'#dc2626',fontSize:13}}>{ar?'تحذير: المخزون منخفض':'Warning: Low Stock'}</p>
+                <p style={{margin:'2px 0 0',color:'#991b1b',fontSize:12}}>
+                  {ar?('المخزون الحالي ('+closingStock+') أقل من حد إعادة الطلب ('+prod.reorder_level+')'):
+                  ('Current stock ('+closingStock+') is at or below reorder level ('+prod.reorder_level+')')}
+                </p>
+              </div>
+            </div>
+          )}
+
+          <div className="card" style={{overflow:'hidden'}}>
+            <div style={{padding:'10px 16px',background:'#f8fafc',borderBottom:'1px solid #e2e8f0',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+              <span style={{fontWeight:700,fontSize:13}}>{prod.sku} - {prod.name}</span>
+              <span style={{fontSize:12,color:'#64748b'}}>{(data&&data.date_from)||''} {'->'} {(data&&data.date_to)||''}</span>
+            </div>
+            <table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}>
+              <thead><tr style={{background:'#f8fafc'}}>
+                <th style={{padding:'9px 14px',textAlign:'left',fontWeight:600,color:'#64748b',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>{ar?'التاريخ':'Date'}</th>
+                <th style={{padding:'9px 14px',textAlign:'left',fontWeight:600,color:'#64748b',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>{ar?'رقم الأمر':'Order #'}</th>
+                <th style={{padding:'9px 14px',textAlign:'left',fontWeight:600,color:'#64748b',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>{ar?'العميل':'Customer'}</th>
+                <th style={{padding:'9px 14px',textAlign:'right',fontWeight:600,color:'#64748b',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>{ar?'وارد':'In'}</th>
+                <th style={{padding:'9px 14px',textAlign:'right',fontWeight:600,color:'#64748b',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>{ar?'صادر':'Out'}</th>
+                <th style={{padding:'9px 14px',textAlign:'right',fontWeight:600,color:'#64748b',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>{ar?'سعر الوحدة':'Unit Price'}</th>
+                <th style={{padding:'9px 14px',textAlign:'right',fontWeight:600,color:'#64748b',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>{ar?'الإجمالي':'Total'}</th>
+                <th style={{padding:'9px 14px',textAlign:'right',fontWeight:600,color:'#64748b',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>{ar?'الرصيد':'Balance'}</th>
+                <th style={{padding:'9px 14px',textAlign:'center',fontWeight:600,color:'#64748b',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>{ar?'الحالة':'Status'}</th>
+              </tr></thead>
+              <tbody>
+                <tr style={{background:'#f0fdf4',borderBottom:'1px solid #dcfce7'}}>
+                  <td style={{padding:'7px 14px',color:'#166534',fontWeight:600,fontSize:12}}>{(data&&data.date_from)||'-'}</td>
+                  <td colSpan={6} style={{padding:'7px 14px',color:'#166534',fontWeight:600,fontSize:12}}>{ar?'رصيد أول المدة':'Opening Balance'}</td>
+                  <td style={{padding:'7px 14px',textAlign:'right',fontWeight:700,color:'#166534'}}>{openingStock} {prod.unit}</td>
+                  <td></td>
+                </tr>
+                {loading?<tr><td colSpan={9} style={{padding:20,textAlign:'center',color:'#64748b'}}>{ar?'جارٍ التحميل...':'Loading...'}</td></tr>
+                :movements.length===0?<tr><td colSpan={9} style={{padding:28,textAlign:'center',color:'#94a3b8'}}>{ar?'لا توجد حركات في هذه الفترة':'No movements in this period'}</td></tr>
+                :movements.map((m,i)=>(
+                  <tr key={i} style={{borderBottom:'1px solid #f1f5f9',background:i%2===0?'#fff':'#fafafa'}}>
+                    <td style={{padding:'8px 14px',color:'#374151'}}>{m.date}</td>
+                    <td style={{padding:'8px 14px',fontFamily:'monospace',color:'#2563eb',fontSize:11}}>{m.reference}</td>
+                    <td style={{padding:'8px 14px',color:'#374151'}}>{m.customer}</td>
+                    <td style={{padding:'8px 14px',textAlign:'right',color:'#059669',fontWeight:m.qty_in>0?600:400}}>{m.qty_in>0?m.qty_in+' '+prod.unit:'-'}</td>
+                    <td style={{padding:'8px 14px',textAlign:'right',color:'#dc2626',fontWeight:m.qty_out>0?600:400}}>{m.qty_out>0?m.qty_out+' '+prod.unit:'-'}</td>
+                    <td style={{padding:'8px 14px',textAlign:'right'}}>{SAR(m.unit_price)}</td>
+                    <td style={{padding:'8px 14px',textAlign:'right',fontWeight:600}}>{SAR(m.total)}</td>
+                    <td style={{padding:'8px 14px',textAlign:'right',fontWeight:700,color:(m.running_balance||0)<=prod.reorder_level?'#dc2626':'#0f172a'}}>{m.running_balance} {prod.unit}</td>
+                    <td style={{padding:'8px 14px',textAlign:'center'}}>
+                      <span className={"badge b-"+({pending:'yellow',confirmed:'blue',shipped:'purple',delivered:'green',cancelled:'red'}[m.status]||'gray')} style={{fontSize:10}}>{m.status}</span>
+                    </td>
+                  </tr>
+                ))}
+                <tr style={{background:'#f8fafc',borderTop:'2px solid #0f172a'}}>
+                  <td colSpan={3} style={{padding:'10px 14px',fontWeight:800,fontSize:13}}>{ar?'رصيد آخر المدة':'Closing Balance'}</td>
+                  <td style={{padding:'10px 14px',textAlign:'right',fontWeight:700,color:'#059669'}}>{totalIn} {prod.unit}</td>
+                  <td style={{padding:'10px 14px',textAlign:'right',fontWeight:700,color:'#dc2626'}}>{totalOut} {prod.unit}</td>
+                  <td colSpan={2}></td>
+                  <td style={{padding:'10px 14px',textAlign:'right',fontWeight:800,fontSize:14,color:closingStock<=prod.reorder_level?'#dc2626':'#059669'}}>{closingStock} {prod.unit}</td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {!prod&&!loading&&selProduct&&(
+        <div className="card" style={{padding:36,textAlign:'center',color:'#94a3b8'}}>{ar?'اختر منتجاً وانقر عرض':'Select a product and click Show'}</div>
+      )}
+      {!selProduct&&products.length===0&&(
+        <div className="card" style={{padding:36,textAlign:'center',color:'#94a3b8'}}>{ar?'لا توجد منتجات. أضف منتجات أولاً.':'No products. Add products first.'}</div>
+      )}
+
+      {showAdj&&(
+        <Modal title={ar?'تعديل المخزون':'Stock Adjustment'} onClose={()=>setShowAdj(false)}>
+          {prod&&<div style={{background:'#f8fafc',borderRadius:8,padding:'10px 14px',marginBottom:14,fontSize:13}}>
+            <span style={{fontWeight:600}}>{prod.name}</span>
+            <span style={{color:'#64748b',marginLeft:12}}>{ar?'المخزون الحالي:':'Current Stock:'} <strong style={{color:'#2563eb'}}>{prod.current_stock} {prod.unit}</strong></span>
+          </div>}
+          <div className="form-grid">
+            <Field label={ar?'نوع التعديل':'Adjustment Type'}>
+              <select className="input" value={adjType} onChange={e=>setAdjType(e.target.value)}>
+                <option value="in">{ar?'إضافة للمخزون (وارد)':'Add to Stock (In)'}</option>
+                <option value="out">{ar?'خصم من المخزون (صادر)':'Remove from Stock (Out)'}</option>
+              </select>
+            </Field>
+            <Field label={ar?'الكمية':'Quantity'}>
+              <input className="input" type="number" min="1" value={adjQty} onChange={e=>setAdjQty(+e.target.value)}/>
+            </Field>
+            <Field label={ar?'سبب التعديل':'Reason'} full>
+              <input className="input" value={adjReason} onChange={e=>setAdjReason(e.target.value)}
+                placeholder={ar?'مثال: جرد دوري، تلف، إرجاع بضاعة...':'e.g. Inventory count, damage, return...'}/>
+            </Field>
+          </div>
+          <div style={{display:'flex',gap:8,marginTop:16}}>
+            <button className="btn btn-primary" onClick={saveAdj} disabled={saving}>
+              {saving?(ar?'جارٍ الحفظ...':'Saving...'):(ar?'حفظ التعديل':'Save Adjustment')}
+            </button>
+            <button className="btn btn-secondary" onClick={()=>setShowAdj(false)}>{ar?'إلغاء':'Cancel'}</button>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+function PurchaseRequisitions(){
+  const {ar}=useLang();
+  const [rows,setRows]=useState([]);
+  const [products,setProducts]=useState([]);
+  const [loading,setLoading]=useState(true);
+  const [showModal,setShowModal]=useState(false);
+  const [form,setForm]=useState({product_id:'',requested_qty:1,preferred_vendor:'',expected_price:0,notes:'',urgency:'normal'});
+  const [msg,setMsg]=useState(null);
+  const [saving,setSaving]=useState(false);
+
+  const load=()=>{
+    setLoading(true);
+    Promise.all([API.get('/inventory/requisitions'),API.get('/inventory/products')])
+      .then(([r,p])=>{setRows(r.data||[]);setProducts(p.data||[]);})
+      .catch(()=>{}).finally(()=>setLoading(false));
+  };
+  useEffect(()=>{load();},[]);
+
+  const selProd=products.find(p=>String(p.id)===String(form.product_id));
+
+  const save=async()=>{
+    if(!form.product_id){setMsg({t:'e',m:ar?'اختر منتجاً':'Select a product'});return;}
+    setSaving(true);
+    try{
+      const res=await API.post('/inventory/requisitions',{
+        ...form,
+        product_id:+form.product_id,
+        expected_price:+form.expected_price||null,
+        requested_qty:+form.requested_qty
+      });
+      setMsg({t:'s',m:(ar?'تم إنشاء طلب الشراء ':'Requisition ')+res.data.req_number+(ar?'':' created!')});
+      setShowModal(false);
+      setForm({product_id:'',requested_qty:1,preferred_vendor:'',expected_price:0,notes:'',urgency:'normal'});
+      load();
+    }catch(e){setMsg({t:'e',m:(e.response&&e.response.data&&e.response.data.detail)||'Failed'});}
+    finally{setSaving(false);setTimeout(()=>setMsg(null),5000);}
+  };
+
+  const updateStatus=async(id,status)=>{
+    try{await API.put('/inventory/requisitions/'+id+'/status?status='+status);load();}
+    catch{alert('Failed');}
+  };
+
+  const delReq=async id=>{
+    if(!confirm(ar?'حذف هذا الطلب؟':'Delete this requisition?'))return;
+    try{await API.delete('/inventory/requisitions/'+id);load();}catch{alert('Failed');}
+  };
+
+  const urgencyColor={low:'b-gray',normal:'b-blue',high:'b-orange',urgent:'b-red'};
+  const urgencyLabel={low:ar?'منخفضة':'Low',normal:ar?'عادية':'Normal',high:ar?'عالية':'High',urgent:ar?'عاجلة':'Urgent'};
+  const statusColor={draft:'b-gray',pending:'b-yellow',approved:'b-green',ordered:'b-blue',received:'b-green',cancelled:'b-red'};
+  const statusLabel={draft:ar?'مسودة':'Draft',pending:ar?'معلق':'Pending',approved:ar?'موافق':'Approved',ordered:ar?'مطلوب':'Ordered',received:ar?'مستلم':'Received',cancelled:ar?'ملغى':'Cancelled'};
+
+  const lowStock=products.filter(p=>p.stock_qty<=p.reorder_level);
+  const stats={total:rows.length,draft:rows.filter(r=>r.status==='draft').length,pending:rows.filter(r=>r.status==='pending').length,approved:rows.filter(r=>r.status==='approved').length};
+
+  return(
+    <div style={{padding:28}}>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">{ar?'طلبات الشراء':'Purchase Requisitions'}</h1>
+          <p className="page-sub">{rows.length} {ar?'طلب':'requisitions'}</p>
+        </div>
+        <div style={{display:'flex',gap:8}}>
+          <button className="btn btn-secondary" onClick={()=>window.print()}>Print</button>
+          <button className="btn btn-primary" onClick={()=>{setShowModal(true);setMsg(null);}}><Ic p={I.plus} s={14}/>{ar?'طلب شراء جديد':'New Requisition'}</button>
+        </div>
+      </div>
+
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
+        {[
+          {l:ar?'إجمالي الطلبات':'Total',v:stats.total,c:'#2563eb'},
+          {l:ar?'مسودة':'Draft',v:stats.draft,c:'#64748b'},
+          {l:ar?'معلق':'Pending',v:stats.pending,c:'#d97706'},
+          {l:ar?'موافق عليه':'Approved',v:stats.approved,c:'#059669'},
+        ].map(s=>(
+          <div key={s.l} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:10,padding:'12px 16px',borderLeft:'4px solid '+s.c}}>
+            <p style={{fontSize:11,color:'#64748b',fontWeight:600,margin:0}}>{s.l}</p>
+            <p style={{fontSize:20,fontWeight:800,color:s.c,margin:'3px 0 0'}}>{s.v}</p>
+          </div>
+        ))}
+      </div>
+
+      {lowStock.length>0&&(
+        <div style={{background:'#fff7ed',border:'1px solid #fed7aa',borderRadius:10,padding:'12px 16px',marginBottom:14}}>
+          <p style={{margin:'0 0 8px',fontWeight:700,color:'#c2410c',fontSize:13}}>
+            {lowStock.length} {ar?'منتجات تحتاج إعادة طلب:':'products need reorder:'}
+          </p>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+            {lowStock.map(p=>(
+              <button key={p.id}
+                style={{background:'#fee2e2',color:'#991b1b',border:'1px solid #fecaca',borderRadius:6,padding:'4px 10px',cursor:'pointer',fontSize:12,fontWeight:600}}
+                onClick={()=>{
+                  setForm(f=>({...f,product_id:String(p.id),requested_qty:Math.max(1,(p.reorder_level-p.stock_qty)+p.reorder_level)}));
+                  setShowModal(true);
+                }}>
+                {p.name} ({p.stock_qty}/{p.reorder_level} {p.unit})
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {msg&&<div className={"alert alert-"+(msg.t==='s'?'success':'error')} style={{marginBottom:12}}>{msg.m}</div>}
+
+      <div className="card" style={{overflow:'hidden'}}>
+        {loading?<p style={{padding:20,color:'#64748b',fontSize:13}}>{ar?'جارٍ التحميل...':'Loading...'}</p>:(
+          <table>
+            <thead><tr>
+              <th>{ar?'رقم الطلب':'Req #'}</th>
+              <th>{ar?'المنتج':'Product'}</th>
+              <th>{ar?'SKU':'SKU'}</th>
+              <th style={{textAlign:'right'}}>{ar?'المخزون الحالي':'Current Stock'}</th>
+              <th style={{textAlign:'right'}}>{ar?'الكمية المطلوبة':'Req Qty'}</th>
+              <th>{ar?'المورد المفضل':'Vendor'}</th>
+              <th style={{textAlign:'right'}}>{ar?'السعر المتوقع':'Est. Price'}</th>
+              <th>{ar?'الأولوية':'Urgency'}</th>
+              <th>{ar?'الحالة':'Status'}</th>
+              <th>{ar?'الإجراءات':'Actions'}</th>
+            </tr></thead>
+            <tbody>
+              {rows.map(r=>(
+                <tr key={r.id} style={{borderBottom:'1px solid #f1f5f9'}}>
+                  <td style={{fontFamily:'monospace',fontWeight:600,color:'#2563eb',fontSize:11}}>{r.req_number}</td>
+                  <td style={{fontWeight:500}}>{r.product_name}</td>
+                  <td style={{fontFamily:'monospace',fontSize:11,color:'#64748b'}}>{r.product_sku}</td>
+                  <td style={{textAlign:'right',fontWeight:600,color:(r.current_stock||0)<=(r.reorder_level||0)?'#dc2626':'#059669'}}>
+                    {r.current_stock||0} {r.product_unit||''}
+                  </td>
+                  <td style={{textAlign:'right',fontWeight:700,color:'#2563eb'}}>{r.requested_qty} {r.product_unit||''}</td>
+                  <td>{r.preferred_vendor||'-'}</td>
+                  <td style={{textAlign:'right'}}>{r.expected_price?SAR(r.expected_price):'-'}</td>
+                  <td><span className={"badge "+(urgencyColor[r.urgency]||'b-gray')} style={{fontSize:10}}>{urgencyLabel[r.urgency]||r.urgency}</span></td>
+                  <td><span className={"badge "+(statusColor[r.status]||'b-gray')} style={{fontSize:10}}>{statusLabel[r.status]||r.status}</span></td>
+                  <td>
+                    <div style={{display:'flex',gap:4,flexWrap:'wrap'}}>
+                      {r.status==='draft'&&<button className="btn btn-sm" style={{background:'#dbeafe',color:'#1e40af',border:'none',cursor:'pointer',fontSize:11}} onClick={()=>updateStatus(r.id,'pending')}>{ar?'إرسال':'Submit'}</button>}
+                      {r.status==='pending'&&<button className="btn btn-sm" style={{background:'#dcfce7',color:'#166534',border:'none',cursor:'pointer',fontSize:11}} onClick={()=>updateStatus(r.id,'approved')}>{ar?'موافقة':'Approve'}</button>}
+                      {r.status==='pending'&&<button className="btn btn-sm" style={{background:'#fee2e2',color:'#991b1b',border:'none',cursor:'pointer',fontSize:11}} onClick={()=>updateStatus(r.id,'cancelled')}>{ar?'رفض':'Reject'}</button>}
+                      {r.status==='approved'&&<button className="btn btn-sm" style={{background:'#ede9fe',color:'#6d28d9',border:'none',cursor:'pointer',fontSize:11}} onClick={()=>updateStatus(r.id,'ordered')}>{ar?'تم الطلب':'Ordered'}</button>}
+                      {r.status==='ordered'&&<button className="btn btn-sm" style={{background:'#dcfce7',color:'#166534',border:'none',cursor:'pointer',fontSize:11}} onClick={()=>updateStatus(r.id,'received')}>{ar?'استلام':'Received'}</button>}
+                      {(r.status==='draft'||r.status==='cancelled')&&<button className="btn btn-danger btn-sm" onClick={()=>delReq(r.id)}><Ic p={I.trash} s={11}/></button>}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {rows.length===0&&<tr><td colSpan={10} style={{textAlign:'center',color:'#94a3b8',padding:36}}>{ar?'لا توجد طلبات شراء':'No requisitions yet'}</td></tr>}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {showModal&&(
+        <Modal title={ar?'طلب شراء جديد':'New Purchase Requisition'} onClose={()=>setShowModal(false)}>
+          <div className="form-grid">
+            <Field label={ar?'المنتج':'Product'} full>
+              <select className="input" value={form.product_id} onChange={e=>setForm(p=>({...p,product_id:e.target.value}))}>
+                <option value="">{ar?'اختر منتجاً...':'Select product...'}</option>
+                {products.map(p=>(
+                  <option key={p.id} value={p.id}>
+                    {p.sku} - {p.name} ({ar?'مخزون:':'Stock:'} {p.stock_qty} {p.unit})
+                  </option>
+                ))}
+              </select>
+            </Field>
+
+            {selProd&&(
+              <div style={{gridColumn:'1/-1',background:'#f8fafc',borderRadius:8,padding:'10px 14px',fontSize:12,display:'flex',gap:20,flexWrap:'wrap'}}>
+                <span>{ar?'المخزون الحالي:':'Current Stock:'} <strong style={{color:selProd.stock_qty<=selProd.reorder_level?'#dc2626':'#059669'}}>{selProd.stock_qty} {selProd.unit}</strong></span>
+                <span>{ar?'حد الطلب:':'Reorder Level:'} <strong>{selProd.reorder_level} {selProd.unit}</strong></span>
+                <span>{ar?'سعر التكلفة:':'Cost Price:'} <strong>{SAR(selProd.cost)}</strong></span>
+                <span>{ar?'سعر البيع:':'Sale Price:'} <strong>{SAR(selProd.price)}</strong></span>
+              </div>
+            )}
+
+            <Field label={ar?'الكمية المطلوبة':'Requested Qty'}>
+              <input className="input" type="number" min="1" value={form.requested_qty} onChange={e=>setForm(p=>({...p,requested_qty:+e.target.value}))}/>
+            </Field>
+            <Field label={ar?'الأولوية':'Urgency'}>
+              <select className="input" value={form.urgency} onChange={e=>setForm(p=>({...p,urgency:e.target.value}))}>
+                <option value="low">{ar?'منخفضة':'Low'}</option>
+                <option value="normal">{ar?'عادية':'Normal'}</option>
+                <option value="high">{ar?'عالية':'High'}</option>
+                <option value="urgent">{ar?'عاجلة - فورية':'Urgent'}</option>
+              </select>
+            </Field>
+            <Field label={ar?'المورد المفضل':'Preferred Vendor'} full>
+              <input className="input" value={form.preferred_vendor} onChange={e=>setForm(p=>({...p,preferred_vendor:e.target.value}))} placeholder={ar?'اسم المورد أو الشركة':'Vendor name or company'}/>
+            </Field>
+            <Field label={ar?'السعر المتوقع (ريال)':'Expected Unit Price (SAR)'}>
+              <input className="input" type="number" min="0" value={form.expected_price} onChange={e=>setForm(p=>({...p,expected_price:+e.target.value}))}/>
+            </Field>
+            {form.expected_price>0&&form.requested_qty>0&&(
+              <div style={{display:'flex',alignItems:'center',fontSize:12,color:'#64748b'}}>
+                {ar?'الإجمالي المتوقع:':'Expected Total:'} <strong style={{marginLeft:6,color:'#0f172a'}}>{SAR(form.expected_price*form.requested_qty)}</strong>
+              </div>
+            )}
+            <Field label={ar?'ملاحظات':'Notes'} full>
+              <textarea className="input" rows={2} value={form.notes} onChange={e=>setForm(p=>({...p,notes:e.target.value}))} placeholder={ar?'أي تفاصيل إضافية...':'Any additional details...'}/>
+            </Field>
+          </div>
+          <div style={{display:'flex',gap:8,marginTop:16}}>
+            <button className="btn btn-primary" onClick={save} disabled={saving}>
+              {saving?(ar?'جارٍ الإنشاء...':'Creating...'):(ar?'إنشاء الطلب':'Create Requisition')}
+            </button>
+            <button className="btn btn-secondary" onClick={()=>setShowModal(false)}>{ar?'إلغاء':'Cancel'}</button>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+function InventoryReport(){
+  const {ar}=useLang();
+  const [products,setProducts]=useState([]);
+  const [orders,setOrders]=useState([]);
+  const [loading,setLoading]=useState(true);
+  const [filter,setFilter]=useState('all');
+
+  useEffect(()=>{
+    Promise.all([API.get('/inventory/products'),API.get('/inventory/orders')])
+      .then(([p,o])=>{setProducts(p.data||[]);setOrders(o.data||[]);})
+      .catch(()=>{}).finally(()=>setLoading(false));
+  },[]);
+
+  const filtered=filter==='low'?products.filter(p=>p.stock_qty<=p.reorder_level)
+    :filter==='out'?products.filter(p=>p.stock_qty===0):products;
+
+  const totalCost=products.reduce((a,p)=>a+(p.stock_qty*(p.cost||0)),0);
+  const totalSale=products.reduce((a,p)=>a+(p.stock_qty*(p.price||0)),0);
+  const catMap={};
+  products.forEach(p=>{
+    const c=p.category||'Uncategorized';
+    if(!catMap[c])catMap[c]={count:0,qty:0,cost:0,sale:0};
+    catMap[c].count++;catMap[c].qty+=p.stock_qty;
+    catMap[c].cost+=p.stock_qty*(p.cost||0);catMap[c].sale+=p.stock_qty*(p.price||0);
+  });
+
+  return(
+    <div style={{padding:28}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:20}}>
+        <div><h1 className="page-title">{ar?'تقرير المخزون':'Inventory Report'}</h1><p className="page-sub">{ar?'تقييم المخزون والحركة':'Stock valuation & movement'}</p></div>
+        <button className="btn btn-secondary" onClick={()=>window.print()}>Print</button>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
+        {[
+          {l:ar?'إجمالي المنتجات':'Total Products',v:products.length,c:'#2563eb'},
+          {l:ar?'قيمة التكلفة':'Cost Value',v:SAR(totalCost),c:'#7c3aed'},
+          {l:ar?'قيمة البيع':'Sale Value',v:SAR(totalSale),c:'#059669'},
+          {l:ar?'هامش الربح':'Profit Margin',v:SAR(totalSale-totalCost),c:'#0891b2'},
+          {l:ar?'منخفض المخزون':'Low Stock',v:products.filter(p=>p.stock_qty<=p.reorder_level).length,c:'#d97706'},
+          {l:ar?'نفذ المخزون':'Out of Stock',v:products.filter(p=>p.stock_qty===0).length,c:'#dc2626'},
+          {l:ar?'إجمالي الطلبات':'Total Orders',v:orders.length,c:'#2563eb'},
+          {l:ar?'طلبات معلقة':'Pending Orders',v:orders.filter(o=>o.status==='pending').length,c:'#d97706'},
+        ].map(s=>(
+          <div key={s.l} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:10,padding:'12px 16px',borderLeft:'4px solid '+s.c}}>
+            <p style={{fontSize:10,color:'#64748b',fontWeight:600,margin:0}}>{s.l}</p>
+            <p style={{fontSize:16,fontWeight:800,color:s.c,margin:'3px 0 0'}}>{s.v}</p>
+          </div>
+        ))}
+      </div>
+      <div className="card" style={{padding:18,marginBottom:14}}>
+        <p style={{fontSize:13,fontWeight:700,margin:'0 0 12px'}}>{ar?'حسب الفئة':'By Category'}</p>
+        <table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}>
+          <thead><tr style={{background:'#f8fafc'}}>
+            <th style={{padding:'8px 12px',textAlign:'left',fontWeight:600,color:'#64748b',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>{ar?'الفئة':'Category'}</th>
+            <th style={{padding:'8px 12px',textAlign:'right',fontWeight:600,color:'#64748b',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>{ar?'المنتجات':'Items'}</th>
+            <th style={{padding:'8px 12px',textAlign:'right',fontWeight:600,color:'#64748b',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>{ar?'الكمية':'Qty'}</th>
+            <th style={{padding:'8px 12px',textAlign:'right',fontWeight:600,color:'#64748b',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>{ar?'قيمة التكلفة':'Cost Value'}</th>
+            <th style={{padding:'8px 12px',textAlign:'right',fontWeight:600,color:'#64748b',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>{ar?'قيمة البيع':'Sale Value'}</th>
+            <th style={{padding:'8px 12px',textAlign:'right',fontWeight:600,color:'#64748b',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>{ar?'الهامش':'Margin'}</th>
+          </tr></thead>
+          <tbody>
+            {Object.entries(catMap).sort((a,b)=>b[1].cost-a[1].cost).map(([cat,v])=>(
+              <tr key={cat} style={{borderBottom:'1px solid #f1f5f9'}}>
+                <td style={{padding:'8px 12px',fontWeight:500}}>{cat}</td>
+                <td style={{padding:'8px 12px',textAlign:'right'}}>{v.count}</td>
+                <td style={{padding:'8px 12px',textAlign:'right'}}>{v.qty}</td>
+                <td style={{padding:'8px 12px',textAlign:'right'}}>{SAR(v.cost)}</td>
+                <td style={{padding:'8px 12px',textAlign:'right'}}>{SAR(v.sale)}</td>
+                <td style={{padding:'8px 12px',textAlign:'right',fontWeight:600,color:'#059669'}}>{SAR(v.sale-v.cost)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="card" style={{overflow:'hidden'}}>
+        <div style={{padding:'10px 16px',background:'#f8fafc',borderBottom:'1px solid #e2e8f0',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <span style={{fontWeight:700,fontSize:13}}>{ar?'قائمة المنتجات':'Products'}</span>
+          <div style={{display:'flex',gap:6}}>
+            {[['all',ar?'الكل':'All'],['low',ar?'منخفض':'Low'],['out',ar?'نفذ':'Out']].map(([v,l])=>(
+              <button key={v} onClick={()=>setFilter(v)} style={{padding:'3px 10px',borderRadius:6,border:'1px solid #e2e8f0',cursor:'pointer',fontSize:11,fontWeight:600,background:filter===v?'#2563eb':'#fff',color:filter===v?'#fff':'#374151'}}>{l}</button>
+            ))}
+          </div>
+        </div>
+        {loading?<p style={{padding:20,color:'#64748b',fontSize:13}}>Loading...</p>:(
+          <table>
+            <thead><tr>
+              <th>{ar?'المنتج':'Product'}</th><th>{ar?'SKU':'SKU'}</th><th>{ar?'الفئة':'Category'}</th>
+              <th style={{textAlign:'right'}}>{ar?'المخزون':'Stock'}</th>
+              <th style={{textAlign:'right'}}>{ar?'حد الطلب':'Min'}</th>
+              <th style={{textAlign:'right'}}>{ar?'التكلفة':'Cost'}</th>
+              <th style={{textAlign:'right'}}>{ar?'السعر':'Price'}</th>
+              <th style={{textAlign:'right'}}>{ar?'قيمة المخزون':'Value'}</th>
+              <th>{ar?'الحالة':'Status'}</th>
+            </tr></thead>
+            <tbody>
+              {filtered.map(p=>(
+                <tr key={p.id} style={{background:p.stock_qty===0?'#fef2f2':p.stock_qty<=p.reorder_level?'#fffbeb':'#fff',borderBottom:'1px solid #f1f5f9'}}>
+                  <td style={{fontWeight:500}}>{p.name}</td>
+                  <td style={{fontFamily:'monospace',fontSize:11,color:'#64748b'}}>{p.sku}</td>
+                  <td>{p.category||'-'}</td>
+                  <td style={{textAlign:'right',fontWeight:700,color:p.stock_qty===0?'#dc2626':p.stock_qty<=p.reorder_level?'#d97706':'#059669'}}>{p.stock_qty} {p.unit}</td>
+                  <td style={{textAlign:'right',color:'#64748b'}}>{p.reorder_level}</td>
+                  <td style={{textAlign:'right'}}>{SAR(p.cost)}</td>
+                  <td style={{textAlign:'right'}}>{SAR(p.price)}</td>
+                  <td style={{textAlign:'right',fontWeight:600}}>{SAR(p.stock_qty*(p.cost||0))}</td>
+                  <td><span className={"badge "+(p.stock_qty===0?'b-red':p.stock_qty<=p.reorder_level?'b-yellow':'b-green')} style={{fontSize:10}}>{p.stock_qty===0?(ar?'نفذ':'Out'):p.stock_qty<=p.reorder_level?(ar?'منخفض':'Low'):(ar?'جيد':'OK')}</span></td>
+                </tr>
+              ))}
+              {filtered.length===0&&<tr><td colSpan={9} style={{textAlign:'center',color:'#94a3b8',padding:28}}>{ar?'لا توجد منتجات':'No products'}</td></tr>}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const nav=[
+  {id:'dashboard',l:'Dashboard',icon:'home',sec:'Overview'},
+  {id:'contacts',l:'Contacts',icon:'users',sec:'CRM'},
+  {id:'leads',l:'Leads',icon:'trend',sec:'CRM'},
+  {id:'deals',l:'Deals',icon:'check',sec:'CRM'},
+  {id:'products',l:'Products',icon:'box',sec:'Inventory'},
+  {id:'orders',l:'Sales Orders',icon:'cart',sec:'Inventory'},
+  {id:'stock_card',l:'Stock Card',icon:'box',sec:'Inventory'},
+  {id:'purchase_requisitions',l:'Purchase Requisitions',icon:'cart',sec:'Inventory'},
+  {id:'inventory_report',l:'Inventory Report',icon:'box',sec:'Inventory'},
+  {id:'invoices',l:'Invoices',icon:'file',sec:'Accounting'},
+  {id:'transactions',l:'Transactions',icon:'dollar',sec:'Accounting'},
+  {id:'employees',l:'Employees',icon:'person',sec:'HR & Payroll'},
+  {id:'leaves',l:'Leave Requests',icon:'calendar',sec:'HR & Payroll'},
+  {id:'payroll',l:'Payroll',icon:'dollar',sec:'HR & Payroll'},
+  {id:'reports',l:'Reports',icon:'trend',sec:'Reports'},
+  {id:'chart_of_accounts',l:'Chart of Accounts',icon:'file',sec:'Accounting'},
+  {id:'journal_entries',l:'Journal Entries',icon:'file',sec:'Accounting'},
+  {id:'financial_statements',l:'Financial Statements',icon:'dollar',sec:'Accounting'},
+  {id:'ledger',l:'Ledger',icon:'file',sec:'Accounting'},
+];
+
+function getPage(id){
+  const map={dashboard:<Dashboard/>,contacts:<Contacts/>,leads:<Leads/>,deals:<Deals/>,products:<Products/>,orders:<Orders/>,stock_card:<StockCard/>,purchase_requisitions:<PurchaseRequisitions/>,inventory_report:<InventoryReport/>,invoices:<Invoices/>,transactions:<Transactions/>,employees:<Employees/>,leaves:<Leaves/>,payroll:<Payroll/>,reports:<FullReports/>,chart_of_accounts:<ChartOfAccounts/>,journal_entries:<JournalEntries/>,financial_statements:<FinancialStatements/>,ledger:<LedgerPage/>};
+  return map[id]||null;
+}
+
+/* ── App ── */
+function App(){
+  const [user,setUser]=useState(()=>{try{return JSON.parse(localStorage.getItem('user')||'null');}catch{return null;}});
+  const [page,setPage]=useState('dashboard');
+  if(!localStorage.getItem('api_url')){localStorage.setItem('api_url','https://knooz-production.up.railway.app');}
+  const hasUrl=!!localStorage.getItem('api_url');
+  const {ar}=useLang();
+  const navT=s=>(ar&&AR[s])||s;
+  const navItems=nav.map(n=>({...n,l:navT(n.l),sec:navT(n.sec)}));
+  const sections=[...new Set(navItems.map(n=>n.sec))];
+
+  if(!hasUrl) return <SetupScreen onDone={()=>window.location.reload()}/>;
+  if(!user) return <Login onLogin={u=>setUser(u)}/>;
+  return(
+    <div style={{display:'flex',minHeight:'100vh'}}>
+      <div className="sidebar">
+        <div className="logo">
+          <div className="logo-icon">K</div>
+          <div><div style={{fontWeight:800,color:'#f1f5f9',fontSize:14}}>Knooz ERP</div><div style={{fontSize:10,color:'#475569',marginTop:1}}>Business Suite</div></div>
+        </div>
+        <nav style={{flex:1,padding:'8px 0',overflowY:'auto'}}>
+          {sections.map(sec=>(
+            <div key={sec}>
+              <div className="nav-section">{sec}</div>
+              {navItems.filter(n=>n.sec===sec).map(n=>(
+                <div key={n.id} className={`nav-item ${page===n.id?'active':''}`} onClick={()=>setPage(n.id)}>
+                  <Ic p={I[n.icon]} s={14}/>{n.l}
+                </div>
+              ))}
+            </div>
+          ))}
+        </nav>
+        <div style={{padding:'12px 16px',borderTop:'1px solid #1e293b'}}>
+          <div style={{display:'flex',alignItems:'center',gap:9}}>
+            <div style={{width:32,height:32,background:'linear-gradient(135deg,#2563eb,#7c3aed)',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:800,color:'#fff',flexShrink:0}}>
+              {user.full_name?.charAt(0).toUpperCase()}
+            </div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:12,fontWeight:700,color:'#e2e8f0',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{user.full_name}</div>
+              <div style={{fontSize:10,color:'#475569',textTransform:'capitalize'}}>{user.role}</div>
+            </div>
+            <LangToggle/>
+            <div style={{cursor:'pointer',color:'#475569'}} title="Sign out" onClick={()=>{localStorage.clear();window.location.reload();}}>
+              <Ic p={I.logout} s={15}/>
+            </div>
+          </div>
+        </div>
+      </div>
+      <main style={{flex:1,overflowY:'auto'}}>{getPage(page)}</main>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<LangProvider><App/></LangProvider>);
+</script>
+</body>
+</html>
