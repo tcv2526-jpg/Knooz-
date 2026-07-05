@@ -528,7 +528,7 @@ async function handleSignup() {
   btn.innerHTML = '<div class="spinner"></div> Setting up your account…';
 
   try {
-    const r = await fetch(`${API}/api/auth/register-tenant/`, {
+    const r = await fetch(`${API}/api/auth/register-tenant`, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({company_name, slug, admin_name, admin_email, admin_password})
