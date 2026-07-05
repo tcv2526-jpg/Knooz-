@@ -11,6 +11,7 @@ from app.modules.accounting.models import Invoice, InvoiceItem, Transaction, Acc
 from app.modules.hr.models import Employee, LeaveRequest, Payroll
 
 from app.modules.auth.router import router as auth_router
+from app.modules.auth.signup_router import router as signup_router
 from app.modules.crm.router import router as crm_router
 from app.modules.inventory.router import router as inventory_router
 from app.modules.accounting.router import router as accounting_router
@@ -48,6 +49,7 @@ def startup():
         db.close()
 
 app.include_router(auth_router)
+app.include_router(signup_router)
 app.include_router(crm_router)
 app.include_router(inventory_router)
 app.include_router(accounting_router)
