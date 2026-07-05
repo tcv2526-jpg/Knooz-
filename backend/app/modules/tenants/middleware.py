@@ -1,42 +1,37 @@
-from fastapi import Request
-from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 from sqlalchemy import text
 from app.core.database import SessionLocal
 import logging
 
 logger = logging.getLogger(__name__)
 
-PUBLIC_PATHS = {
-    "/health",
-    "/",
-    "/api/docs",
-    "/api/redoc",
-    "/openapi.json",
-    "/api/auth/register-tenant",
-    "/api/auth/login",
-    "/api/admin/tenants",
-}
+IGNORED_SUBDOMAINS = {"www", "api", "erp", "app", "knooz1", "knooz", "balanced-tenderness", "knooz-production"}
 
-IGNORED_SUBDOMAINS = {"www", "api", "erp", "app", "knooz1", "knooz", "balanced-tenderness"}
 
 class TenantMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         path = request.url.path
 
-        # Skip public paths
-        if path in PUBLIC_PATHS or path.startswith("/api/admin/tenants"):
+        # Always pass through public and admin paths
+        if (path in ("/health", "/", "/api/docs", "/api/redoc", "/openapi.json")
+                or path.startswith("/api/admin/")
+                or path.startswith("/api/auth/")):
             return await call_next(request)
 
+        # Try to resolve tenant slug
         slug = self._resolve_slug(request)
+
+        # No slug found — pass through without tenant context
         if not slug:
             return await call_next(request)
 
         db = SessionLocal()
         try:
-            result = db.execute(text("""
-                SELECT id, slug, is_active FROM public.tenants WHERE slug = :slug
-            """), {"slug": slug})
+            result = db.execute(text(
+                "SELECT id, slug, is_active FROM public.tenants WHERE slug = :slug"
+            ), {"slug": slug})
             tenant = result.fetchone()
 
             if not tenant:
@@ -51,8 +46,7 @@ class TenantMiddleware(BaseHTTPMiddleware):
             db.execute(text(f'SET search_path TO "{tenant.slug}", public'))
             request.state.db = db
 
-            response = await call_next(request)
-            return response
+            return await call_next(request)
 
         except Exception as e:
             logger.error(f"Tenant middleware error: {e}")
