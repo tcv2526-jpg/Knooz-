@@ -1,4 +1,4 @@
-from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.types import ASGIApp, Receive, Scope, Send
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 from sqlalchemy import text
@@ -7,25 +7,54 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-IGNORED_SUBDOMAINS = {"www", "api", "erp", "app", "knooz1", "knooz", "balanced-tenderness", "knooz-production"}
+IGNORED_SUBDOMAINS = {
+    "www", "api", "erp", "app", "knooz1", "knooz",
+    "balanced-tenderness", "knooz-production"
+}
+
+BYPASS_PREFIXES = (
+    "/health",
+    "/",
+    "/api/docs",
+    "/api/redoc",
+    "/openapi.json",
+    "/api/admin/",
+    "/api/auth/",
+)
 
 
-class TenantMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        path = request.url.path
+class TenantMiddleware:
+    def __init__(self, app: ASGIApp):
+        self.app = app
 
-        # Always pass through public and admin paths
-        if (path in ("/health", "/", "/api/docs", "/api/redoc", "/openapi.json")
-                or path.startswith("/api/admin/")
-                or path.startswith("/api/auth/")):
-            return await call_next(request)
+    async def __call__(self, scope: Scope, receive: Receive, send: Send):
+        if scope["type"] not in ("http", "websocket"):
+            await self.app(scope, receive, send)
+            return
 
-        # Try to resolve tenant slug
-        slug = self._resolve_slug(request)
+        path = scope.get("path", "/")
 
-        # No slug found — pass through without tenant context
+        # Bypass tenant resolution for public/admin paths
+        if any(path == p or path.startswith(p) for p in BYPASS_PREFIXES):
+            await self.app(scope, receive, send)
+            return
+
+        # Try to resolve slug from headers
+        headers = dict(scope.get("headers", []))
+        host = headers.get(b"host", b"").decode().split(":")[0]
+        slug_header = headers.get(b"x-tenant-slug", b"").decode().strip().lower()
+
+        slug = slug_header
         if not slug:
-            return await call_next(request)
+            parts = host.split(".")
+            if len(parts) >= 3:
+                subdomain = parts[0].lower()
+                if subdomain not in IGNORED_SUBDOMAINS:
+                    slug = subdomain
+
+        if not slug:
+            await self.app(scope, receive, send)
+            return
 
         db = SessionLocal()
         try:
@@ -35,33 +64,25 @@ class TenantMiddleware(BaseHTTPMiddleware):
             tenant = result.fetchone()
 
             if not tenant:
-                return await call_next(request)
+                await self.app(scope, receive, send)
+                return
 
             if not tenant.is_active:
-                return JSONResponse(status_code=403,
-                    content={"detail": "This account is inactive. Contact support."})
+                response = JSONResponse(
+                    status_code=403,
+                    content={"detail": "This account is inactive. Contact support."}
+                )
+                await response(scope, receive, send)
+                return
 
-            request.state.tenant_id = str(tenant.id)
-            request.state.tenant_slug = tenant.slug
             db.execute(text(f'SET search_path TO "{tenant.slug}", public'))
-            request.state.db = db
+            scope["tenant_id"] = str(tenant.id)
+            scope["tenant_slug"] = tenant.slug
 
-            return await call_next(request)
+            await self.app(scope, receive, send)
 
         except Exception as e:
             logger.error(f"Tenant middleware error: {e}")
-            return await call_next(request)
+            await self.app(scope, receive, send)
         finally:
             db.close()
-
-    def _resolve_slug(self, request: Request):
-        header_slug = request.headers.get("X-Tenant-Slug", "").strip().lower()
-        if header_slug:
-            return header_slug
-        host = request.headers.get("host", "").split(":")[0]
-        parts = host.split(".")
-        if len(parts) >= 3:
-            subdomain = parts[0].lower()
-            if subdomain not in IGNORED_SUBDOMAINS:
-                return subdomain
-        return None
