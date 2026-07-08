@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from app.core.database import get_db
 from app.core.security import verify_password, get_password_hash, create_access_token, get_current_user
 from app.modules.auth.models import User
@@ -26,13 +27,36 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=Token)
 def login(credentials: LoginRequest, db: Session = Depends(get_db)):
+    # Resolve tenant from header
+    from fastapi import Request
+    tenant_slug = None
+
+    # Try to find user across tenants if no slug provided
+    # First check if tenant_slug is in the request body
+    slug = getattr(credentials, "tenant_slug", None)
+
+    if slug:
+        # Set schema to tenant
+        db.execute(text(f'SET search_path TO "{slug}", public'))
+        tenant_slug = slug
+
     user = db.query(User).filter(User.email == credentials.email).first()
     if not user or not verify_password(credentials.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     if not user.is_active:
         raise HTTPException(status_code=400, detail="Account is disabled")
-    token = create_access_token({"sub": str(user.id)})
-    return {"access_token": token, "token_type": "bearer", "user": user}
+
+    token = create_access_token({
+        "sub": str(user.id),
+        "tenant_slug": tenant_slug or "public",
+        "role": user.role.value,
+    })
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "tenant_slug": tenant_slug or "public",
+        "user": user,
+    }
 
 
 @router.get("/me", response_model=UserOut)

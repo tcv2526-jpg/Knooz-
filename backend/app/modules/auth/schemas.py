@@ -24,9 +24,11 @@ class UserOut(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+    tenant_slug: Optional[str] = None
     user: UserOut
 
 
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
+    tenant_slug: Optional[str] = None
