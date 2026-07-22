@@ -77,6 +77,13 @@ tr:hover td{background:#f8fafc}
 <body>
 <div id="root"></div>
 <script type="text/babel">
+  // Auth gate
+  const _token = localStorage.getItem('token');
+  const _path = window.location.pathname;
+  if (!_token && _path !== '/login' && _path !== '/signup' && !_path.startsWith('/signup')) {
+    window.location.href = '/login';
+  }
+
 const {useState,useEffect} = React;
 
 // ── API URL config: reads from localStorage so user can set their Railway backend URL ──
@@ -85,7 +92,7 @@ const API = axios.create({baseURL: getApiUrl() + '/api'});
 API.interceptors.request.use(c=>{
   // Update baseURL dynamically in case it was changed
   c.baseURL = getApiUrl() + '/api';
-  const t=localStorage.getItem('token');
+  const t=localStorage.getItem('token');const s=localStorage.getItem('tenant_slug');if(s)c.headers['X-Tenant-Slug']=s;
   if(t) c.headers.Authorization=`Bearer ${t}`;
   return c;
 });
@@ -307,8 +314,8 @@ function Login({onLogin}){
   const [busy,setBusy]=useState(false);
   const go=async e=>{
     e.preventDefault();setBusy(true);setErr('');
-    try{const r=await API.post('/auth/login',{email,password:pass});
-      localStorage.setItem('token',r.data.access_token);
+    try{const r=await API.post('/auth/login',{email,password:pass,tenant_slug:localStorage.getItem('tenant_slug')||''});
+      localStorage.setItem('token',r.data.access_token);localStorage.setItem('tenant_slug',r.data.tenant_slug||'');
       localStorage.setItem('user',JSON.stringify(r.data.user));
       onLogin(r.data.user);}
     catch{setErr('Invalid credentials');}finally{setBusy(false);}
