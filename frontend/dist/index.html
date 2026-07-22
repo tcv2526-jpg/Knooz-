@@ -308,14 +308,14 @@ function SetupScreen({onDone}){
 /* ── Login ── */
 function Login({onLogin}){
   const {ar,toggle}=useLang();
-  const [email,setEmail]=useState('admin@knooz.com');
-  const [pass,setPass]=useState('admin123');
+  const [email,setEmail]=useState('');const [tenant,setTenant]=useState(localStorage.getItem('tenant_slug')||'');
+  const [pass,setPass]=useState('');
   const [err,setErr]=useState('');
   const [busy,setBusy]=useState(false);
   const go=async e=>{
     e.preventDefault();setBusy(true);setErr('');
-    try{const r=await API.post('/auth/login',{email,password:pass,tenant_slug:localStorage.getItem('tenant_slug')||''});
-      localStorage.setItem('token',r.data.access_token);localStorage.setItem('tenant_slug',r.data.tenant_slug||'');
+    try{const r=await API.post('/auth/login',{email,password:pass,tenant_slug:tenant||localStorage.getItem('tenant_slug')||''});
+      localStorage.setItem('token',r.data.access_token);localStorage.setItem('tenant_slug',r.data.tenant_slug||tenant||'');localStorage.setItem('user',JSON.stringify(r.data.user));
       localStorage.setItem('user',JSON.stringify(r.data.user));
       onLogin(r.data.user);}
     catch{setErr('Invalid credentials');}finally{setBusy(false);}
@@ -332,7 +332,7 @@ function Login({onLogin}){
           <form onSubmit={go}>
             {err&&<div className="alert alert-error">{err}</div>}
             <div style={{marginBottom:14}}>
-              <label className="form-label">Email address</label>
+              <label className="form-label">Company ID</label></div><div className="form-group"><input className="input" type="text" placeholder="e.g. acme" value={tenant} onChange={e=>setTenant(e.target.value)} required/></div><div className="form-group"><label className="form-label">Email address</label>
               <input className="input" type="email" value={email} onChange={e=>setEmail(e.target.value)} required/>
             </div>
             <div style={{marginBottom:18}}>
