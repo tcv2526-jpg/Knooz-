@@ -2341,7 +2341,7 @@ function getPage(id){
 function App(){
   const [user,setUser]=useState(()=>{try{return JSON.parse(localStorage.getItem('user')||'null');}catch{return null;}});
   const [page,setPage]=useState('dashboard');
-  if(!localStorage.getItem('api_url')){localStorage.setItem('api_url','https://knooz-production.up.railway.app');}
+  if(!localStorage.getItem('api_url')){localStorage.setItem('api_url','https://knooz-api.onrender.com');}
   const hasUrl=!!localStorage.getItem('api_url');
   const {ar}=useLang();
   const navT=s=>(ar&&AR[s])||s;
