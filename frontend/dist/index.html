@@ -87,7 +87,7 @@ tr:hover td{background:#f8fafc}
 const {useState,useEffect} = React;
 
 // ── API URL config: reads from localStorage so user can set their Railway backend URL ──
-const getApiUrl = () => localStorage.getItem('api_url') || 'https://knooz-production.up.railway.app';
+const getApiUrl = () => localStorage.getItem('api_url') || 'https://knooz-api.onrender.com';
 const API = axios.create({baseURL: getApiUrl() + '/api'});
 API.interceptors.request.use(c=>{
   // Update baseURL dynamically in case it was changed
