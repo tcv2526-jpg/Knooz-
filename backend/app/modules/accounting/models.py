@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, Enum, Text, ForeignKey, Date, Boolean
+﻿from sqlalchemy import Column, Integer, String, Float, DateTime, Enum, Text, ForeignKey, Date, Boolean
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 import enum
@@ -41,6 +41,15 @@ class Invoice(Base):
     total = Column(Float, default=0)
     notes = Column(Text)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    invoice_type = Column(String, default="simplified")
+    seller_vat = Column(String, nullable=True)
+    buyer_vat = Column(String, nullable=True)
+    buyer_address = Column(String, nullable=True)
+    supply_date = Column(Date, nullable=True)
+    zatca_qr = Column(Text, nullable=True)
+    zatca_xml = Column(Text, nullable=True)
+    zatca_hash = Column(String, nullable=True)
+    zatca_status = Column(String, default="pending")
     items = relationship("InvoiceItem", back_populates="invoice", cascade="all, delete-orphan")
 
 
@@ -73,7 +82,7 @@ class Account(Base):
     code = Column(String, unique=True, index=True, nullable=False)
     name = Column(String, nullable=False)
     name_ar = Column(String)
-    account_type = Column(String, nullable=False)  # asset, liability, equity, income, expense
+    account_type = Column(String, nullable=False)
     balance = Column(Float, default=0)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
