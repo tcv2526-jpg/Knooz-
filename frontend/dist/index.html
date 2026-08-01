@@ -740,7 +740,7 @@ function Invoices(){
             <div style={{display:'flex',justifyContent:'space-between',fontSize:12,color:'#64748b',marginBottom:4}}><span>Tax ({form.tax_rate}%)</span><span>{SAR(tax)}</span></div>
             <div style={{display:'flex',justifyContent:'space-between',fontSize:14,fontWeight:800,color:'#0f172a',borderTop:'1px solid #e2e8f0',paddingTop:8,marginTop:4}}><span>Total</span><span>{SAR(subtotal+tax)}</span></div>
           </div>
-          <div style={{display:'flex',gap:8}}><button className="btn btn-primary" onClick={save} disabled={saving}>{saving?'Creating…':'Create Invoice'}</button><button className="btn btn-secondary" onClick={()=>setShowModal(false)}>Cancel</button></div>
+          <div style={{marginBottom:12}}><label className="form-label">Invoice Type (ZATCA)</label><select className="input" value={form.invoice_type||'simplified'} onChange={e=>setForm(p=>({...p,invoice_type:e.target.value}))}><option value="simplified">Simplified B2C (QR Code)</option><option value="standard">Standard B2B (Full XML)</option></select></div><div style={{marginBottom:12}}><label className="form-label">Your VAT Number (رقم ضريبة القيمة المضافة)</label><input className="input" placeholder="300000000000003" value={form.seller_vat||''} onChange={e=>setForm(p=>({...p,seller_vat:e.target.value}))}/></div>{form.invoice_type==='standard'&&<div style={{marginBottom:12}}><label className="form-label">Buyer VAT Number</label><input className="input" placeholder="300000000000004" value={form.buyer_vat||''} onChange={e=>setForm(p=>({...p,buyer_vat:e.target.value}))}/></div>}<div style={{display:'flex',gap:8}}><button className="btn btn-primary" onClick={save} disabled={saving}>{saving?'Creating…':'Create Invoice'}</button><button className="btn btn-secondary" onClick={()=>setShowModal(false)}>Cancel</button></div>
         </Modal>
       )}
     </div>
@@ -2394,4 +2394,5 @@ ReactDOM.createRoot(document.getElementById('root')).render(<LangProvider><App/>
 </script>
 </body>
 </html>
+
 
