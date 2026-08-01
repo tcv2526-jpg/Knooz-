@@ -693,7 +693,7 @@ function Invoices(){
       <div className="card" style={{overflow:'hidden'}}>
         {loading?<p style={{padding:20,color:'#64748b',fontSize:13}}>Loading…</p>:(
           <table>
-            <thead><tr><th>Invoice #</th><th>Client</th><th>Status</th><th>Subtotal</th><th>Tax</th><th>Total</th><th>Due</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Invoice #</th><th>Client</th><th>Status</th><th>Subtotal</th><th>Tax</th><th>Total</th><th>Due</th><th>ZATCA</th><th>Actions</th></tr></thead>
             <tbody>
               {rows.map(r=>(
                 <tr key={r.id}>
@@ -703,7 +703,7 @@ function Invoices(){
                   <td>{SAR(r.subtotal)}</td><td>{SAR(r.tax_amount)}</td>
                   <td style={{fontWeight:700}}>{SAR(r.total)}</td>
                   <td style={{color:'#64748b'}}>{r.due_date}</td>
-                  <td><div style={{display:'flex',gap:4}}>
+                  <td>{r.zatca_qr&&<div style={{textAlign:'center'}}><img src={`https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=${encodeURIComponent(r.zatca_qr)}`} alt="ZATCA QR" style={{width:60,height:60}}/><div style={{fontSize:9,color:'#16a34a',marginTop:2}}>✓ ZATCA</div></div>}{!r.zatca_qr&&<span style={{fontSize:11,color:'#94a3b8'}}>—</span>}</td><td><div style={{display:'flex',gap:4}}>
                     {r.status!=='paid'&&<button className="btn btn-sm" style={{background:'#dcfce7',color:'#166534',border:'none',cursor:'pointer'}} onClick={()=>markPaid(r.id)}>✓ Paid</button>}
                     <button className="btn btn-danger btn-sm" onClick={()=>del(r.id)}>Del</button>
                   </div></td>
@@ -2394,5 +2394,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(<LangProvider><App/>
 </script>
 </body>
 </html>
+
 
 
