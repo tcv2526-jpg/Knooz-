@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+﻿from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import Base, engine, SessionLocal
@@ -18,6 +18,7 @@ from app.modules.accounting.router import router as accounting_router
 from app.modules.hr.router import router as hr_router
 from app.modules.ai.router import router as ai_router
 from app.modules.tenants.router import router as tenants_router
+from app.modules.tenants.migrate_router import router as migrate_router
 from app.modules.tenants.middleware import TenantMiddleware
 from app.modules.tenants.provisioning import PUBLIC_TENANTS_TABLE
 
@@ -56,6 +57,7 @@ app.include_router(accounting_router)
 app.include_router(hr_router)
 app.include_router(ai_router)
 app.include_router(tenants_router)
+app.include_router(migrate_router)
 
 @app.get("/health")
 def health():
@@ -64,3 +66,4 @@ def health():
 @app.get("/")
 def root():
     return {"message": "Knooz ERP API", "docs": "/api/docs"}
+
