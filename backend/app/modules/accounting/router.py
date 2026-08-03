@@ -234,3 +234,64 @@ def create_journal(payload: JournalCreate, db: Session = Depends(get_db),
     for line in payload.lines:
         db.add(JournalLine(journal_id=j.id, **line.dict()))
     db.commit(); db.refresh(j); return j
+
+@router.get("/financial-statements")
+def financial_statements(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    from sqlalchemy import func as sqlfunc
+    accounts = db.query(Account).all()
+    assets = [a for a in accounts if a.account_type == "asset"]
+    liabilities = [a for a in accounts if a.account_type == "liability"]
+    equity = [a for a in accounts if a.account_type == "equity"]
+    income = [a for a in accounts if a.account_type == "income"]
+    expenses = [a for a in accounts if a.account_type == "expense"]
+    total_assets = sum(a.balance for a in assets)
+    total_liabilities = sum(a.balance for a in liabilities)
+    total_equity = sum(a.balance for a in equity)
+    total_income = sum(a.balance for a in income)
+    total_expenses = sum(a.balance for a in expenses)
+    # Also sum from transactions
+    t_income = db.query(sqlfunc.sum(Transaction.amount)).filter(Transaction.type == "income").scalar() or 0
+    t_expenses = db.query(sqlfunc.sum(Transaction.amount)).filter(Transaction.type == "expense").scalar() or 0
+    paid_invoices = db.query(sqlfunc.sum(Invoice.total)).filter(Invoice.status == "paid").scalar() or 0
+    return {
+        "balance_sheet": {
+            "assets": [{"code": a.code, "name": a.name, "name_ar": a.name_ar, "balance": a.balance} for a in assets],
+            "liabilities": [{"code": a.code, "name": a.name, "name_ar": a.name_ar, "balance": a.balance} for a in liabilities],
+            "equity": [{"code": a.code, "name": a.name, "name_ar": a.name_ar, "balance": a.balance} for a in equity],
+            "total_assets": total_assets,
+            "total_liabilities": total_liabilities,
+            "total_equity": total_equity,
+        },
+        "profit_loss": {
+            "income": [{"code": a.code, "name": a.name, "name_ar": a.name_ar, "balance": a.balance} for a in income],
+            "expenses": [{"code": a.code, "name": a.name, "name_ar": a.name_ar, "balance": a.balance} for a in expenses],
+            "total_income": t_income + paid_invoices,
+            "total_expenses": t_expenses + total_expenses,
+            "net_profit": (t_income + paid_invoices) - (t_expenses + total_expenses),
+        },
+        "trial_balance": [{"code": a.code, "name": a.name, "type": a.account_type, "balance": a.balance} for a in accounts],
+    }
+
+
+@router.get("/ledger")
+def get_ledger(account_id: int = None, date_from: str = None, date_to: str = None,
+               db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    query = db.query(JournalLine).join(Journal)
+    if account_id:
+        query = query.filter(JournalLine.account_id == account_id)
+    lines = query.order_by(Journal.date).all()
+    result = []
+    running_balance = 0
+    for line in lines:
+        running_balance += line.debit - line.credit
+        result.append({
+            "journal_id": line.journal_id,
+            "date": str(line.journal.date),
+            "description": line.journal.description,
+            "reference": line.journal.reference,
+            "account_id": line.account_id,
+            "debit": line.debit,
+            "credit": line.credit,
+            "balance": running_balance,
+        })
+    return {"lines": result, "closing_balance": running_balance}
