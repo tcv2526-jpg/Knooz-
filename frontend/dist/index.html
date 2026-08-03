@@ -1438,10 +1438,10 @@ function FinancialStatements(){
   const [error,setError]=useState('');
 
   const endpointMap={
-    balance_sheet:'/accounting/reports/balance-sheet',
-    p_l:'/accounting/reports/profit-loss',
-    trial_balance:'/accounting/reports/trial-balance',
-    general_ledger:'/accounting/reports/general-ledger'
+    balance_sheet:'/accounting/financial-statements',
+    p_l:'/accounting/financial-statements',
+    trial_balance:'/accounting/financial-statements',
+    general_ledger:'/accounting/financial-statements'
   };
 
   const tabs=[
@@ -1640,7 +1640,7 @@ function LedgerPage(){
   const load=()=>{
     if(!selAcc)return;
     setLoading(true);setEntries([]);
-    API.get('/accounting/reports/general-ledger?account_id='+selAcc+'&date_from='+dateFrom+'&date_to='+dateTo)
+    API.get('/accounting/ledger?account_id='+selAcc+'&date_from='+dateFrom+'&date_to='+dateTo)
       .then(r=>{
         const acc=(r.data?.accounts||[]).find(a=>String(a.account_id)===selAcc)||{};
         setEntries(acc.entries||[]);
@@ -2425,6 +2425,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(<LangProvider><App/>
 </script>
 </body>
 </html>
+
+
 
 
 
