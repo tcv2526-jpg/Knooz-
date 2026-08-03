@@ -715,7 +715,7 @@ function Invoices(){
           </table>
         )}
       </div>
-      {selectedInv&&<Modal title={Invoice } onClose={()=>setSelectedInv(null)}><div style={{minWidth:480}}>
+      {selectedInv&&<Modal title={`Invoice ${selectedInv.invoice_number}`} onClose={()=>setSelectedInv(null)}><div style={{minWidth:480}}>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
           <div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Client</div><div style={{fontWeight:600}}>{selectedInv.client_name}</div></div>
           <div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Email</div><div>{selectedInv.client_email||'—'}</div></div>
