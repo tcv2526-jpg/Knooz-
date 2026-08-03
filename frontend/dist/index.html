@@ -720,7 +720,7 @@ function Invoices(){
           <div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Client</div><div style={{fontWeight:600}}>{selectedInv.client_name}</div></div>
           <div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Email</div><div>{selectedInv.client_email||'—'}</div></div>
           <div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Invoice #</div><div style={{fontWeight:600,color:'#2563eb',fontFamily:'monospace'}}>{selectedInv.invoice_number}</div></div>
-          <div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Status</div><span className={adge }>{selectedInv.status}</span></div>
+          <div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Status</div><span className="badge b-gray">{selectedInv.status}</span></div>
           <div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Issue Date</div><div>{selectedInv.issue_date}</div></div>
           <div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Due Date</div><div>{selectedInv.due_date}</div></div>
           {selectedInv.seller_vat&&<div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>VAT Number</div><div style={{fontFamily:'monospace'}}>{selectedInv.seller_vat}</div></div>}
