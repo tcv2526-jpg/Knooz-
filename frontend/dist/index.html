@@ -540,7 +540,7 @@ function Orders(){
           <table>
             <thead><tr><th>Order #</th><th>Customer</th><th>Status</th><th>Items</th><th>Total</th><th>Date</th></tr></thead>
             <tbody>
-              {rows.map(r=><tr key={r.id}><td style={{fontWeight:600,color:'#2563eb',fontFamily:'monospace'}}>{r.order_number}</td><td>{r.customer_name}</td><td><span className={`badge ${statusBadge[r.status]||'b-gray'}`}>{r.status}</span></td><td>{r.items?.length||0}</td><td style={{fontWeight:600}}>{SAR(r.total_amount)}</td><td style={{color:'#64748b'}}>{r.created_at?.split('T')[0]}</td></tr>)}
+              {rows.map(r=><tr key={r.id} onClick={()=>setSelectedInv(r)} style={{cursor:'pointer'}} onMouseEnter={e=>e.currentTarget.style.background='#f8fafc'} onMouseLeave={e=>e.currentTarget.style.background=''}><td style={{fontWeight:600,color:'#2563eb',fontFamily:'monospace'}}>{r.order_number}</td><td>{r.customer_name}</td><td><span className={`badge ${statusBadge[r.status]||'b-gray'}`}>{r.status}</span></td><td>{r.items?.length||0}</td><td style={{fontWeight:600}}>{SAR(r.total_amount)}</td><td style={{color:'#64748b'}}>{r.created_at?.split('T')[0]}</td></tr>)}
               {rows.length===0&&<tr><td colSpan={6} style={{textAlign:'center',color:'#94a3b8',padding:36}}>No orders yet</td></tr>}
             </tbody>
           </table>
@@ -656,6 +656,7 @@ function Invoices(){
   const [loading,setLoading]=useState(true);
   const [showModal,setShowModal]=useState(false);
   const [showScanner,setShowScanner]=useState(false);
+  const [selectedInv,setSelectedInv]=useState(null);
   const [form,setForm]=useState({client_name:'',client_email:'',issue_date:today(),due_date:today(),tax_rate:15,notes:'',items:[{description:'',quantity:1,unit_price:0}],invoice_type:'simplified',seller_vat:'',buyer_vat:''});
   const [saving,setSaving]=useState(false);
   const [msg,setMsg]=useState(null);
@@ -696,7 +697,7 @@ function Invoices(){
             <thead><tr><th>Invoice #</th><th>Client</th><th>Status</th><th>Subtotal</th><th>Tax</th><th>Total</th><th>Due</th><th>ZATCA</th><th>Actions</th></tr></thead>
             <tbody>
               {rows.map(r=>(
-                <tr key={r.id}>
+                <tr key={r.id} onClick={()=>setSelectedInv(r)} style={{cursor:'pointer'}} onMouseEnter={e=>e.currentTarget.style.background='#f8fafc'} onMouseLeave={e=>e.currentTarget.style.background=''}>
                   <td style={{fontWeight:600,color:'#2563eb',fontFamily:'monospace'}}>{r.invoice_number}</td>
                   <td style={{fontWeight:500}}>{r.client_name}</td>
                   <td><span className={`badge ${statusBadge[r.status]||'b-gray'}`}>{r.status}</span></td>
@@ -714,6 +715,36 @@ function Invoices(){
           </table>
         )}
       </div>
+      {selectedInv&&<Modal title={Invoice } onClose={()=>setSelectedInv(null)}><div style={{minWidth:480}}>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
+          <div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Client</div><div style={{fontWeight:600}}>{selectedInv.client_name}</div></div>
+          <div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Email</div><div>{selectedInv.client_email||'—'}</div></div>
+          <div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Invoice #</div><div style={{fontWeight:600,color:'#2563eb',fontFamily:'monospace'}}>{selectedInv.invoice_number}</div></div>
+          <div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Status</div><span className={adge }>{selectedInv.status}</span></div>
+          <div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Issue Date</div><div>{selectedInv.issue_date}</div></div>
+          <div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Due Date</div><div>{selectedInv.due_date}</div></div>
+          {selectedInv.seller_vat&&<div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>VAT Number</div><div style={{fontFamily:'monospace'}}>{selectedInv.seller_vat}</div></div>}
+          <div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>ZATCA Status</div><div style={{color:selectedInv.zatca_status==='reported'?'#16a34a':'#94a3b8'}}>{selectedInv.zatca_status==='reported'?'✓ Reported':'Pending'}</div></div>
+        </div>
+        <table style={{width:'100%',borderCollapse:'collapse',marginBottom:16}}>
+          <thead><tr style={{background:'#f8fafc'}}><th style={{padding:'8px',textAlign:'left',fontSize:12,color:'#64748b'}}>Description</th><th style={{padding:'8px',textAlign:'right',fontSize:12,color:'#64748b'}}>Qty</th><th style={{padding:'8px',textAlign:'right',fontSize:12,color:'#64748b'}}>Price</th><th style={{padding:'8px',textAlign:'right',fontSize:12,color:'#64748b'}}>Total</th></tr></thead>
+          <tbody>{selectedInv.items.map((item,i)=><tr key={i} style={{borderTop:'1px solid #f1f5f9'}}><td style={{padding:'8px',fontSize:13}}>{item.description}</td><td style={{padding:'8px',textAlign:'right',fontSize:13}}>{item.quantity}</td><td style={{padding:'8px',textAlign:'right',fontSize:13}}>{SAR(item.unit_price)}</td><td style={{padding:'8px',textAlign:'right',fontSize:13,fontWeight:600}}>{SAR(item.total)}</td></tr>)}</tbody>
+        </table>
+        <div style={{background:'#f8fafc',borderRadius:8,padding:'12px 16px',marginBottom:16}}>
+          <div style={{display:'flex',justifyContent:'space-between',fontSize:13,marginBottom:4}}><span style={{color:'#64748b'}}>Subtotal</span><span>{SAR(selectedInv.subtotal)}</span></div>
+          <div style={{display:'flex',justifyContent:'space-between',fontSize:13,marginBottom:4}}><span style={{color:'#64748b'}}>VAT ({selectedInv.tax_rate}%)</span><span>{SAR(selectedInv.tax_amount)}</span></div>
+          <div style={{display:'flex',justifyContent:'space-between',fontSize:15,fontWeight:800,borderTop:'1px solid #e2e8f0',paddingTop:8,marginTop:4}}><span>Total</span><span>{SAR(selectedInv.total)}</span></div>
+        </div>
+        {selectedInv.zatca_qr&&<div style={{display:'flex',alignItems:'center',gap:16,padding:'12px 16px',background:'#f0fdf4',borderRadius:8,border:'1px solid #bbf7d0',marginBottom:16}}>
+          <img src={https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=} alt='ZATCA QR' style={{width:100,height:100,borderRadius:4}}/>
+          <div><div style={{fontWeight:700,color:'#16a34a',marginBottom:4}}>✓ ZATCA Compliant</div><div style={{fontSize:12,color:'#64748b',marginBottom:4}}>Simplified Tax Invoice</div><div style={{fontSize:11,color:'#64748b',fontFamily:'monospace'}}>{selectedInv.zatca_hash}</div></div>
+        </div>}
+        <div style={{display:'flex',gap:8'}}>
+          <button className='btn btn-primary' onClick={()=>window.print()}>🖨 Print</button>
+          {selectedInv.status!=='paid'&&<button className='btn btn-sm' style={{background:'#dcfce7',color:'#166534',border:'none',cursor:'pointer',padding:'8px 16px',borderRadius:6}} onClick={()=>{markPaid(selectedInv.id);setSelectedInv({...selectedInv,status:'paid'});}}>✓ Mark Paid</button>}
+          <button className='btn btn-secondary' onClick={()=>setSelectedInv(null)}>Close</button>
+        </div>
+      </div></Modal>}
       {showScanner&&<DocScanner type="invoice" onFill={fillFromScan} onClose={()=>setShowScanner(false)}/>}
       {showModal&&(
         <Modal title="New Invoice" onClose={()=>setShowModal(false)}>
@@ -1240,7 +1271,7 @@ function ChartOfAccounts(){
             <thead><tr><th>{ar?'الكود':'Code'}</th><th>{ar?'اسم الحساب':'Account Name'}</th><th>{ar?'النوع':'Type'}</th><th style={{textAlign:'right'}}>{ar?'الرصيد':'Balance'}</th><th></th></tr></thead>
             <tbody>
               {rows.map(r=>(
-                <tr key={r.id}>
+                <tr key={r.id} onClick={()=>setSelectedInv(r)} style={{cursor:'pointer'}} onMouseEnter={e=>e.currentTarget.style.background='#f8fafc'} onMouseLeave={e=>e.currentTarget.style.background=''}>
                   <td style={{fontFamily:'monospace',fontWeight:600,color:'#2563eb'}}>{r.code}</td>
                   <td><div style={{fontWeight:500}}>{ar&&r.name_ar?r.name_ar:r.name}</div></td>
                   <td><span className={`badge ${typeColor[r.account_type]||'b-gray'}`}>{ar?typeAr[r.account_type]:r.account_type}</span></td>
@@ -1321,7 +1352,7 @@ function JournalEntries(){
             <thead><tr><th>{ar?'رقم القيد':'Entry #'}</th><th>{ar?'التاريخ':'Date'}</th><th>{ar?'النوع':'Type'}</th><th>{ar?'الوصف':'Description'}</th><th style={{textAlign:'right'}}>{ar?'مدين':'Debit'}</th><th style={{textAlign:'right'}}>{ar?'دائن':'Credit'}</th><th>{ar?'الحالة':'Status'}</th><th></th></tr></thead>
             <tbody>
               {rows.map(r=>(
-                <tr key={r.id}>
+                <tr key={r.id} onClick={()=>setSelectedInv(r)} style={{cursor:'pointer'}} onMouseEnter={e=>e.currentTarget.style.background='#f8fafc'} onMouseLeave={e=>e.currentTarget.style.background=''}>
                   <td style={{fontFamily:'monospace',fontWeight:600,color:'#2563eb'}}>{r.journal_number}</td>
                   <td>{r.date}</td>
                   <td><span className="badge b-gray">{typeL[r.journal_type]||r.journal_type}</span></td>
@@ -2394,6 +2425,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(<LangProvider><App/>
 </script>
 </body>
 </html>
+
 
 
 
