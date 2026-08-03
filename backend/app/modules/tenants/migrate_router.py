@@ -29,3 +29,23 @@ def migrate_zatca(slug: str, db: Session = Depends(get_db)):
     except Exception as e:
         db.rollback()
         return {"error": str(e)}
+
+SUBSCRIPTION_MIGRATION = """
+ALTER TABLE public.tenants
+    ADD COLUMN IF NOT EXISTS subscription_plan VARCHAR DEFAULT 'monthly',
+    ADD COLUMN IF NOT EXISTS subscription_start TIMESTAMPTZ DEFAULT now(),
+    ADD COLUMN IF NOT EXISTS subscription_end TIMESTAMPTZ,
+    ADD COLUMN IF NOT EXISTS max_users INTEGER DEFAULT 5,
+    ADD COLUMN IF NOT EXISTS price_sar FLOAT DEFAULT 0;
+"""
+
+@router.post("/subscription")
+def migrate_subscription(db: Session = Depends(get_db)):
+    """Add subscription columns to public.tenants table."""
+    try:
+        db.execute(text(SUBSCRIPTION_MIGRATION))
+        db.commit()
+        return {"message": "Subscription columns added successfully"}
+    except Exception as e:
+        db.rollback()
+        return {"error": str(e)}

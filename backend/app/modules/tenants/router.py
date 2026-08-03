@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+﻿from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from pydantic import BaseModel, EmailStr
@@ -67,3 +67,79 @@ def toggle_tenant(slug: str, db: Session = Depends(get_db)):
     db.commit()
     status = "activated" if row.is_active else "deactivated"
     return {"message": f"Tenant '{slug}' {status}.", "is_active": row.is_active}
+
+from datetime import datetime, timedelta
+
+PLANS = {
+    "monthly":   {"days": 30,  "price": 299},
+    "biannual":  {"days": 180, "price": 1499},
+    "annual":    {"days": 365, "price": 2499},
+    "trial":     {"days": 14,  "price": 0},
+}
+
+class SubscriptionUpdate(BaseModel):
+    plan: str
+    start_date: Optional[str] = None
+
+@router.post("/{slug}/subscribe")
+def set_subscription(slug: str, payload: SubscriptionUpdate, db: Session = Depends(get_db)):
+    """Set or renew a tenant subscription."""
+    if payload.plan not in PLANS:
+        raise HTTPException(400, f"Invalid plan. Choose from: {list(PLANS.keys())}")
+    
+    plan = PLANS[payload.plan]
+    start = datetime.utcnow()
+    end = start + timedelta(days=plan["days"])
+    
+    result = db.execute(text("""
+        UPDATE public.tenants 
+        SET subscription_plan = :plan,
+            subscription_start = :start,
+            subscription_end = :end,
+            price_sar = :price,
+            is_active = true
+        WHERE slug = :slug
+        RETURNING slug, subscription_plan, subscription_end, price_sar
+    """), {"plan": payload.plan, "start": start, "end": end, 
+           "price": plan["price"], "slug": slug})
+    row = result.fetchone()
+    if not row:
+        raise HTTPException(404, f"Tenant '{slug}' not found.")
+    db.commit()
+    return {
+        "message": f"Subscription set for '{slug}'",
+        "plan": payload.plan,
+        "expires": str(end.date()),
+        "price_sar": plan["price"],
+        "days": plan["days"],
+    }
+
+@router.get("/{slug}/subscription")
+def get_subscription(slug: str, db: Session = Depends(get_db)):
+    """Get subscription status for a tenant."""
+    result = db.execute(text("""
+        SELECT slug, name, plan, subscription_plan, subscription_start, 
+               subscription_end, price_sar, is_active,
+               CASE WHEN subscription_end > now() THEN true ELSE false END as is_valid,
+               EXTRACT(DAY FROM subscription_end - now()) as days_remaining
+        FROM public.tenants WHERE slug = :slug
+    """), {"slug": slug})
+    row = result.fetchone()
+    if not row:
+        raise HTTPException(404, f"Tenant '{slug}' not found.")
+    return dict(row._mapping)
+
+@router.post("/check-expiry")
+def check_and_disable_expired(db: Session = Depends(get_db)):
+    """Disable all tenants with expired subscriptions. Run daily via cron."""
+    result = db.execute(text("""
+        UPDATE public.tenants 
+        SET is_active = false
+        WHERE subscription_end < now() 
+        AND subscription_end IS NOT NULL
+        AND is_active = true
+        RETURNING slug, subscription_end
+    """))
+    expired = [dict(row._mapping) for row in result.fetchall()]
+    db.commit()
+    return {"disabled": expired, "count": len(expired)}
