@@ -43,7 +43,18 @@ def create_tenant(payload: TenantCreate, db: Session = Depends(get_db)):
 
 @router.get("/")
 def get_all_tenants(db: Session = Depends(get_db)):
-    tenants = list_tenants(db)
+    try:
+        result = db.execute(text(
+            "SELECT id, name, slug, domain, plan, is_active, created_at, "
+            "COALESCE(subscription_plan, plan) as subscription_plan, "
+            "subscription_end, COALESCE(price_sar, 0) as price_sar, "
+            "CASE WHEN subscription_end > now() THEN true ELSE false END as is_valid, "
+            "EXTRACT(DAY FROM subscription_end - now()) as days_remaining "
+            "FROM public.tenants ORDER BY created_at DESC"
+        ))
+        tenants = [dict(row._mapping) for row in result.fetchall()]
+    except Exception:
+        tenants = list_tenants(db)
     return {"tenants": tenants, "total": len(tenants)}
 
 
@@ -143,3 +154,4 @@ def check_and_disable_expired(db: Session = Depends(get_db)):
     expired = [dict(row._mapping) for row in result.fetchall()]
     db.commit()
     return {"disabled": expired, "count": len(expired)}
+
