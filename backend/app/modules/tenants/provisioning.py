@@ -120,10 +120,15 @@ def tenant_exists(db: Session, slug: str) -> bool:
 
 def list_tenants(db: Session) -> list:
     result = db.execute(text(
-        "SELECT id, name, slug, domain, plan, is_active, created_at "
+        "SELECT id, name, slug, domain, plan, is_active, created_at, "
+        "COALESCE(subscription_plan, plan) as subscription_plan, "
+        "subscription_end, COALESCE(price_sar, 0) as price_sar, "
+        "CASE WHEN subscription_end > now() THEN true ELSE false END as is_valid, "
+        "EXTRACT(DAY FROM subscription_end - now()) as days_remaining "
         "FROM public.tenants ORDER BY created_at DESC"
     ))
     return [dict(row._mapping) for row in result.fetchall()]
+
 
 
 
