@@ -460,7 +460,9 @@ let slugTimer = null;
 // Auto-generate slug from company name
 document.getElementById("companyName").addEventListener("input", function() {
   const raw = this.value.toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]+/g, "")
     .replace(/^-+|-+$/g, "")
     .slice(0, 30);
   document.getElementById("slug").value = raw;
@@ -555,3 +557,4 @@ async function handleSignup() {
 </script>
 </body>
 </html>
+
