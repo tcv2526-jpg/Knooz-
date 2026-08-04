@@ -2363,7 +2363,97 @@ const nav=[
   {id:'ledger',l:'Ledger',icon:'file',sec:'Accounting'},
 ];
 
-function AdminPanel(){
+function MySubscription(){
+  const {ar}=useLang();
+  const [sub,setSub]=React.useState(null);
+  const [loading,setLoading]=React.useState(true);
+  const slug=localStorage.getItem('tenant_slug');
+
+  React.useEffect(()=>{
+    API.get(`/admin/tenants/${slug}/subscription`)
+      .then(r=>setSub(r.data))
+      .catch(()=>setSub(null))
+      .finally(()=>setLoading(false));
+  },[]);
+
+  const PLAN_NAMES={trial:'Free Trial',monthly:'Monthly',biannual:'6 Months',annual:'Annual'};
+  const PLAN_PRICES={trial:'Free',monthly:'SAR 299/mo',biannual:'SAR 1,499/6mo',annual:'SAR 2,499/yr'};
+  const daysLeft=sub?Math.floor(sub.days_remaining||0):0;
+  const isExpired=sub&&!sub.is_valid;
+  const isExpiringSoon=daysLeft>0&&daysLeft<=7;
+
+  return(
+    <div style={{padding:28,maxWidth:600}}>
+      <h1 className="page-title">My Subscription</h1>
+      <p className="page-sub" style={{marginBottom:24}}>Your Knooz ERP plan details</p>
+
+      {loading&&<div className="card" style={{padding:24,color:'#64748b'}}>Loading...</div>}
+
+      {!loading&&sub&&(
+        <div>
+          <div className="card" style={{padding:24,marginBottom:16}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:20}}>
+              <div>
+                <div style={{fontSize:13,color:'#64748b',marginBottom:4}}>Current Plan</div>
+                <div style={{fontSize:24,fontWeight:800,color:'#0f172a'}}>{PLAN_NAMES[sub.subscription_plan]||sub.subscription_plan}</div>
+                <div style={{fontSize:13,color:'#2563eb',marginTop:2}}>{PLAN_PRICES[sub.subscription_plan]||''}</div>
+              </div>
+              <span style={{background:sub.is_valid?'#dcfce7':'#fef2f2',color:sub.is_valid?'#166534':'#dc2626',padding:'4px 12px',borderRadius:20,fontSize:12,fontWeight:700}}>
+                {sub.is_valid?'Active':'Expired'}
+              </span>
+            </div>
+
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:20}}>
+              <div style={{background:'#f8fafc',borderRadius:8,padding:'12px 16px'}}>
+                <div style={{fontSize:11,color:'#64748b',marginBottom:4}}>Started</div>
+                <div style={{fontWeight:600}}>{sub.subscription_start?sub.subscription_start.split('T')[0]:'—'}</div>
+              </div>
+              <div style={{background:'#f8fafc',borderRadius:8,padding:'12px 16px'}}>
+                <div style={{fontSize:11,color:'#64748b',marginBottom:4}}>Expires</div>
+                <div style={{fontWeight:600,color:isExpired?'#dc2626':isExpiringSoon?'#d97706':'#0f172a'}}>{sub.subscription_end?sub.subscription_end.split('T')[0]:'—'}</div>
+              </div>
+            </div>
+
+            {sub.is_valid&&(
+              <div style={{background:isExpiringSoon?'#fffbeb':'#eff6ff',borderRadius:8,padding:'12px 16px',marginBottom:16}}>
+                <div style={{fontWeight:700,color:isExpiringSoon?'#d97706':'#2563eb',fontSize:14}}>
+                  {isExpiringSoon?'⚠️ Expiring Soon!':'✓ Active'}
+                </div>
+                <div style={{fontSize:13,color:'#64748b',marginTop:2}}>
+                  {daysLeft} days remaining
+                </div>
+              </div>
+            )}
+
+            {isExpired&&(
+              <div style={{background:'#fef2f2',borderRadius:8,padding:'12px 16px',marginBottom:16}}>
+                <div style={{fontWeight:700,color:'#dc2626',fontSize:14}}>⚠️ Subscription Expired</div>
+                <div style={{fontSize:13,color:'#64748b',marginTop:2}}>Please contact us to renew your subscription.</div>
+              </div>
+            )}
+          </div>
+
+          <div className="card" style={{padding:24}}>
+            <div style={{fontSize:14,fontWeight:700,marginBottom:16}}>Upgrade Your Plan</div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:20}}>
+              {[['monthly','Monthly','SAR 299'],['biannual','6 Months','SAR 1,499'],['annual','Annual','SAR 2,499']].map(([p,n,price])=>(
+                <div key={p} style={{padding:'12px 16px',border:'1.5px solid #e2e8f0',borderRadius:8,background:sub.subscription_plan===p?'#eff6ff':'#fff',borderColor:sub.subscription_plan===p?'#2563eb':'#e2e8f0'}}>
+                  <div style={{fontWeight:700,color:sub.subscription_plan===p?'#2563eb':'#0f172a'}}>{n}</div>
+                  <div style={{fontSize:13,color:'#64748b',marginTop:2}}>{price}</div>
+                  {sub.subscription_plan===p&&<div style={{fontSize:11,color:'#2563eb',marginTop:4,fontWeight:600}}>Current plan</div>}
+                </div>
+              ))}
+            </div>
+            <a href="mailto:support@tcv-ai.com?subject=Knooz ERP Subscription Upgrade" className="btn btn-primary" style={{display:'inline-flex',textDecoration:'none',width:'100%',justifyContent:'center',padding:'10px 0'}}>
+              📧 Contact us to upgrade
+            </a>
+            <p style={{fontSize:11,color:'#94a3b8',textAlign:'center',marginTop:8}}>We will activate your plan within 24 hours after payment</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}function AdminPanel(){
   const {ar}=useLang();
   const isSuperAdmin = localStorage.getItem('tenant_slug')==='tcv';
   if(!isSuperAdmin) return <div style={{padding:48,textAlign:'center'}}><h2 style={{color:'#dc2626'}}>Access Denied</h2><p style={{color:'#64748b',marginTop:8}}>You do not have permission to access this page.</p></div>;
@@ -2465,7 +2555,7 @@ function AdminPanel(){
     </div>
   );
 }function getPage(id){
-  const map={dashboard:<Dashboard/>,contacts:<Contacts/>,leads:<Leads/>,deals:<Deals/>,admin:<AdminPanel/>,products:<Products/>,orders:<Orders/>,stock_card:<StockCard/>,purchase_requisitions:<PurchaseRequisitions/>,inventory_report:<InventoryReport/>,invoices:<Invoices/>,transactions:<Transactions/>,employees:<Employees/>,leaves:<Leaves/>,payroll:<Payroll/>,reports:<FullReports/>,chart_of_accounts:<ChartOfAccounts/>,journal_entries:<JournalEntries/>,financial_statements:<FinancialStatements/>,ledger:<LedgerPage/>};
+  const map={dashboard:<Dashboard/>,subscription:<MySubscription/>,contacts:<Contacts/>,leads:<Leads/>,deals:<Deals/>,admin:<AdminPanel/>,products:<Products/>,orders:<Orders/>,stock_card:<StockCard/>,purchase_requisitions:<PurchaseRequisitions/>,inventory_report:<InventoryReport/>,invoices:<Invoices/>,transactions:<Transactions/>,employees:<Employees/>,leaves:<Leaves/>,payroll:<Payroll/>,reports:<FullReports/>,chart_of_accounts:<ChartOfAccounts/>,journal_entries:<JournalEntries/>,financial_statements:<FinancialStatements/>,ledger:<LedgerPage/>};
   return map[id]||null;
 }
 
@@ -2477,7 +2567,7 @@ function App(){
   const hasUrl=!!localStorage.getItem('api_url');
   const {ar}=useLang();
   const navT=s=>(ar&&AR[s])||s;
-  const navItems=(isSuperAdmin?[...nav,{id:'admin',l:'Admin Panel',icon:'settings',sec:'Admin'}]:nav).map(n=>({...n,l:navT(n.l),sec:navT(n.sec)}));
+  const subNav=[...nav,{id:'subscription',l:'My Subscription',icon:'settings',sec:'Account'}];const adminNav=[...nav,{id:'subscription',l:'My Subscription',icon:'settings',sec:'Account'},{id:'admin',l:'Admin Panel',icon:'settings',sec:'Account'}];const navItems=(isSuperAdmin?adminNav:subNav).map(n=>({...n,l:navT(n.l),sec:navT(n.sec)}));
   const sections=[...new Set(navItems.map(n=>n.sec))];
 
   if(!hasUrl) return <SetupScreen onDone={()=>window.location.reload()}/>;
@@ -2526,6 +2616,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(<LangProvider><App/>
 </script>
 </body>
 </html>
+
+
 
 
 
