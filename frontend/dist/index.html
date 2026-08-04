@@ -2356,15 +2356,114 @@ const nav=[
   {id:'employees',l:'Employees',icon:'person',sec:'HR & Payroll'},
   {id:'leaves',l:'Leave Requests',icon:'calendar',sec:'HR & Payroll'},
   {id:'payroll',l:'Payroll',icon:'dollar',sec:'HR & Payroll'},
-  {id:'reports',l:'Reports',icon:'trend',sec:'Reports'},
+  {id:'reports',l:'Reports',icon:'trend',sec:'Reports'},{id:'admin',l:'Admin Panel',icon:'settings',sec:'Admin'},
   {id:'chart_of_accounts',l:'Chart of Accounts',icon:'file',sec:'Accounting'},
   {id:'journal_entries',l:'Journal Entries',icon:'file',sec:'Accounting'},
   {id:'financial_statements',l:'Financial Statements',icon:'dollar',sec:'Accounting'},
   {id:'ledger',l:'Ledger',icon:'file',sec:'Accounting'},
 ];
 
-function getPage(id){
-  const map={dashboard:<Dashboard/>,contacts:<Contacts/>,leads:<Leads/>,deals:<Deals/>,products:<Products/>,orders:<Orders/>,stock_card:<StockCard/>,purchase_requisitions:<PurchaseRequisitions/>,inventory_report:<InventoryReport/>,invoices:<Invoices/>,transactions:<Transactions/>,employees:<Employees/>,leaves:<Leaves/>,payroll:<Payroll/>,reports:<FullReports/>,chart_of_accounts:<ChartOfAccounts/>,journal_entries:<JournalEntries/>,financial_statements:<FinancialStatements/>,ledger:<LedgerPage/>};
+function AdminPanel(){
+  const {ar}=useLang();
+  const [tenants,setTenants]=React.useState([]);
+  const [loading,setLoading]=React.useState(true);
+  const [msg,setMsg]=React.useState(null);
+  const [selTenant,setSelTenant]=React.useState(null);
+  const [plan,setPlan]=React.useState('monthly');
+  const PLANS=['trial','monthly','biannual','annual'];
+  const PRICES={trial:'Free',monthly:'SAR 299',biannual:'SAR 1,499',annual:'SAR 2,499'};
+
+  const load=()=>{
+    setLoading(true);
+    API.get('/admin/tenants').then(r=>setTenants(r.data.tenants||[])).catch(()=>setTenants([])).finally(()=>setLoading(false));
+  };
+
+  React.useEffect(()=>{load();},[]);
+
+  const subscribe=async(slug)=>{
+    try{
+      await API.post(`/admin/tenants/${slug}/subscribe`,{plan});
+      setMsg({t:'s',m:`Subscription updated for ${slug}`});
+      setSelTenant(null);
+      load();
+    }catch(e){setMsg({t:'e',m:'Failed to update subscription'});}
+    setTimeout(()=>setMsg(null),4000);
+  };
+
+  const toggle=async(slug)=>{
+    try{
+      await API.patch(`/admin/tenants/${slug}/toggle`);
+      load();
+    }catch(e){alert('Failed');}
+  };
+
+  const provision=async(slug)=>{
+    try{
+      await API.post(`/admin/migrate/zatca/${slug}`);
+      setMsg({t:'s',m:`Schema updated for ${slug}`});
+    }catch(e){setMsg({t:'e',m:'Failed'});}
+    setTimeout(()=>setMsg(null),4000);
+  };
+
+  const totalRevenue=tenants.reduce((a,t)=>a+(t.price_sar||0),0);
+  const activeTenants=tenants.filter(t=>t.is_active).length;
+
+  return(
+    <div style={{padding:28}}>
+      <div className="page-header">
+        <div><h1 className="page-title">Admin Panel</h1><p className="page-sub">Manage all Knooz ERP clients</p></div>
+      </div>
+      {msg&&<div className={`alert alert-${msg.t==='s'?'success':'error'}`} style={{marginBottom:16}}>{msg.m}</div>}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:16,marginBottom:24}}>
+        <div className="stat-card"><div style={{fontSize:12,color:'#64748b',marginBottom:4}}>Total Clients</div><div style={{fontSize:28,fontWeight:800,color:'#0f172a'}}>{tenants.length}</div></div>
+        <div className="stat-card"><div style={{fontSize:12,color:'#64748b',marginBottom:4}}>Active</div><div style={{fontSize:28,fontWeight:800,color:'#16a34a'}}>{activeTenants}</div></div>
+        <div className="stat-card"><div style={{fontSize:12,color:'#64748b',marginBottom:4}}>Inactive</div><div style={{fontSize:28,fontWeight:800,color:'#dc2626'}}>{tenants.length-activeTenants}</div></div>
+        <div className="stat-card"><div style={{fontSize:12,color:'#64748b',marginBottom:4}}>Monthly Revenue</div><div style={{fontSize:24,fontWeight:800,color:'#2563eb'}}>SAR {totalRevenue.toLocaleString()}</div></div>
+      </div>
+      <div className="card" style={{overflow:'hidden'}}>
+        {loading?<p style={{padding:20,color:'#64748b'}}>Loading...</p>:(
+          <table style={{width:'100%',borderCollapse:'collapse'}}>
+            <thead><tr style={{background:'#f8fafc'}}><th style={{padding:'10px 16px',textAlign:'left',fontSize:12,color:'#64748b',fontWeight:600}}>Company</th><th style={{padding:'10px 16px',textAlign:'left',fontSize:12,color:'#64748b',fontWeight:600}}>Slug</th><th style={{padding:'10px 16px',textAlign:'left',fontSize:12,color:'#64748b',fontWeight:600}}>Plan</th><th style={{padding:'10px 16px',textAlign:'left',fontSize:12,color:'#64748b',fontWeight:600}}>Expires</th><th style={{padding:'10px 16px',textAlign:'left',fontSize:12,color:'#64748b',fontWeight:600}}>Days Left</th><th style={{padding:'10px 16px',textAlign:'left',fontSize:12,color:'#64748b',fontWeight:600}}>Price</th><th style={{padding:'10px 16px',textAlign:'left',fontSize:12,color:'#64748b',fontWeight:600}}>Status</th><th style={{padding:'10px 16px',textAlign:'left',fontSize:12,color:'#64748b',fontWeight:600}}>Actions</th></tr></thead>
+            <tbody>
+              {tenants.map(t=>(
+                <tr key={t.id} style={{borderTop:'1px solid #f1f5f9'}}>
+                  <td style={{padding:'12px 16px',fontWeight:600}}>{t.name}</td>
+                  <td style={{padding:'12px 16px',fontFamily:'monospace',color:'#2563eb'}}>{t.slug}</td>
+                  <td style={{padding:'12px 16px'}}><span style={{background:'#eff6ff',color:'#2563eb',padding:'2px 8px',borderRadius:4,fontSize:12,fontWeight:600}}>{t.subscription_plan||t.plan}</span></td>
+                  <td style={{padding:'12px 16px',fontSize:13,color:'#64748b'}}>{t.subscription_end?t.subscription_end.split('T')[0]:'—'}</td>
+                  <td style={{padding:'12px 16px'}}>{t.subscription_end?<span style={{color:t.is_valid?'#16a34a':'#dc2626',fontWeight:600}}>{t.days_remaining>0?Math.floor(t.days_remaining)+' days':'Expired'}</span>:'—'}</td>
+                  <td style={{padding:'12px 16px',fontWeight:600}}>SAR {(t.price_sar||0).toLocaleString()}</td>
+                  <td style={{padding:'12px 16px'}}><span style={{background:t.is_active?'#dcfce7':'#fef2f2',color:t.is_active?'#166534':'#dc2626',padding:'2px 8px',borderRadius:4,fontSize:12,fontWeight:600}}>{t.is_active?'Active':'Inactive'}</span></td>
+                  <td style={{padding:'12px 16px'}}><div style={{display:'flex',gap:4}}>
+                    <button className="btn btn-sm btn-secondary" onClick={()=>{setSelTenant(t);setPlan(t.subscription_plan||'monthly');}}>Renew</button>
+                    <button className="btn btn-sm" style={{background:t.is_active?'#fef2f2':'#dcfce7',color:t.is_active?'#dc2626':'#166534',border:'none',cursor:'pointer'}} onClick={()=>toggle(t.slug)}>{t.is_active?'Disable':'Enable'}</button>
+                  </div></td>
+                </tr>
+              ))}
+              {tenants.length===0&&<tr><td colSpan={8} style={{textAlign:'center',color:'#94a3b8',padding:36}}>No clients yet</td></tr>}
+            </tbody>
+          </table>
+        )}
+      </div>
+      {selTenant&&<Modal title={`Renew: ${selTenant.name}`} onClose={()=>setSelTenant(null)}>
+        <div style={{minWidth:360}}>
+          <p style={{fontSize:13,color:'#64748b',marginBottom:16}}>Select subscription plan for <strong>{selTenant.slug}</strong></p>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:20}}>
+            {PLANS.map(p=><div key={p} onClick={()=>setPlan(p)} style={{padding:'12px 16px',border:`2px solid ${plan===p?'#2563eb':'#e2e8f0'}`,borderRadius:8,cursor:'pointer',background:plan===p?'#eff6ff':'#fff'}}>
+              <div style={{fontWeight:700,color:plan===p?'#2563eb':'#0f172a',textTransform:'capitalize'}}>{p}</div>
+              <div style={{fontSize:12,color:'#64748b',marginTop:2}}>{PRICES[p]}</div>
+            </div>)}
+          </div>
+          <div style={{display:'flex',gap:8}}>
+            <button className="btn btn-primary" onClick={()=>subscribe(selTenant.slug)}>Confirm Subscription</button>
+            <button className="btn btn-secondary" onClick={()=>setSelTenant(null)}>Cancel</button>
+          </div>
+        </div>
+      </Modal>}
+    </div>
+  );
+}function getPage(id){
+  const map={dashboard:<Dashboard/>,contacts:<Contacts/>,leads:<Leads/>,deals:<Deals/>,admin:<AdminPanel/>,products:<Products/>,orders:<Orders/>,stock_card:<StockCard/>,purchase_requisitions:<PurchaseRequisitions/>,inventory_report:<InventoryReport/>,invoices:<Invoices/>,transactions:<Transactions/>,employees:<Employees/>,leaves:<Leaves/>,payroll:<Payroll/>,reports:<FullReports/>,chart_of_accounts:<ChartOfAccounts/>,journal_entries:<JournalEntries/>,financial_statements:<FinancialStatements/>,ledger:<LedgerPage/>};
   return map[id]||null;
 }
 
@@ -2425,6 +2524,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(<LangProvider><App/>
 </script>
 </body>
 </html>
+
+
 
 
 
