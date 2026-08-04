@@ -1,4 +1,4 @@
-from sqlalchemy import text
+﻿from sqlalchemy import text
 from sqlalchemy.orm import Session
 import logging
 
@@ -59,19 +59,19 @@ CREATE TABLE IF NOT EXISTS order_items (id SERIAL PRIMARY KEY, order_id INTEGER 
 
 DEFAULT_ACCOUNTS_SQL = """
 INSERT INTO accounts (code, name, name_ar, account_type, balance) VALUES
-('1000','Cash','نقد','asset',0),
-('1100','Accounts Receivable','حسابات القبض','asset',0),
-('1200','Inventory','المخزون','asset',0),
-('2000','Accounts Payable','حسابات الدفع','liability',0),
-('2100','Accrued Liabilities','الالتزامات المستحقة','liability',0),
-('3000','Owner Equity','حقوق الملكية','equity',0),
-('4000','Sales Revenue','إيرادات المبيعات','income',0),
-('4100','Other Income','إيرادات أخرى','income',0),
-('5000','Cost of Goods Sold','تكلفة البضاعة المباعة','expense',0),
-('5100','Salaries Expense','مصروف الرواتب','expense',0),
-('5200','Rent Expense','مصروف الإيجار','expense',0),
-('5300','Utilities Expense','مصروف المرافق','expense',0),
-('5400','General & Admin','مصروفات عمومية وإدارية','expense',0)
+('1000','Cash','Ù†Ù‚Ø¯','asset',0),
+('1100','Accounts Receivable','Ø­Ø³Ø§Ø¨Ø§Øª Ø§Ù„Ù‚Ø¨Ø¶','asset',0),
+('1200','Inventory','Ø§Ù„Ù…Ø®Ø²ÙˆÙ†','asset',0),
+('2000','Accounts Payable','Ø­Ø³Ø§Ø¨Ø§Øª Ø§Ù„Ø¯ÙØ¹','liability',0),
+('2100','Accrued Liabilities','Ø§Ù„Ø§Ù„ØªØ²Ø§Ù…Ø§Øª Ø§Ù„Ù…Ø³ØªØ­Ù‚Ø©','liability',0),
+('3000','Owner Equity','Ø­Ù‚ÙˆÙ‚ Ø§Ù„Ù…Ù„ÙƒÙŠØ©','equity',0),
+('4000','Sales Revenue','Ø¥ÙŠØ±Ø§Ø¯Ø§Øª Ø§Ù„Ù…Ø¨ÙŠØ¹Ø§Øª','income',0),
+('4100','Other Income','Ø¥ÙŠØ±Ø§Ø¯Ø§Øª Ø£Ø®Ø±Ù‰','income',0),
+('5000','Cost of Goods Sold','ØªÙƒÙ„ÙØ© Ø§Ù„Ø¨Ø¶Ø§Ø¹Ø© Ø§Ù„Ù…Ø¨Ø§Ø¹Ø©','expense',0),
+('5100','Salaries Expense','Ù…ØµØ±ÙˆÙ Ø§Ù„Ø±ÙˆØ§ØªØ¨','expense',0),
+('5200','Rent Expense','Ù…ØµØ±ÙˆÙ Ø§Ù„Ø¥ÙŠØ¬Ø§Ø±','expense',0),
+('5300','Utilities Expense','Ù…ØµØ±ÙˆÙ Ø§Ù„Ù…Ø±Ø§ÙÙ‚','expense',0),
+('5400','General & Admin','Ù…ØµØ±ÙˆÙØ§Øª Ø¹Ù…ÙˆÙ…ÙŠØ© ÙˆØ¥Ø¯Ø§Ø±ÙŠØ©','expense',0)
 ON CONFLICT (code) DO NOTHING;
 """
 
@@ -124,4 +124,6 @@ def list_tenants(db: Session) -> list:
         "FROM public.tenants ORDER BY created_at DESC"
     ))
     return [dict(row._mapping) for row in result.fetchall()]
+
+
 
