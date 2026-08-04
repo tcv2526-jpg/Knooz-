@@ -2477,7 +2477,7 @@ function App(){
   const hasUrl=!!localStorage.getItem('api_url');
   const {ar}=useLang();
   const navT=s=>(ar&&AR[s])||s;
-  const navItems=nav.map(n=>({...n,l:navT(n.l),sec:navT(n.sec)}));
+  const navItems=(isSuperAdmin?[...nav,{id:'admin',l:'Admin Panel',icon:'settings',sec:'Admin'}]:nav).map(n=>({...n,l:navT(n.l),sec:navT(n.sec)}));
   const sections=[...new Set(navItems.map(n=>n.sec))];
 
   if(!hasUrl) return <SetupScreen onDone={()=>window.location.reload()}/>;
@@ -2526,6 +2526,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(<LangProvider><App/>
 </script>
 </body>
 </html>
+
 
 
 
