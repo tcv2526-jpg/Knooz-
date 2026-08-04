@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8"/>
@@ -454,7 +454,7 @@
 </div>
 
 <script>
-const API = "https://knooz-production.up.railway.app";
+const API = "https://knooz-api.onrender.com";
 let slugTimer = null;
 
 // Auto-generate slug from company name
@@ -531,7 +531,7 @@ async function handleSignup() {
     const r = await fetch(`${API}/api/auth/register-tenant`, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({company_name, slug, admin_name, admin_email, admin_password})
+      body: JSON.stringify({company_name, slug, admin_name, admin_email, admin_password, plan: "trial"})
     });
     const d = await r.json();
 
