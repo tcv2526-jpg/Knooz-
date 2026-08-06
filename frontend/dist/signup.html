@@ -1,556 +1,241 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Start Free — Knooz ERP</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Syne:wght@700;800&display=swap');
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --ink:       #0f1117;
-    --ink-soft:  #6b7280;
-    --surface:   #ffffff;
-    --border:    #e5e7eb;
-    --accent:    #2563eb;
-    --accent-dk: #1d4ed8;
-    --success:   #16a34a;
-    --error:     #dc2626;
-    --muted:     #f9fafb;
-    --radius:    10px;
-  }
-
-  html, body {
-    height: 100%;
-    font-family: 'Inter', sans-serif;
-    background: var(--muted);
-    color: var(--ink);
-  }
-
-  .layout {
-    min-height: 100vh;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-
-  /* LEFT PANEL */
-  .panel-left {
-    background: var(--ink);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 48px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .panel-left::before {
-    content: '';
-    position: absolute;
-    width: 500px; height: 500px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(37,99,235,0.25) 0%, transparent 70%);
-    top: -100px; right: -100px;
-    pointer-events: none;
-  }
-
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .brand-icon {
-    width: 36px; height: 36px;
-    background: var(--accent);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-  }
-
-  .brand-icon svg { width: 20px; height: 20px; fill: white; }
-
-  .brand-name {
-    font-family: 'Syne', sans-serif;
-    font-size: 20px;
-    font-weight: 800;
-    color: white;
-    letter-spacing: -0.5px;
-  }
-
-  .hero {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 48px 0;
-  }
-
-  .hero-eyebrow {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 20px;
-  }
-
-  .hero-title {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(32px, 4vw, 48px);
-    font-weight: 800;
-    line-height: 1.1;
-    color: white;
-    margin-bottom: 24px;
-    letter-spacing: -1px;
-  }
-
-  .hero-title span {
-    color: var(--accent);
-  }
-
-  .hero-desc {
-    font-size: 15px;
-    line-height: 1.7;
-    color: rgba(255,255,255,0.55);
-    max-width: 380px;
-  }
-
-  .features {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .feature {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: rgba(255,255,255,0.7);
-    font-size: 14px;
-  }
-
-  .feature-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--accent);
-    flex-shrink: 0;
-  }
-
-  /* RIGHT PANEL */
-  .panel-right {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 48px 32px;
-  }
-
-  .card {
-    width: 100%;
-    max-width: 440px;
-  }
-
-  .card-header {
-    margin-bottom: 32px;
-  }
-
-  .card-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 26px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    margin-bottom: 6px;
-  }
-
-  .card-sub {
-    font-size: 14px;
-    color: var(--ink-soft);
-  }
-
-  .card-sub a {
-    color: var(--accent);
-    text-decoration: none;
-    font-weight: 500;
-  }
-
-  .form { display: flex; flex-direction: column; gap: 16px; }
-
-  .field { display: flex; flex-direction: column; gap: 6px; }
-
-  label {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--ink);
-  }
-
-  input {
-    height: 44px;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 0 14px;
-    font-size: 14px;
-    font-family: inherit;
-    color: var(--ink);
-    background: var(--surface);
-    transition: border-color 0.15s, box-shadow 0.15s;
-    outline: none;
-  }
-
-  input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
-  }
-
-  input.error { border-color: var(--error); }
-  input.success { border-color: var(--success); }
-
-  .slug-wrapper {
-    display: flex;
-    align-items: center;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    background: var(--surface);
-    transition: border-color 0.15s, box-shadow 0.15s;
-  }
-
-  .slug-wrapper:focus-within {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
-  }
-
-  .slug-wrapper.error { border-color: var(--error); }
-  .slug-wrapper.success { border-color: var(--success); }
-
-  .slug-prefix {
-    padding: 0 12px;
-    font-size: 13px;
-    color: var(--ink-soft);
-    background: var(--muted);
-    border-right: 1.5px solid var(--border);
-    height: 44px;
-    display: flex; align-items: center;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  .slug-wrapper input {
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
-    flex: 1;
-    height: 42px;
-  }
-
-  .slug-wrapper input:focus { box-shadow: none; }
-
-  .hint {
-    font-size: 12px;
-    color: var(--ink-soft);
-    margin-top: 2px;
-  }
-
-  .hint.error { color: var(--error); }
-  .hint.success { color: var(--success); }
-
-  .divider {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    gap: 12px;
-    color: var(--ink-soft);
-    font-size: 12px;
-  }
-
-  .divider::before, .divider::after {
-    content: '';
-    height: 1px;
-    background: var(--border);
-  }
-
-  .btn {
-    height: 46px;
-    border-radius: var(--radius);
-    border: none;
-    font-family: inherit;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.15s;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-  }
-
-  .btn-primary {
-    background: var(--accent);
-    color: white;
-  }
-
-  .btn-primary:hover { background: var(--accent-dk); transform: translateY(-1px); }
-  .btn-primary:active { transform: translateY(0); }
-  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-  .spinner {
-    width: 18px; height: 18px;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .alert {
-    padding: 12px 16px;
-    border-radius: var(--radius);
-    font-size: 14px;
-    display: none;
-  }
-
-  .alert.error { background: #fef2f2; color: var(--error); border: 1px solid #fecaca; display: block; }
-  .alert.success { background: #f0fdf4; color: var(--success); border: 1px solid #bbf7d0; display: block; }
-
-  .success-screen {
-    display: none;
-    text-align: center;
-    padding: 32px 0;
-  }
-
-  .success-icon {
-    width: 64px; height: 64px;
-    background: #f0fdf4;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 20px;
-  }
-
-  .success-icon svg { width: 32px; height: 32px; stroke: var(--success); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
-
-  .success-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 22px;
-    font-weight: 800;
-    margin-bottom: 8px;
-  }
-
-  .success-desc {
-    font-size: 14px;
-    color: var(--ink-soft);
-    line-height: 1.6;
-    margin-bottom: 24px;
-  }
-
-  .login-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--accent);
-    color: white;
-    font-weight: 600;
-    font-size: 14px;
-    padding: 12px 24px;
-    border-radius: var(--radius);
-    text-decoration: none;
-    transition: background 0.15s;
-  }
-
-  .login-link:hover { background: var(--accent-dk); }
-
-  @media (max-width: 768px) {
-    .layout { grid-template-columns: 1fr; }
-    .panel-left { display: none; }
-    .panel-right { padding: 32px 20px; align-items: flex-start; padding-top: 48px; }
-  }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@700;800&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--ink:#0f1117;--ink-soft:#6b7280;--surface:#fff;--border:#e5e7eb;--accent:#2563eb;--accent-dk:#1d4ed8;--success:#16a34a;--error:#dc2626;--muted:#f9fafb;--radius:10px}
+html,body{min-height:100vh;font-family:'Inter',sans-serif;background:var(--muted);color:var(--ink)}
+.layout{min-height:100vh;display:grid;grid-template-columns:1fr 1fr}
+.panel-left{background:#0f1117;display:flex;flex-direction:column;justify-content:space-between;padding:48px;overflow:hidden;position:relative}
+.panel-left::before{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(37,99,235,.25) 0%,transparent 70%);top:-100px;right:-100px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-icon{width:36px;height:36px;background:#2563eb;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.brand-icon svg{width:20px;height:20px;fill:white}
+.brand-name{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:white}
+.hero{flex:1;display:flex;flex-direction:column;justify-content:center;padding:48px 0}
+.hero-eyebrow{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#2563eb;margin-bottom:20px}
+.hero-title{font-family:'Syne',sans-serif;font-size:42px;font-weight:800;line-height:1.1;color:white;margin-bottom:24px}
+.hero-title span{color:#2563eb}
+.hero-desc{font-size:15px;line-height:1.7;color:rgba(255,255,255,.55);max-width:380px}
+.features{display:flex;flex-direction:column;gap:14px}
+.feature{display:flex;align-items:center;gap:12px;color:rgba(255,255,255,.7);font-size:14px}
+.feature-dot{width:6px;height:6px;border-radius:50%;background:#2563eb;flex-shrink:0}
+.panel-right{display:flex;align-items:center;justify-content:center;padding:48px 32px}
+.card{width:100%;max-width:480px}
+.card-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;margin-bottom:6px}
+.card-sub{font-size:14px;color:var(--ink-soft);margin-bottom:24px}
+.card-sub a{color:#2563eb;text-decoration:none;font-weight:500}
+.steps{display:flex;align-items:center;gap:8px;margin-bottom:24px}
+.step{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--ink-soft)}
+.step.active{color:#2563eb}
+.step.done{color:#16a34a}
+.step-num{width:22px;height:22px;border-radius:50%;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.step-line{flex:1;height:1px;background:var(--border)}
+.form{display:flex;flex-direction:column;gap:14px}
+.field{display:flex;flex-direction:column;gap:5px}
+label{font-size:13px;font-weight:500}
+input{height:44px;border:1.5px solid var(--border);border-radius:var(--radius);padding:0 14px;font-size:14px;font-family:inherit;color:var(--ink);background:var(--surface);outline:none;transition:border-color .15s}
+input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.slug-wrapper{display:flex;align-items:center;border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--surface);transition:border-color .15s}
+.slug-wrapper:focus-within{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.slug-wrapper.success{border-color:#16a34a}
+.slug-wrapper.error{border-color:#dc2626}
+.slug-prefix{padding:0 12px;font-size:13px;color:var(--ink-soft);background:var(--muted);border-right:1.5px solid var(--border);height:44px;display:flex;align-items:center;white-space:nowrap}
+.slug-wrapper input{border:none;border-radius:0;box-shadow:none;flex:1;height:42px}
+.hint{font-size:12px;color:var(--ink-soft);margin-top:2px}
+.hint.success{color:#16a34a}
+.hint.error{color:#dc2626}
+.btn{height:46px;border-radius:var(--radius);border:none;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px;width:100%}
+.btn-primary{background:#2563eb;color:white}
+.btn-primary:hover{background:#1d4ed8}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed}
+.btn-secondary{background:var(--muted);color:var(--ink);border:1.5px solid var(--border)}
+.alert{padding:12px 16px;border-radius:var(--radius);font-size:14px;margin-bottom:14px;display:none}
+.alert.error{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;display:block}
+.plans-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.plan-card{border:2px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all .15s;position:relative;background:var(--surface)}
+.plan-card:hover{border-color:#2563eb}
+.plan-card.selected{border-color:#2563eb;background:#eff6ff}
+.plan-trial{grid-column:1/-1;border-color:#bbf7d0;background:#f0fdf4}
+.plan-trial.selected{border-color:#16a34a;background:#dcfce7}
+.plan-popular::before{content:'Most Popular';position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#2563eb;color:white;font-size:10px;font-weight:700;padding:2px 10px;border-radius:20px;white-space:nowrap}
+.plan-name{font-weight:800;font-size:15px;margin-bottom:4px}
+.plan-price{font-size:20px;font-weight:800;color:#2563eb;margin-bottom:2px}
+.plan-trial .plan-price{color:#16a34a}
+.plan-period{font-size:11px;color:var(--ink-soft);margin-bottom:8px}
+.plan-feat{font-size:12px;color:var(--ink-soft);line-height:1.7}
+.payment-note{font-size:12px;color:#64748b;background:#fffbeb;border:1px solid #fde68a;padding:10px 14px;border-radius:8px;margin-bottom:14px;display:none}
+.row{display:flex;gap:8px}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.success-screen{display:none;text-align:center;padding:32px 0}
+.success-icon{width:64px;height:64px;background:#f0fdf4;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+.success-icon svg{width:32px;height:32px;stroke:#16a34a;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.success-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:8px}
+.success-desc{font-size:14px;color:var(--ink-soft);line-height:1.6;margin-bottom:24px}
+.login-link{display:inline-flex;align-items:center;gap:6px;background:#2563eb;color:white;font-weight:600;font-size:14px;padding:12px 24px;border-radius:var(--radius);text-decoration:none}
+@media(max-width:768px){.layout{grid-template-columns:1fr}.panel-left{display:none}.panel-right{padding:32px 20px;align-items:flex-start;padding-top:48px}}
 </style>
 </head>
 <body>
-
 <div class="layout">
-
-  <!-- LEFT -->
   <div class="panel-left">
     <div class="brand">
-      <div class="brand-icon">
-        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-      </div>
+      <div class="brand-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
       <span class="brand-name">Knooz ERP</span>
     </div>
-
     <div class="hero">
       <div class="hero-eyebrow">Built for growing businesses</div>
       <h1 class="hero-title">Run your business.<br/><span>Not your software.</span></h1>
-      <p class="hero-desc">CRM, accounting, HR, and inventory — all in one place, in Arabic and English. Your account is ready in seconds.</p>
+      <p class="hero-desc">CRM, accounting, HR, and inventory in Arabic and English. ZATCA-compliant. Ready in seconds.</p>
     </div>
-
     <div class="features">
-      <div class="feature"><div class="feature-dot"></div>Full Arabic &amp; English support with RTL layout</div>
-      <div class="feature"><div class="feature-dot"></div>CRM, Accounting, HR &amp; Inventory modules</div>
-      <div class="feature"><div class="feature-dot"></div>AI-powered document scanning</div>
-      <div class="feature"><div class="feature-dot"></div>Your data, fully isolated from other companies</div>
+      <div class="feature"><div class="feature-dot"></div>Full Arabic &amp; English with RTL</div>
+      <div class="feature"><div class="feature-dot"></div>ZATCA e-invoicing with QR codes</div>
+      <div class="feature"><div class="feature-dot"></div>CRM, Accounting, HR &amp; Inventory</div>
+      <div class="feature"><div class="feature-dot"></div>Isolated data per company</div>
     </div>
   </div>
-
-  <!-- RIGHT -->
   <div class="panel-right">
     <div class="card">
-
-      <div class="card-header">
-        <h2 class="card-title">Create your account</h2>
-        <p class="card-sub">Already have one? <a href="/login">Sign in</a></p>
-      </div>
-
-      <!-- SUCCESS SCREEN -->
       <div class="success-screen" id="successScreen">
-        <div class="success-icon">
-          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-        </div>
-        <div class="success-title">You're all set!</div>
-        <p class="success-desc">Your Knooz ERP account has been created.<br/>Sign in with your email and password.</p>
-        <a class="login-link" id="loginLink" href="/login">Go to login →</a>
+        <div class="success-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="success-title">You are all set!</div>
+        <p class="success-desc" id="successDesc">Your account is ready.</p>
+        <a class="login-link" id="loginLink" href="/login">Go to login</a>
       </div>
-
-      <!-- FORM -->
-      <div id="formWrap">
-        <div class="alert" id="alertBox"></div>
-
+      <div id="step1">
+        <div class="steps">
+          <div class="step active"><div class="step-num">1</div>Details</div>
+          <div class="step-line"></div>
+          <div class="step"><div class="step-num">2</div>Plan</div>
+          <div class="step-line"></div>
+          <div class="step"><div class="step-num">3</div>Done</div>
+        </div>
+        <div class="card-title">Create your account</div>
+        <div class="card-sub">Already have one? <a href="/login">Sign in</a></div>
+        <div class="alert" id="alert1"></div>
         <div class="form">
-          <div class="field">
-            <label for="companyName">Company name</label>
-            <input type="text" id="companyName" placeholder="Acme Trading Co." autocomplete="organization"/>
+          <div class="field"><label>Company name</label><input type="text" id="companyName" placeholder="Acme Trading Co."/></div>
+          <div class="field"><label>Your ERP address</label>
+            <div class="slug-wrapper" id="slugWrapper"><span class="slug-prefix">erp.tcv-ai.com/</span><input type="text" id="slug" placeholder="acme" autocomplete="off"/></div>
+            <span class="hint" id="slugHint">Letters and numbers only</span>
           </div>
-
-          <div class="field">
-            <label for="slug">Your ERP address</label>
-            <div class="slug-wrapper" id="slugWrapper">
-              <span class="slug-prefix">erp.tcv-ai.com/</span>
-              <input type="text" id="slug" placeholder="acme" autocomplete="off" spellcheck="false"/>
-            </div>
-            <span class="hint" id="slugHint">Letters and numbers only, e.g. "acme" or "my-company"</span>
-          </div>
-
-          <div class="field">
-            <label for="adminName">Your name</label>
-            <input type="text" id="adminName" placeholder="Mohammed Al-Rashid" autocomplete="name"/>
-          </div>
-
-          <div class="field">
-            <label for="adminEmail">Work email</label>
-            <input type="email" id="adminEmail" placeholder="you@company.com" autocomplete="email"/>
-          </div>
-
-          <div class="field">
-            <label for="adminPassword">Password</label>
-            <input type="password" id="adminPassword" placeholder="At least 8 characters" autocomplete="new-password"/>
-          </div>
-
-          <button class="btn btn-primary" id="submitBtn" onclick="handleSignup()">
-            Create account
-          </button>
+          <div class="field"><label>Your name</label><input type="text" id="adminName" placeholder="Mohammed Al-Rashid"/></div>
+          <div class="field"><label>Work email</label><input type="email" id="adminEmail" placeholder="you@company.com"/></div>
+          <div class="field"><label>Password</label><input type="password" id="adminPassword" placeholder="At least 8 characters"/></div>
+          <button class="btn btn-primary" onclick="goToStep2()">Continue to Plan Selection</button>
         </div>
       </div>
-
+      <div id="step2" style="display:none">
+        <div class="steps">
+          <div class="step done"><div class="step-num">&#10003;</div>Details</div>
+          <div class="step-line"></div>
+          <div class="step active"><div class="step-num">2</div>Plan</div>
+          <div class="step-line"></div>
+          <div class="step"><div class="step-num">3</div>Done</div>
+        </div>
+        <div class="card-title">Choose your plan</div>
+        <div class="card-sub">Start free, upgrade anytime</div>
+        <div class="alert" id="alert2"></div>
+        <div class="plans-grid">
+          <div class="plan-card plan-trial selected" id="plan-trial" onclick="selectPlan('trial')">
+            <div class="plan-name">Free Trial</div>
+            <div class="plan-price">Free</div>
+            <div class="plan-period">14 days full access</div>
+            <div class="plan-feat">&#10003; All features included<br/>&#10003; No credit card needed</div>
+          </div>
+          <div class="plan-card plan-popular" id="plan-annual" onclick="selectPlan('annual')">
+            <div class="plan-name">Annual</div>
+            <div class="plan-price">2,499 SAR</div>
+            <div class="plan-period">per year — save 30%</div>
+            <div class="plan-feat">&#10003; All features<br/>&#10003; Priority support</div>
+          </div>
+          <div class="plan-card" id="plan-monthly" onclick="selectPlan('monthly')">
+            <div class="plan-name">Monthly</div>
+            <div class="plan-price">299 SAR</div>
+            <div class="plan-period">per month</div>
+            <div class="plan-feat">&#10003; All features<br/>&#10003; Cancel anytime</div>
+          </div>
+          <div class="plan-card" id="plan-biannual" onclick="selectPlan('biannual')">
+            <div class="plan-name">6 Months</div>
+            <div class="plan-price">1,499 SAR</div>
+            <div class="plan-period">per 6 months</div>
+            <div class="plan-feat">&#10003; All features<br/>&#10003; Flexible term</div>
+          </div>
+        </div>
+        <div class="payment-note" id="payNote">Our team will contact you to complete payment and activate your plan within 24 hours.</div>
+        <div class="row">
+          <button class="btn btn-secondary" onclick="goBack()" style="flex:1">Back</button>
+          <button class="btn btn-primary" id="submitBtn" onclick="handleSignup()" style="flex:2">Start Free Trial</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
-
 <script>
-const API = "https://knooz-production.up.railway.app";
-let slugTimer = null;
-
-// Auto-generate slug from company name
-document.getElementById("companyName").addEventListener("input", function() {
-  const raw = this.value.toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 30);
-  document.getElementById("slug").value = raw;
-  scheduleSlugCheck(raw);
+const API="https://knooz-api.onrender.com";
+let slugTimer=null,selectedPlan="trial";
+document.getElementById("companyName").addEventListener("input",function(){
+  const raw=this.value.toLowerCase().trim().replace(/\s+/g,"-").replace(/[^a-z0-9-]+/g,"").replace(/^-+|-+$/g,"").slice(0,30);
+  document.getElementById("slug").value=raw;scheduleSlugCheck(raw);
 });
-
-document.getElementById("slug").addEventListener("input", function() {
-  scheduleSlugCheck(this.value);
-});
-
-function scheduleSlugCheck(val) {
-  clearTimeout(slugTimer);
-  if (!val) return;
-  slugTimer = setTimeout(() => checkSlug(val), 500);
+document.getElementById("slug").addEventListener("input",function(){scheduleSlugCheck(this.value);});
+function scheduleSlugCheck(v){clearTimeout(slugTimer);if(!v)return;slugTimer=setTimeout(()=>checkSlug(v),500);}
+async function checkSlug(slug){
+  const w=document.getElementById("slugWrapper"),h=document.getElementById("slugHint");
+  if(!slug||slug.length<3){w.className="slug-wrapper";h.className="hint";h.textContent="Letters and numbers only";return;}
+  try{const r=await fetch(API+"/api/auth/check-slug/"+slug);const d=await r.json();
+    if(d.available){w.className="slug-wrapper success";h.className="hint success";h.textContent='"'+slug+'" is available';}
+    else{w.className="slug-wrapper error";h.className="hint error";h.textContent='"'+slug+'" is already taken';}
+  }catch(e){}
 }
-
-async function checkSlug(slug) {
-  const wrapper = document.getElementById("slugWrapper");
-  const hint = document.getElementById("slugHint");
-  if (!slug || slug.length < 3) {
-    wrapper.className = "slug-wrapper";
-    hint.className = "hint";
-    hint.textContent = 'Letters and numbers only, e.g. "acme" or "my-company"';
-    return;
-  }
-  try {
-    const r = await fetch(`${API}/api/auth/check-slug/${slug}`);
-    const d = await r.json();
-    if (d.available) {
-      wrapper.className = "slug-wrapper success";
-      hint.className = "hint success";
-      hint.textContent = `✓ "${slug}" is available`;
-    } else {
-      wrapper.className = "slug-wrapper error";
-      hint.className = "hint error";
-      hint.textContent = `"${slug}" is already taken — try another`;
-    }
-  } catch(e) {}
+function goToStep2(){
+  const a=document.getElementById("alert1");a.className="alert";
+  const c=document.getElementById("companyName").value.trim();
+  const s=document.getElementById("slug").value.trim();
+  const n=document.getElementById("adminName").value.trim();
+  const e=document.getElementById("adminEmail").value.trim();
+  const p=document.getElementById("adminPassword").value;
+  if(!c||!s||!n||!e||!p){a.className="alert error";a.textContent="Please fill in all fields.";return;}
+  if(p.length<8){a.className="alert error";a.textContent="Password must be at least 8 characters.";return;}
+  document.getElementById("step1").style.display="none";
+  document.getElementById("step2").style.display="block";
 }
-
-async function handleSignup() {
-  const btn = document.getElementById("submitBtn");
-  const alert = document.getElementById("alertBox");
-  alert.className = "alert";
-  alert.textContent = "";
-
-  const company_name = document.getElementById("companyName").value.trim();
-  const slug = document.getElementById("slug").value.trim().toLowerCase();
-  const admin_name = document.getElementById("adminName").value.trim();
-  const admin_email = document.getElementById("adminEmail").value.trim();
-  const admin_password = document.getElementById("adminPassword").value;
-
-  if (!company_name || !slug || !admin_name || !admin_email || !admin_password) {
-    alert.className = "alert error";
-    alert.textContent = "Please fill in all fields.";
-    return;
-  }
-  if (admin_password.length < 8) {
-    alert.className = "alert error";
-    alert.textContent = "Password must be at least 8 characters.";
-    return;
-  }
-
-  btn.disabled = true;
-  btn.innerHTML = '<div class="spinner"></div> Setting up your account…';
-
-  try {
-    const r = await fetch(`${API}/api/auth/register-tenant/`, {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({company_name, slug, admin_name, admin_email, admin_password})
-    });
-    const d = await r.json();
-
-    if (r.ok) {
-      document.getElementById("formWrap").style.display = "none";
-      document.getElementById("successScreen").style.display = "block";
-      document.getElementById("loginLink").href = `/login?tenant=${slug}`;
-    } else {
-      alert.className = "alert error";
-      alert.textContent = d.detail || "Something went wrong. Please try again.";
-      btn.disabled = false;
-      btn.textContent = "Create account";
-    }
-  } catch(e) {
-    alert.className = "alert error";
-    alert.textContent = "Network error. Please check your connection.";
-    btn.disabled = false;
-    btn.textContent = "Create account";
-  }
+function goBack(){document.getElementById("step2").style.display="none";document.getElementById("step1").style.display="block";}
+function selectPlan(plan){
+  selectedPlan=plan;
+  document.querySelectorAll(".plan-card").forEach(c=>c.classList.remove("selected"));
+  document.getElementById("plan-"+plan).classList.add("selected");
+  document.getElementById("payNote").style.display=plan!=="trial"?"block":"none";
+  document.getElementById("submitBtn").textContent=plan==="trial"?"Start Free Trial":"Create Account";
+}
+async function handleSignup(){
+  const btn=document.getElementById("submitBtn"),a=document.getElementById("alert2");
+  a.className="alert";
+  const company_name=document.getElementById("companyName").value.trim();
+  const slug=document.getElementById("slug").value.trim().toLowerCase();
+  const admin_name=document.getElementById("adminName").value.trim();
+  const admin_email=document.getElementById("adminEmail").value.trim();
+  const admin_password=document.getElementById("adminPassword").value;
+  btn.disabled=true;btn.innerHTML='<div class="spinner"></div> Setting up...';
+  try{
+    const r=await fetch(API+"/api/auth/register-tenant",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({company_name,slug,admin_name,admin_email,admin_password,plan:selectedPlan})});
+    const d=await r.json();
+    if(r.ok){
+      document.getElementById("step2").style.display="none";
+      document.getElementById("successScreen").style.display="block";
+      document.getElementById("successDesc").innerHTML=selectedPlan==="trial"
+        ?'Your account is ready with a <strong>14-day free trial</strong>. Sign in to get started.'
+        :'Account created! Our team will contact you at <strong>'+admin_email+'</strong> to activate within 24 hours.';
+      document.getElementById("loginLink").href="/login?tenant="+slug;
+    }else{a.className="alert error";a.textContent=d.detail||"Something went wrong.";btn.disabled=false;btn.textContent="Try Again";}
+  }catch(e){a.className="alert error";a.textContent="Network error. Please check your connection.";btn.disabled=false;btn.textContent="Try Again";}
 }
 </script>
 </body>
