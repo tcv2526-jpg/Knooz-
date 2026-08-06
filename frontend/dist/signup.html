@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8"/>
@@ -454,15 +454,13 @@
 </div>
 
 <script>
-const API = "https://knooz-api.onrender.com";
+const API = "https://knooz-production.up.railway.app";
 let slugTimer = null;
 
 // Auto-generate slug from company name
 document.getElementById("companyName").addEventListener("input", function() {
   const raw = this.value.toLowerCase()
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-]+/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 30);
   document.getElementById("slug").value = raw;
@@ -530,10 +528,10 @@ async function handleSignup() {
   btn.innerHTML = '<div class="spinner"></div> Setting up your account…';
 
   try {
-    const r = await fetch(`${API}/api/auth/register-tenant`, {
+    const r = await fetch(`${API}/api/auth/register-tenant/`, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({company_name, slug, admin_name, admin_email, admin_password, plan: "trial"})
+      body: JSON.stringify({company_name, slug, admin_name, admin_email, admin_password})
     });
     const d = await r.json();
 
@@ -557,4 +555,3 @@ async function handleSignup() {
 </script>
 </body>
 </html>
-
