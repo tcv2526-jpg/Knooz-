@@ -178,7 +178,7 @@ input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
   </div>
 </div>
 <script>
-const API="https://knooz-api.onrender.com";
+const API="https://erp.tcv-ai.com";
 let slugTimer=null,selectedPlan="trial";
 document.getElementById("companyName").addEventListener("input",function(){
   const raw=this.value.toLowerCase().trim().replace(/\s+/g,"-").replace(/[^a-z0-9-]+/g,"").replace(/^-+|-+$/g,"").slice(0,30);
@@ -240,3 +240,4 @@ async function handleSignup(){
 </script>
 </body>
 </html>
+
