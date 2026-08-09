@@ -45,15 +45,29 @@ def register_tenant(payload: TenantSignup, db: Session = Depends(get_db)):
                      admin_name=payload.admin_name, admin_hashed_password=hashed)
 
     trial_end = datetime.utcnow() + timedelta(days=14)
+    PLAN_PRICES = {"trial": 0, "monthly": 299, "biannual": 1499, "annual": 2499}
+    PLAN_DAYS = {"trial": 14, "monthly": 30, "biannual": 180, "annual": 365}
+    plan = payload.plan if payload.plan in PLAN_PRICES else "trial"
+    price = PLAN_PRICES[plan]
+    days = PLAN_DAYS[plan]
+    trial_end = datetime.utcnow() + timedelta(days=days)
+    is_active = plan == "trial"  # Only trial is immediately active
+
     db.execute(text(
-        "UPDATE public.tenants SET subscription_plan='trial', "
-        "subscription_start=now(), subscription_end=:trial_end, price_sar=0 "
+        "UPDATE public.tenants SET subscription_plan=:plan, "
+        "subscription_start=now(), subscription_end=:trial_end, "
+        "price_sar=:price, is_active=:active "
         "WHERE slug=:slug"
-    ), {"trial_end": trial_end, "slug": slug})
+    ), {"plan": plan, "trial_end": trial_end, "price": price, "active": is_active, "slug": slug})
     db.commit()
 
+    if plan == "trial":
+        msg = "Account created successfully! You have a 14-day free trial."
+    else:
+        msg = f"Account created! Our team will contact you to activate your {plan} plan after payment."
+
     return {
-        "message": "Account created successfully! You have a 14-day free trial.",
+        "message": msg,
         "slug": slug,
         "login_url": f"https://erp.tcv-ai.com/login?tenant={slug}",
         "company": payload.company_name,
