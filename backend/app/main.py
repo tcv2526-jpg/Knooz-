@@ -19,6 +19,7 @@ from app.modules.hr.router import router as hr_router
 from app.modules.ai.router import router as ai_router
 from app.modules.tenants.router import router as tenants_router
 from app.modules.tenants.migrate_router import router as migrate_router
+from app.modules.payments.router import router as payments_router
 from app.modules.tenants.middleware import TenantMiddleware
 from app.modules.tenants.provisioning import PUBLIC_TENANTS_TABLE
 
@@ -58,6 +59,7 @@ app.include_router(hr_router)
 app.include_router(ai_router)
 app.include_router(tenants_router)
 app.include_router(migrate_router)
+app.include_router(payments_router)
 
 @app.get("/health")
 def health():
@@ -66,4 +68,5 @@ def health():
 @app.get("/")
 def root():
     return {"message": "Knooz ERP API", "docs": "/api/docs"}
+
 
