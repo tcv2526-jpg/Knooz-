@@ -79,7 +79,13 @@ input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
 .success-desc{font-size:14px;color:var(--ink-soft);line-height:1.6;margin-bottom:24px}
 .login-link{display:inline-flex;align-items:center;gap:6px;background:#2563eb;color:white;font-weight:600;font-size:14px;padding:12px 24px;border-radius:var(--radius);text-decoration:none}
 @media(max-width:768px){.layout{grid-template-columns:1fr}.panel-left{display:none}.panel-right{padding:32px 20px;align-items:flex-start;padding-top:48px}}
-</style>
+
+<link rel="stylesheet" href="https://cdn.moyasar.com/mpf/1.14.0/moyasar.css">
+<style>
+.mysr-form { margin-top: 16px; }
+.payment-step { display:none; }
+.back-btn { background:var(--muted); color:var(--ink); border:1.5px solid var(--border); height:46px; border-radius:var(--radius); font-family:inherit; font-size:15px; font-weight:600; cursor:pointer; padding:0 20px; }
+</style></style>
 </head>
 <body>
 <div class="layout">
@@ -178,7 +184,7 @@ input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
   </div>
 </div>
 <script>
-const API="https://erp.tcv-ai.com";
+const API="https://erp.tcv-ai.com";const MOYASAR_KEY="pk_live_****************************************";
 let slugTimer=null,selectedPlan="trial";
 document.getElementById("companyName").addEventListener("input",function(){
   const raw=this.value.toLowerCase().trim().replace(/\s+/g,"-").replace(/[^a-z0-9-]+/g,"").replace(/^-+|-+$/g,"").slice(0,30);
@@ -214,6 +220,11 @@ function selectPlan(plan){
   document.getElementById("payNote").style.display=plan!=="trial"?"block":"none";
   document.getElementById("submitBtn").textContent=plan==="trial"?"Start Free Trial":"Create Account";
 }
+function backToPlans(){
+  document.getElementById("step3").style.display="none";
+  document.getElementById("step2").style.display="block";
+}
+
 async function handleSignup(){
   const btn=document.getElementById("submitBtn"),a=document.getElementById("alert2");
   a.className="alert";
@@ -222,6 +233,29 @@ async function handleSignup(){
   const admin_name=document.getElementById("adminName").value.trim();
   const admin_email=document.getElementById("adminEmail").value.trim();
   const admin_password=document.getElementById("adminPassword").value;
+
+  // For paid plans, show payment form after creating account
+  if(selectedPlan !== "trial") {
+    btn.disabled=true;btn.innerHTML='<div class="spinner"></div> Setting up...';
+    try {
+      const r=await fetch(API+"/api/auth/register-tenant",{method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({company_name,slug,admin_name,admin_email,admin_password,plan:selectedPlan})});
+      const d=await r.json();
+      if(r.ok){
+        document.getElementById("step2").style.display="none";
+        document.getElementById("step3").style.display="block";
+        initMoyasarForm(selectedPlan, slug);
+      } else {
+        a.className="alert error";a.textContent=d.detail||"Something went wrong.";
+        btn.disabled=false;btn.textContent="Create Account";
+      }
+    } catch(e){
+      a.className="alert error";a.textContent="Network error.";
+      btn.disabled=false;btn.textContent="Create Account";
+    }
+    return;
+  }
+
   btn.disabled=true;btn.innerHTML='<div class="spinner"></div> Setting up...';
   try{
     const r=await fetch(API+"/api/auth/register-tenant",{method:"POST",headers:{"Content-Type":"application/json"},
@@ -238,6 +272,37 @@ async function handleSignup(){
   }catch(e){a.className="alert error";a.textContent="Network error. Please check your connection.";btn.disabled=false;btn.textContent="Try Again";}
 }
 </script>
-</body>
+
+<script src="https://cdn.moyasar.com/mpf/1.14.0/moyasar.js"></script>
+<script>
+function initMoyasarForm(plan, slug) {
+  const prices = {monthly: 29900, biannual: 149900, annual: 249900};
+  const names = {monthly: 'Monthly - SAR 299', biannual: '6 Months - SAR 1499', annual: 'Annual - SAR 2499'};
+  
+  document.getElementById('paymentTitle').textContent = 'Pay for ' + names[plan];
+  
+  Moyasar.init({
+    element: '.mysr-form',
+    amount: prices[plan],
+    currency: 'SAR',
+    description: 'Knooz ERP - ' + names[plan] + ' - ' + slug,
+    publishable_api_key: MOYASAR_KEY,
+    callback_url: 'https://erp.tcv-ai.com/payment-callback?slug=' + slug + '&plan=' + plan,
+    methods: ['creditcard', 'mada', 'stcpay'],
+    on_completed: function(payment) {
+      if(payment.status === 'paid') {
+        fetch(API + '/api/payments/verify/' + payment.id + '?slug=' + slug + '&plan=' + plan)
+          .then(r => r.json())
+          .then(d => {
+            document.getElementById('step3').style.display = 'none';
+            document.getElementById('successScreen').style.display = 'block';
+            document.getElementById('successDesc').innerHTML = 'Payment successful! Your <strong>' + plan + '</strong> plan is now active.';
+            document.getElementById('loginLink').href = '/login?tenant=' + slug;
+          });
+      }
+    }
+  });
+}
+</script></body>
 </html>
 
