@@ -1,35 +1,36 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Start Free — Knooz ERP</title>
+<link rel="stylesheet" href="https://cdn.moyasar.com/mpf/1.14.0/moyasar.css">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@700;800&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--ink:#0f1117;--ink-soft:#6b7280;--surface:#fff;--border:#e5e7eb;--accent:#2563eb;--accent-dk:#1d4ed8;--success:#16a34a;--error:#dc2626;--muted:#f9fafb;--radius:10px}
-html,body{min-height:100vh;font-family:'Inter',sans-serif;background:var(--muted);color:var(--ink)}
+html,body{min-height:100vh;font-family:"Inter",sans-serif;background:var(--muted);color:var(--ink)}
 .layout{min-height:100vh;display:grid;grid-template-columns:1fr 1fr}
 .panel-left{background:#0f1117;display:flex;flex-direction:column;justify-content:space-between;padding:48px;overflow:hidden;position:relative}
-.panel-left::before{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(37,99,235,.25) 0%,transparent 70%);top:-100px;right:-100px}
+.panel-left::before{content:"";position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(37,99,235,.25) 0%,transparent 70%);top:-100px;right:-100px}
 .brand{display:flex;align-items:center;gap:10px}
 .brand-icon{width:36px;height:36px;background:#2563eb;border-radius:8px;display:flex;align-items:center;justify-content:center}
 .brand-icon svg{width:20px;height:20px;fill:white}
-.brand-name{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:white}
+.brand-name{font-family:"Syne",sans-serif;font-size:20px;font-weight:800;color:white}
 .hero{flex:1;display:flex;flex-direction:column;justify-content:center;padding:48px 0}
 .hero-eyebrow{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#2563eb;margin-bottom:20px}
-.hero-title{font-family:'Syne',sans-serif;font-size:42px;font-weight:800;line-height:1.1;color:white;margin-bottom:24px}
+.hero-title{font-family:"Syne",sans-serif;font-size:42px;font-weight:800;line-height:1.1;color:white;margin-bottom:24px}
 .hero-title span{color:#2563eb}
 .hero-desc{font-size:15px;line-height:1.7;color:rgba(255,255,255,.55);max-width:380px}
 .features{display:flex;flex-direction:column;gap:14px}
 .feature{display:flex;align-items:center;gap:12px;color:rgba(255,255,255,.7);font-size:14px}
 .feature-dot{width:6px;height:6px;border-radius:50%;background:#2563eb;flex-shrink:0}
-.panel-right{display:flex;align-items:center;justify-content:center;padding:48px 32px}
+.panel-right{display:flex;align-items:center;justify-content:center;padding:48px 32px;overflow-y:auto}
 .card{width:100%;max-width:480px}
-.card-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;margin-bottom:6px}
+.card-title{font-family:"Syne",sans-serif;font-size:24px;font-weight:800;margin-bottom:6px}
 .card-sub{font-size:14px;color:var(--ink-soft);margin-bottom:24px}
 .card-sub a{color:#2563eb;text-decoration:none;font-weight:500}
-.steps{display:flex;align-items:center;gap:8px;margin-bottom:24px}
+.steps{display:flex;align-items:center;gap:8px;margin-bottom:20px}
 .step{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--ink-soft)}
 .step.active{color:#2563eb}
 .step.done{color:#16a34a}
@@ -40,7 +41,7 @@ html,body{min-height:100vh;font-family:'Inter',sans-serif;background:var(--muted
 label{font-size:13px;font-weight:500}
 input{height:44px;border:1.5px solid var(--border);border-radius:var(--radius);padding:0 14px;font-size:14px;font-family:inherit;color:var(--ink);background:var(--surface);outline:none;transition:border-color .15s}
 input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
-.slug-wrapper{display:flex;align-items:center;border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--surface);transition:border-color .15s}
+.slug-wrapper{display:flex;align-items:center;border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--surface)}
 .slug-wrapper:focus-within{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
 .slug-wrapper.success{border-color:#16a34a}
 .slug-wrapper.error{border-color:#dc2626}
@@ -62,7 +63,7 @@ input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
 .plan-card.selected{border-color:#2563eb;background:#eff6ff}
 .plan-trial{grid-column:1/-1;border-color:#bbf7d0;background:#f0fdf4}
 .plan-trial.selected{border-color:#16a34a;background:#dcfce7}
-.plan-popular::before{content:'Most Popular';position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#2563eb;color:white;font-size:10px;font-weight:700;padding:2px 10px;border-radius:20px;white-space:nowrap}
+.plan-popular::before{content:"Most Popular";position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#2563eb;color:white;font-size:10px;font-weight:700;padding:2px 10px;border-radius:20px;white-space:nowrap}
 .plan-name{font-weight:800;font-size:15px;margin-bottom:4px}
 .plan-price{font-size:20px;font-weight:800;color:#2563eb;margin-bottom:2px}
 .plan-trial .plan-price{color:#16a34a}
@@ -75,17 +76,13 @@ input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
 .success-screen{display:none;text-align:center;padding:32px 0}
 .success-icon{width:64px;height:64px;background:#f0fdf4;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
 .success-icon svg{width:32px;height:32px;stroke:#16a34a;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-.success-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:8px}
+.success-title{font-family:"Syne",sans-serif;font-size:22px;font-weight:800;margin-bottom:8px}
 .success-desc{font-size:14px;color:var(--ink-soft);line-height:1.6;margin-bottom:24px}
-.login-link{display:inline-flex;align-items:center;gap:6px;background:#2563eb;color:white;font-weight:600;font-size:14px;padding:12px 24px;border-radius:var(--radius);text-decoration:none}
+.login-link{display:inline-flex;align-items:center;background:#2563eb;color:white;font-weight:600;font-size:14px;padding:12px 24px;border-radius:var(--radius);text-decoration:none}
+.payment-box{background:#f8fafc;border:1.5px solid var(--border);border-radius:12px;padding:20px;margin-top:16px}
+.secure-badge{font-size:11px;color:#64748b;text-align:center;margin-top:12px}
 @media(max-width:768px){.layout{grid-template-columns:1fr}.panel-left{display:none}.panel-right{padding:32px 20px;align-items:flex-start;padding-top:48px}}
-
-<link rel="stylesheet" href="https://cdn.moyasar.com/mpf/1.14.0/moyasar.css">
-<style>
-.mysr-form { margin-top: 16px; }
-.payment-step { display:none; }
-.back-btn { background:var(--muted); color:var(--ink); border:1.5px solid var(--border); height:46px; border-radius:var(--radius); font-family:inherit; font-size:15px; font-weight:600; cursor:pointer; padding:0 20px; }
-</style></style>
+</style>
 </head>
 <body>
 <div class="layout">
@@ -108,19 +105,23 @@ input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
   </div>
   <div class="panel-right">
     <div class="card">
+
+      <!-- SUCCESS -->
       <div class="success-screen" id="successScreen">
         <div class="success-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
         <div class="success-title">You are all set!</div>
         <p class="success-desc" id="successDesc">Your account is ready.</p>
         <a class="login-link" id="loginLink" href="/login">Go to login</a>
       </div>
+
+      <!-- STEP 1: Details -->
       <div id="step1">
         <div class="steps">
           <div class="step active"><div class="step-num">1</div>Details</div>
           <div class="step-line"></div>
           <div class="step"><div class="step-num">2</div>Plan</div>
           <div class="step-line"></div>
-          <div class="step"><div class="step-num">3</div>Done</div>
+          <div class="step"><div class="step-num">3</div>Payment</div>
         </div>
         <div class="card-title">Create your account</div>
         <div class="card-sub">Already have one? <a href="/login">Sign in</a></div>
@@ -137,13 +138,15 @@ input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
           <button class="btn btn-primary" onclick="goToStep2()">Continue to Plan Selection</button>
         </div>
       </div>
+
+      <!-- STEP 2: Plan -->
       <div id="step2" style="display:none">
         <div class="steps">
           <div class="step done"><div class="step-num">&#10003;</div>Details</div>
           <div class="step-line"></div>
           <div class="step active"><div class="step-num">2</div>Plan</div>
           <div class="step-line"></div>
-          <div class="step"><div class="step-num">3</div>Done</div>
+          <div class="step"><div class="step-num">3</div>Payment</div>
         </div>
         <div class="card-title">Choose your plan</div>
         <div class="card-sub">Start free, upgrade anytime</div>
@@ -174,32 +177,63 @@ input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
             <div class="plan-feat">&#10003; All features<br/>&#10003; Flexible term</div>
           </div>
         </div>
-        <div class="payment-note" id="payNote">Our team will contact you to complete payment and activate your plan within 24 hours.</div>
+        <div class="payment-note" id="payNote">Secure payment via Mada, Visa, Mastercard or STC Pay</div>
         <div class="row">
           <button class="btn btn-secondary" onclick="goBack()" style="flex:1">Back</button>
           <button class="btn btn-primary" id="submitBtn" onclick="handleSignup()" style="flex:2">Start Free Trial</button>
         </div>
       </div>
+
+      <!-- STEP 3: Payment -->
+      <div id="step3" style="display:none">
+        <div class="steps">
+          <div class="step done"><div class="step-num">&#10003;</div>Details</div>
+          <div class="step-line"></div>
+          <div class="step done"><div class="step-num">&#10003;</div>Plan</div>
+          <div class="step-line"></div>
+          <div class="step active"><div class="step-num">3</div>Payment</div>
+        </div>
+        <div class="card-title" id="paymentTitle">Complete Payment</div>
+        <div class="card-sub">Secure payment powered by Moyasar</div>
+        <div class="alert" id="alert3"></div>
+        <div class="payment-box">
+          <div class="mysr-form"></div>
+        </div>
+        <div class="secure-badge">&#128274; Secured by Moyasar — PCI DSS Compliant</div>
+        <div style="margin-top:16px">
+          <button class="btn btn-secondary" onclick="backToPlans()">&#8592; Back to plans</button>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
+
+<script src="https://cdn.moyasar.com/mpf/1.14.0/moyasar.js"></script>
 <script>
-const API="https://erp.tcv-ai.com";const MOYASAR_KEY="pk_live_****************************************";
-let slugTimer=null,selectedPlan="trial";
+const API="https://erp.tcv-ai.com";
+const MOYASAR_KEY="pk_live_****************************************";
+let slugTimer=null, selectedPlan="trial", currentSlug="";
+
 document.getElementById("companyName").addEventListener("input",function(){
   const raw=this.value.toLowerCase().trim().replace(/\s+/g,"-").replace(/[^a-z0-9-]+/g,"").replace(/^-+|-+$/g,"").slice(0,30);
   document.getElementById("slug").value=raw;scheduleSlugCheck(raw);
 });
 document.getElementById("slug").addEventListener("input",function(){scheduleSlugCheck(this.value);});
+
 function scheduleSlugCheck(v){clearTimeout(slugTimer);if(!v)return;slugTimer=setTimeout(()=>checkSlug(v),500);}
+
 async function checkSlug(slug){
   const w=document.getElementById("slugWrapper"),h=document.getElementById("slugHint");
   if(!slug||slug.length<3){w.className="slug-wrapper";h.className="hint";h.textContent="Letters and numbers only";return;}
-  try{const r=await fetch(API+"/api/auth/check-slug/"+slug);const d=await r.json();
-    if(d.available){w.className="slug-wrapper success";h.className="hint success";h.textContent='"'+slug+'" is available';}
-    else{w.className="slug-wrapper error";h.className="hint error";h.textContent='"'+slug+'" is already taken';}
+  try{
+    const r=await fetch(API+"/api/auth/check-slug/"+slug);
+    const d=await r.json();
+    if(d.available){w.className="slug-wrapper success";h.className="hint success";h.textContent=slug+" is available";}
+    else{w.className="slug-wrapper error";h.className="hint error";h.textContent=slug+" is already taken";}
   }catch(e){}
 }
+
 function goToStep2(){
   const a=document.getElementById("alert1");a.className="alert";
   const c=document.getElementById("companyName").value.trim();
@@ -212,17 +246,23 @@ function goToStep2(){
   document.getElementById("step1").style.display="none";
   document.getElementById("step2").style.display="block";
 }
-function goBack(){document.getElementById("step2").style.display="none";document.getElementById("step1").style.display="block";}
+
+function goBack(){
+  document.getElementById("step2").style.display="none";
+  document.getElementById("step1").style.display="block";
+}
+
+function backToPlans(){
+  document.getElementById("step3").style.display="none";
+  document.getElementById("step2").style.display="block";
+}
+
 function selectPlan(plan){
   selectedPlan=plan;
   document.querySelectorAll(".plan-card").forEach(c=>c.classList.remove("selected"));
   document.getElementById("plan-"+plan).classList.add("selected");
   document.getElementById("payNote").style.display=plan!=="trial"?"block":"none";
-  document.getElementById("submitBtn").textContent=plan==="trial"?"Start Free Trial":"Create Account";
-}
-function backToPlans(){
-  document.getElementById("step3").style.display="none";
-  document.getElementById("step2").style.display="block";
+  document.getElementById("submitBtn").textContent=plan==="trial"?"Start Free Trial":"Continue to Payment";
 }
 
 async function handleSignup(){
@@ -233,76 +273,53 @@ async function handleSignup(){
   const admin_name=document.getElementById("adminName").value.trim();
   const admin_email=document.getElementById("adminEmail").value.trim();
   const admin_password=document.getElementById("adminPassword").value;
+  currentSlug=slug;
 
-  // For paid plans, show payment form after creating account
-  if(selectedPlan !== "trial") {
-    btn.disabled=true;btn.innerHTML='<div class="spinner"></div> Setting up...';
-    try {
-      const r=await fetch(API+"/api/auth/register-tenant",{method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({company_name,slug,admin_name,admin_email,admin_password,plan:selectedPlan})});
-      const d=await r.json();
-      if(r.ok){
-        document.getElementById("step2").style.display="none";
-        document.getElementById("step3").style.display="block";
-        initMoyasarForm(selectedPlan, slug);
-      } else {
-        a.className="alert error";a.textContent=d.detail||"Something went wrong.";
-        btn.disabled=false;btn.textContent="Create Account";
-      }
-    } catch(e){
-      a.className="alert error";a.textContent="Network error.";
-      btn.disabled=false;btn.textContent="Create Account";
-    }
-    return;
-  }
+  btn.disabled=true;
+  btn.innerHTML="<div class=spinner></div> Setting up...";
 
-  btn.disabled=true;btn.innerHTML='<div class="spinner"></div> Setting up...';
   try{
-    const r=await fetch(API+"/api/auth/register-tenant",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({company_name,slug,admin_name,admin_email,admin_password,plan:selectedPlan})});
+    const r=await fetch(API+"/api/auth/register-tenant",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({company_name,slug,admin_name,admin_email,admin_password,plan:selectedPlan})
+    });
     const d=await r.json();
     if(r.ok){
-      document.getElementById("step2").style.display="none";
-      document.getElementById("successScreen").style.display="block";
-      document.getElementById("successDesc").innerHTML=selectedPlan==="trial"
-        ?'Your account is ready with a <strong>14-day free trial</strong>. Sign in to get started.'
-        :'Account created! Our team will contact you at <strong>'+admin_email+'</strong> to activate within 24 hours.';
-      document.getElementById("loginLink").href="/login?tenant="+slug;
-    }else{a.className="alert error";a.textContent=d.detail||"Something went wrong.";btn.disabled=false;btn.textContent="Try Again";}
-  }catch(e){a.className="alert error";a.textContent="Network error. Please check your connection.";btn.disabled=false;btn.textContent="Try Again";}
+      if(selectedPlan==="trial"){
+        document.getElementById("step2").style.display="none";
+        document.getElementById("successScreen").style.display="block";
+        document.getElementById("successDesc").innerHTML="Your account is ready with a <strong>14-day free trial</strong>. Sign in to get started.";
+        document.getElementById("loginLink").href="/login?tenant="+slug;
+      } else {
+        // Show payment form
+        document.getElementById("step2").style.display="none";
+        document.getElementById("step3").style.display="block";
+        const prices={monthly:29900,biannual:149900,annual:249900};
+        const names={monthly:"Monthly - SAR 299",biannual:"6 Months - SAR 1499",annual:"Annual - SAR 2499"};
+        document.getElementById("paymentTitle").textContent="Pay for "+names[selectedPlan];
+        // Clear previous form
+        document.querySelector(".mysr-form").innerHTML="";
+        Moyasar.init({
+          element: ".mysr-form",
+          amount: prices[selectedPlan],
+          currency: "SAR",
+          description: "Knooz ERP - "+names[selectedPlan]+" - "+slug,
+          publishable_api_key: MOYASAR_KEY,
+          callback_url: "https://erp.tcv-ai.com/payment-callback?slug="+slug+"&plan="+selectedPlan,
+          methods: ["creditcard","mada","stcpay"],
+        });
+      }
+    } else {
+      a.className="alert error";
+      a.textContent=d.detail||"Something went wrong. Please try again.";
+    }
+  } catch(e){
+    a.className="alert error";
+    a.textContent="Network error. Please check your connection.";
+  }
+  btn.disabled=false;
+  btn.textContent=selectedPlan==="trial"?"Start Free Trial":"Continue to Payment";
 }
 </script>
-
-<script src="https://cdn.moyasar.com/mpf/1.14.0/moyasar.js"></script>
-<script>
-function initMoyasarForm(plan, slug) {
-  const prices = {monthly: 29900, biannual: 149900, annual: 249900};
-  const names = {monthly: 'Monthly - SAR 299', biannual: '6 Months - SAR 1499', annual: 'Annual - SAR 2499'};
-  
-  document.getElementById('paymentTitle').textContent = 'Pay for ' + names[plan];
-  
-  Moyasar.init({
-    element: '.mysr-form',
-    amount: prices[plan],
-    currency: 'SAR',
-    description: 'Knooz ERP - ' + names[plan] + ' - ' + slug,
-    publishable_api_key: MOYASAR_KEY,
-    callback_url: 'https://erp.tcv-ai.com/payment-callback?slug=' + slug + '&plan=' + plan,
-    methods: ['creditcard', 'mada', 'stcpay'],
-    on_completed: function(payment) {
-      if(payment.status === 'paid') {
-        fetch(API + '/api/payments/verify/' + payment.id + '?slug=' + slug + '&plan=' + plan)
-          .then(r => r.json())
-          .then(d => {
-            document.getElementById('step3').style.display = 'none';
-            document.getElementById('successScreen').style.display = 'block';
-            document.getElementById('successDesc').innerHTML = 'Payment successful! Your <strong>' + plan + '</strong> plan is now active.';
-            document.getElementById('loginLink').href = '/login?tenant=' + slug;
-          });
-      }
-    }
-  });
-}
-</script></body>
+</body>
 </html>
-
