@@ -527,7 +527,7 @@ function Orders(){
   const setItem=(i,k,v)=>setForm(p=>{const items=[...p.items];items[i]={...items[i],[k]:k==='quantity'||k==='unit_price'?+v:v};return{...p,items};});
   const onProd=(i,pid)=>{const prod=products.find(p=>p.id===+pid);setItem(i,'product_id',pid);if(prod)setItem(i,'unit_price',prod.price);};
   const total=form.items.reduce((a,i)=>a+(i.quantity*i.unit_price),0);
-  const save=async()=>{setSaving(true);try{await API.post('/inventory/orders',form);setMsg({t:'s',m:'Order created!'});setShowModal(false);load();}catch(e){setMsg({t:'e',m:e.response?.data?.detail||'Failed'});}finally{setSaving(false);setTimeout(()=>setMsg(null),4000);}};
+  const save=async()=>{setSaving(true);try{await API.post('/inventory/orders',form);setMsg({t:'s',m:'Order created!'});setShowModal(false);load();}catch(e){const detail=e.response?.data?.detail;const errMsg=Array.isArray(detail)?detail.map(d=>d.msg||d).join(', '):(typeof detail==='string'?detail:'Failed');setMsg({t:'e',m:errMsg});}finally{setSaving(false);setTimeout(()=>setMsg(null),4000);}};
   return(
     <div style={{padding:28}}>
       <div className="page-header">
@@ -678,7 +678,7 @@ function Invoices(){
   const setItem=(i,k,v)=>setForm(p=>{const items=[...p.items];items[i]={...items[i],[k]:k==='description'?v:+v};return{...p,items};});
   const subtotal=form.items.reduce((a,i)=>a+(i.quantity*i.unit_price),0);
   const tax=subtotal*form.tax_rate/100;
-  const save=async()=>{setSaving(true);try{const payload={...form,subtotal,tax_amount:tax,total:subtotal+tax,items:form.items.map(i=>({...i,total:i.quantity*i.unit_price}))};await API.post('/accounting/invoices',payload);setMsg({t:'s',m:'Invoice created!'});setShowModal(false);load();}catch(e){setMsg({t:'e',m:e.response?.data?.detail||'Failed'});}finally{setSaving(false);setTimeout(()=>setMsg(null),4000);}};
+  const save=async()=>{setSaving(true);try{const payload={...form,subtotal,tax_amount:tax,total:subtotal+tax,items:form.items.map(i=>({...i,total:i.quantity*i.unit_price}))};await API.post('/accounting/invoices',payload);setMsg({t:'s',m:'Invoice created!'});setShowModal(false);load();}catch(e){const detail=e.response?.data?.detail;const errMsg=Array.isArray(detail)?detail.map(d=>d.msg||d).join(', '):(typeof detail==='string'?detail:'Failed');setMsg({t:'e',m:errMsg});}finally{setSaving(false);setTimeout(()=>setMsg(null),4000);}};
   const markPaid=async id=>{try{await API.put(`/accounting/invoices/${id}/status`,null,{params:{status:'paid'}});load();}catch{alert('Failed');}};
   const del=async id=>{if(!confirm('Delete?'))return;try{await API.delete(`/accounting/invoices/${id}`);load();}catch{alert('Failed');}};
   return(
@@ -1265,7 +1265,7 @@ function ChartOfAccounts(){
       setShowModal(false);setEditAcc(null);
       setForm({code:'',name:'',name_ar:'',account_type:'asset',parent_code:'',opening_balance:0,allow_posting:true});
       load();
-    }catch(e){setMsg({t:'e',m:e.response?.data?.detail||'Failed'});}
+    }catch(e){const detail=e.response?.data?.detail;const errMsg=Array.isArray(detail)?detail.map(d=>d.msg||d).join(', '):(typeof detail==='string'?detail:'Failed');setMsg({t:'e',m:errMsg});}
     setTimeout(()=>setMsg(null),4000);
   };
 
@@ -1454,14 +1454,14 @@ function JournalEntries(){
         setMsg({t:'s',m:'Journal created!'});
       }
       setShowModal(false);setEditRow(null);setForm(blank);load();
-    }catch(e){setMsg({t:'e',m:e.response?.data?.detail||'Failed'});}
+    }catch(e){const detail=e.response?.data?.detail;const errMsg=Array.isArray(detail)?detail.map(d=>d.msg||d).join(', '):(typeof detail==='string'?detail:'Failed');setMsg({t:'e',m:errMsg});}
     setTimeout(()=>setMsg(null),4000);
   };
 
   const del=async(id)=>{
     if(!confirm('Delete this journal?'))return;
     try{await API.delete('/accounting/journals/'+id);load();}
-    catch(e){alert(e.response?.data?.detail||'Cannot delete posted journal');}
+    catch(e){const d=e.response?.data?.detail;alert(Array.isArray(d)?d.map(x=>x.msg||x).join(', '):(d||'Cannot delete posted journal'));}
   };
 
   const post=async(id)=>{
