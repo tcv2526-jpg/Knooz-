@@ -1506,7 +1506,7 @@ function JournalEntries(){
                 <tr key={r.id} style={{borderBottom:'1px solid #f1f5f9',cursor:'pointer'}} onClick={()=>setViewModal(r)}>
                   <td style={{padding:'10px 12px',fontFamily:'monospace',fontWeight:700,color:'#2563eb'}}>{r.journal_number}</td>
                   <td style={{padding:'10px 12px'}}>
-                    <span style={{background:(typeColors[r.journal_type]||'#64748b')+'20',color:typeColors[r.journal_type]||'#64748b',padding:'2px 8px',borderRadius:4,fontSize:12,fontWeight:600,textTransform:'capitalize'}}>{r.journal_type}</span>
+                    <span style={{background:(typeColors[typeof r.journal_type==='object'?r.journal_type?.value:r.journal_type]||'#64748b')+'20',color:typeColors[typeof r.journal_type==='object'?r.journal_type?.value:r.journal_type]||'#64748b',padding:'2px 8px',borderRadius:4,fontSize:12,fontWeight:600,textTransform:'capitalize'}}>{typeof r.journal_type==='object'?r.journal_type?.value||'':r.journal_type||''}</span>
                   </td>
                   <td style={{padding:'10px 12px',color:'#64748b'}}>{r.date}</td>
                   <td style={{padding:'10px 12px',fontWeight:500}}>{r.description}</td>
@@ -1537,7 +1537,7 @@ function JournalEntries(){
       {viewModal&&<Modal title={viewModal.journal_number} onClose={()=>setViewModal(null)}>
         <div style={{minWidth:560}}>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12,marginBottom:16}}>
-            <div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Type</div><div style={{fontWeight:600,textTransform:'capitalize'}}>{viewModal.journal_type}</div></div>
+            <div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Type</div><div style={{fontWeight:600,textTransform:'capitalize'}}>{typeof viewModal.journal_type==='object'?viewModal.journal_type?.value||'':viewModal.journal_type||''}</div></div>
             <div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Date</div><div style={{fontWeight:600}}>{viewModal.date}</div></div>
             <div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Reference</div><div>{viewModal.reference||'—'}</div></div>
             <div style={{gridColumn:'1/-1'}}><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Description</div><div style={{fontWeight:600}}>{viewModal.description}</div></div>
