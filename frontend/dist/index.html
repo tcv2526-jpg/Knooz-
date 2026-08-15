@@ -1295,7 +1295,7 @@ function ChartOfAccounts(){
     const isExpanded=expanded[node.code]!==false;
     const color=typeColors[node.account_type]||'#64748b';
     const indent=depth*20;
-    const isParent=hasChildren;
+    const isParent=hasChildren;const nodeDebit=Number(node.debit)||0;const nodeCredit=Number(node.credit)||0;const nodeBalance=Number(node.balance)||0;
     return(
       <React.Fragment key={node.code}>
         <tr style={{background:depth===0?'#f8fafc':depth===1?'#fff':'#fafafa',borderBottom:'1px solid #f1f5f9'}}>
@@ -1315,13 +1315,13 @@ function ChartOfAccounts(){
             </span>
           </td>
           <td style={{padding:'8px 12px',textAlign:'right',fontWeight:isParent?700:400,color:node.debit>0?'#16a34a':'#64748b',fontFamily:'monospace'}}>
-            {node.debit>0?SAR(node.debit):'—'}
+            {nodeDebit>0?SAR(nodeDebit):'—'}
           </td>
           <td style={{padding:'8px 12px',textAlign:'right',fontWeight:isParent?700:400,color:node.credit>0?'#dc2626':'#64748b',fontFamily:'monospace'}}>
-            {node.credit>0?SAR(node.credit):'—'}
+            {nodeCredit>0?SAR(nodeCredit):'—'}
           </td>
-          <td style={{padding:'8px 12px',textAlign:'right',fontWeight:700,fontFamily:'monospace',color:node.balance>=0?'#0f172a':'#dc2626'}}>
-            {SAR(Math.abs(node.balance))}
+          <td style={{padding:'8px 12px',textAlign:'right',fontWeight:700,fontFamily:'monospace',color:nodeBalance>=0?'#0f172a':'#dc2626'}}>
+            {SAR(Math.abs(nodeBalance))}
           </td>
           <td style={{padding:'8px 12px'}}>
             <div style={{display:'flex',gap:4}}>
