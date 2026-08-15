@@ -1233,77 +1233,179 @@ function FullReports(){
 /* ── Chart of Accounts ── */
 function ChartOfAccounts(){
   const {ar}=useLang();
-  const [rows,setRows]=useState([]);
+  const [tree,setTree]=useState([]);
+  const [flat,setFlat]=useState([]);
   const [loading,setLoading]=useState(true);
   const [showModal,setShowModal]=useState(false);
-  const [form,setForm]=useState({code:'',name:'',name_ar:'',account_type:'asset',balance:0});
+  const [editAcc,setEditAcc]=useState(null);
+  const [form,setForm]=useState({code:'',name:'',name_ar:'',account_type:'asset',parent_code:'',opening_balance:0,allow_posting:true});
   const [msg,setMsg]=useState(null);
-  const [seeding,setSeeding]=useState(false);
-  const load=()=>{setLoading(true);API.get('/accounting/accounts').then(r=>setRows(r.data)).catch(()=>setRows([])).finally(()=>setLoading(false));};
-  useEffect(()=>{load();},[]);
-  const typeColor={'asset':'b-blue','liability':'b-red','equity':'b-purple','income':'b-green','expense':'b-orange'};
-  const typeAr={'asset':'أصول','liability':'خصوم','equity':'حقوق ملكية','income':'إيرادات','expense':'مصروفات'};
-  const seed=async()=>{
-    setSeeding(true);
-    try{await API.post('/accounting/accounts/seed');setMsg({t:'s',m:ar?'تم إنشاء الحسابات':'Accounts created!'});load();}
-    catch(e){setMsg({t:'e',m:e.response?.data?.detail||'Failed'});}
-    finally{setSeeding(false);setTimeout(()=>setMsg(null),4000);}
+  const [expanded,setExpanded]=useState({});
+  const [saving,setSaving]=useState(false);
+
+  const load=()=>{
+    setLoading(true);
+    API.get('/accounting/accounts?tree=true')
+      .then(r=>{setTree(r.data.accounts||[]);setFlat(r.data.flat||[]);})
+      .catch(()=>{})
+      .finally(()=>setLoading(false));
   };
+  React.useEffect(()=>{load();},[]);
+
+  const toggleExpand=(code)=>setExpanded(p=>({...p,[code]:!p[code]}));
+
+  const typeColor={asset:'#2563eb',liability:'#dc2626',equity:'#7c3aed',income:'#16a34a',expense:'#d97706'};
+  const typeBg={asset:'#eff6ff',liability:'#fef2f2',equity:'#f5f3ff',income:'#f0fdf4',expense:'#fffbeb'};
+
   const save=async()=>{
-    try{await API.post('/accounting/accounts',form);setMsg({t:'s',m:ar?'تم الحفظ':'Saved!'});setShowModal(false);load();}
-    catch(e){setMsg({t:'e',m:e.response?.data?.detail||'Failed'});}
-    finally{setTimeout(()=>setMsg(null),4000);}
+    setSaving(true);
+    try{
+      if(editAcc){
+        await API.put(`/accounting/accounts/${editAcc.id}`,form);
+        setMsg({t:'s',m:'Account updated!'});
+      } else {
+        await API.post('/accounting/accounts',form);
+        setMsg({t:'s',m:'Account created!'});
+      }
+      setShowModal(false);setEditAcc(null);
+      setForm({code:'',name:'',name_ar:'',account_type:'asset',parent_code:'',opening_balance:0,allow_posting:true});
+      load();
+    }catch(e){setMsg({t:'e',m:e.response?.data?.detail||'Failed'});}
+    setSaving(false);setTimeout(()=>setMsg(null),4000);
   };
-  const del=async id=>{if(!confirm(ar?'حذف؟':'Delete?'))return;try{await API.delete(`/accounting/accounts/${id}`);load();}catch{alert('Failed');}};
+
+  const del=async(id)=>{
+    if(!confirm('Delete this account?'))return;
+    try{await API.delete(`/accounting/accounts/${id}`);load();}
+    catch(e){alert(e.response?.data?.detail||'Cannot delete');}
+  };
+
+  const post=async(id)=>{
+    try{await API.post(`/accounting/accounts/${id}/post`);load();setMsg({t:'s',m:'Account posted!'});}
+    catch(e){alert(e.response?.data?.detail||'Failed');}
+    setTimeout(()=>setMsg(null),3000);
+  };
+
+  const reopen=async(id)=>{
+    try{await API.post(`/accounting/accounts/${id}/reopen`);load();setMsg({t:'s',m:'Account reopened!'});}
+    catch(e){alert(e.response?.data?.detail||'Failed');}
+    setTimeout(()=>setMsg(null),3000);
+  };
+
+  const openEdit=(acc)=>{
+    setEditAcc(acc);
+    setForm({code:acc.code,name:acc.name,name_ar:acc.name_ar||'',account_type:acc.account_type,parent_code:acc.parent_code||'',opening_balance:acc.opening_balance||0,allow_posting:acc.allow_posting});
+    setShowModal(true);
+  };
+
+  const SAR2=(v)=>'SAR '+(v||0).toLocaleString('en-SA',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  const renderRow=(acc,depth=0)=>{
+    const hasChildren=acc.children&&acc.children.length>0;
+    const isExp=expanded[acc.code]!==false&&(depth<2||expanded[acc.code]);
+    const indent=depth*20;
+    const isParent=hasChildren;
+    return(
+      <React.Fragment key={acc.code}>
+        <tr style={{background:depth===0?'#f8fafc':depth===1?'#fff':'#fafafa',borderBottom:'1px solid #f1f5f9'}}>
+          <td style={{padding:'8px 12px',paddingLeft:12+indent}}>
+            <div style={{display:'flex',alignItems:'center',gap:6}}>
+              {hasChildren&&<span style={{cursor:'pointer',color:'#64748b',fontSize:12,width:16,display:'inline-block',textAlign:'center'}} onClick={()=>toggleExpand(acc.code)}>{isExp?'▼':'▶'}</span>}
+              {!hasChildren&&<span style={{width:16,display:'inline-block'}}></span>}
+              <span style={{fontFamily:'monospace',fontSize:12,color:'#2563eb',fontWeight:600,minWidth:80}}>{acc.code}</span>
+              <span style={{fontWeight:isParent?700:400,fontSize:13}}>{acc.name}</span>
+              {acc.name_ar&&<span style={{fontSize:11,color:'#94a3b8',direction:'rtl'}}>{acc.name_ar}</span>}
+              {acc.is_posted&&<span style={{fontSize:10,background:'#dcfce7',color:'#166534',padding:'1px 6px',borderRadius:4,fontWeight:600}}>POSTED</span>}
+            </div>
+          </td>
+          <td style={{padding:'8px 12px',textAlign:'center'}}>
+            <span style={{fontSize:11,background:typeBg[acc.account_type]||'#f1f5f9',color:typeColor[acc.account_type]||'#64748b',padding:'2px 8px',borderRadius:4,fontWeight:600}}>{acc.account_type}</span>
+          </td>
+          <td style={{padding:'8px 12px',textAlign:'right',fontFamily:'monospace',fontSize:13,color:acc.debit>0?'#0f172a':'#94a3b8',fontWeight:isParent?700:400}}>{acc.debit>0?SAR2(acc.debit):'-'}</td>
+          <td style={{padding:'8px 12px',textAlign:'right',fontFamily:'monospace',fontSize:13,color:acc.credit>0?'#0f172a':'#94a3b8',fontWeight:isParent?700:400}}>{acc.credit>0?SAR2(acc.credit):'-'}</td>
+          <td style={{padding:'8px 12px',textAlign:'right',fontFamily:'monospace',fontSize:13,fontWeight:isParent?700:400,color:acc.balance>=0?'#16a34a':'#dc2626'}}>{SAR2(acc.balance)}</td>
+          <td style={{padding:'8px 12px'}}>
+            <div style={{display:'flex',gap:4,justifyContent:'flex-end'}}>
+              {!acc.is_posted&&<button className="btn btn-sm btn-secondary" onClick={()=>openEdit(acc)} style={{fontSize:11,padding:'2px 8px'}}>Edit</button>}
+              {!acc.is_posted&&!hasChildren&&<button className="btn btn-sm" style={{fontSize:11,padding:'2px 8px',background:'#eff6ff',color:'#2563eb',border:'none',cursor:'pointer'}} onClick={()=>post(acc.id)}>Post</button>}
+              {acc.is_posted&&<button className="btn btn-sm" style={{fontSize:11,padding:'2px 8px',background:'#fef2f2',color:'#dc2626',border:'none',cursor:'pointer'}} onClick={()=>reopen(acc.id)}>Reopen</button>}
+              {!acc.is_posted&&!hasChildren&&<button className="btn btn-danger btn-sm" onClick={()=>del(acc.id)} style={{fontSize:11,padding:'2px 8px'}}>Del</button>}
+            </div>
+          </td>
+        </tr>
+        {hasChildren&&isExp&&acc.children.map(child=>renderRow(child,depth+1))}
+      </React.Fragment>
+    );
+  };
+
+  const totalDebit=tree.reduce((a,n)=>a+(n.debit||0),0);
+  const totalCredit=tree.reduce((a,n)=>a+(n.credit||0),0);
+
   return(
     <div style={{padding:28}}>
-      <div className="page-header">
-        <div><h1 className="page-title">{ar?'دليل الحسابات':'Chart of Accounts'}</h1><p className="page-sub">{rows.length} {ar?'حساب':'accounts'}</p></div>
-        <div style={{display:'flex',gap:8}}>
-          {rows.length===0&&<button className="btn btn-secondary" onClick={seed} disabled={seeding}>{seeding?(ar?'جارٍ...':'Seeding...'):(ar?'إنشاء الحسابات الافتراضية':'Seed Default Accounts')}</button>}
-          <button className="btn btn-primary" onClick={()=>setShowModal(true)}><Ic p={I.plus} s={14}/>{ar?'إضافة حساب':'Add Account'}</button>
-        </div>
+      <div className="page-header" style={{marginBottom:20}}>
+        <div><h1 className="page-title">{ar?'شجرة الحسابات':'Chart of Accounts'}</h1><p className="page-sub">{flat.length} accounts</p></div>
+        <button className="btn btn-primary" onClick={()=>{setEditAcc(null);setForm({code:'',name:'',name_ar:'',account_type:'asset',parent_code:'',opening_balance:0,allow_posting:true});setShowModal(true);}}>+ New Account</button>
       </div>
-      {msg&&<div className={`alert alert-${msg.t==='s'?'success':'error'}`}>{msg.m}</div>}
+      {msg&&<div className={`alert alert-${msg.t==='s'?'success':'error'}`} style={{marginBottom:16}}>{msg.m}</div>}
       <div className="card" style={{overflow:'hidden'}}>
-        {loading?<p style={{padding:20,color:'#64748b',fontSize:13}}>{ar?'جارٍ التحميل':'Loading...'}</p>:(
-          <table>
-            <thead><tr><th>{ar?'الكود':'Code'}</th><th>{ar?'اسم الحساب':'Account Name'}</th><th>{ar?'النوع':'Type'}</th><th style={{textAlign:'right'}}>{ar?'الرصيد':'Balance'}</th><th></th></tr></thead>
+        {loading?<p style={{padding:20,color:'#64748b'}}>Loading...</p>:(
+          <table style={{width:'100%',borderCollapse:'collapse'}}>
+            <thead>
+              <tr style={{background:'#f8fafc',borderBottom:'2px solid #e2e8f0'}}>
+                <th style={{padding:'10px 12px',textAlign:'left',fontSize:12,color:'#64748b',fontWeight:600}}>Account</th>
+                <th style={{padding:'10px 12px',textAlign:'center',fontSize:12,color:'#64748b',fontWeight:600}}>Type</th>
+                <th style={{padding:'10px 12px',textAlign:'right',fontSize:12,color:'#64748b',fontWeight:600}}>Debit</th>
+                <th style={{padding:'10px 12px',textAlign:'right',fontSize:12,color:'#64748b',fontWeight:600}}>Credit</th>
+                <th style={{padding:'10px 12px',textAlign:'right',fontSize:12,color:'#64748b',fontWeight:600}}>Balance</th>
+                <th style={{padding:'10px 12px',textAlign:'right',fontSize:12,color:'#64748b',fontWeight:600}}>Actions</th>
+              </tr>
+            </thead>
             <tbody>
-              {rows.map(r=>(
-                <tr key={r.id} onClick={()=>setSelectedInv(r)} style={{cursor:'pointer'}} onMouseEnter={e=>e.currentTarget.style.background='#f8fafc'} onMouseLeave={e=>e.currentTarget.style.background=''}>
-                  <td style={{fontFamily:'monospace',fontWeight:600,color:'#2563eb'}}>{r.code}</td>
-                  <td><div style={{fontWeight:500}}>{ar&&r.name_ar?r.name_ar:r.name}</div></td>
-                  <td><span className={`badge ${typeColor[r.account_type]||'b-gray'}`}>{ar?typeAr[r.account_type]:r.account_type}</span></td>
-                  <td style={{textAlign:'right',fontWeight:600,color:r.balance>=0?'#059669':'#dc2626'}}>{SAR(r.balance)}</td>
-                  <td><button className="btn btn-danger btn-sm" onClick={()=>del(r.id)}><Ic p={I.trash} s={12}/></button></td>
-                </tr>
-              ))}
-              {rows.length===0&&<tr><td colSpan={5} style={{textAlign:'center',color:'#94a3b8',padding:36}}>{ar?'لا توجد حسابات — انقر على "إنشاء الحسابات الافتراضية"':'No accounts — click Seed Default Accounts'}</td></tr>}
+              {tree.map(acc=>renderRow(acc,0))}
+              {tree.length===0&&<tr><td colSpan={6} style={{textAlign:'center',color:'#94a3b8',padding:36}}>No accounts yet. Add your chart of accounts.</td></tr>}
             </tbody>
+            <tfoot>
+              <tr style={{background:'#f8fafc',borderTop:'2px solid #e2e8f0',fontWeight:800}}>
+                <td colSpan={2} style={{padding:'10px 12px',fontSize:13}}>TOTAL</td>
+                <td style={{padding:'10px 12px',textAlign:'right',fontFamily:'monospace',fontSize:13,color:'#0f172a'}}>SAR {totalDebit.toLocaleString('en-SA',{minimumFractionDigits:2})}</td>
+                <td style={{padding:'10px 12px',textAlign:'right',fontFamily:'monospace',fontSize:13,color:'#0f172a'}}>SAR {totalCredit.toLocaleString('en-SA',{minimumFractionDigits:2})}</td>
+                <td style={{padding:'10px 12px',textAlign:'right',fontFamily:'monospace',fontSize:13,color:(totalDebit-totalCredit)===0?'#16a34a':'#dc2626'}}>SAR {(totalDebit-totalCredit).toLocaleString('en-SA',{minimumFractionDigits:2})}</td>
+                <td></td>
+              </tr>
+            </tfoot>
           </table>
         )}
       </div>
       {showModal&&(
-        <Modal title={ar?'حساب جديد':'New Account'} onClose={()=>setShowModal(false)}>
-          <div className="form-grid">
-            <Field label={ar?'كود الحساب':'Code'}><input className="input" value={form.code} onChange={e=>setForm(p=>({...p,code:e.target.value}))}/></Field>
-            <Field label={ar?'نوع الحساب':'Type'}>
-              <select className="input" value={form.account_type} onChange={e=>setForm(p=>({...p,account_type:e.target.value}))}>
-                <option value="asset">{ar?'أصول':'Asset'}</option>
-                <option value="liability">{ar?'خصوم':'Liability'}</option>
-                <option value="equity">{ar?'حقوق ملكية':'Equity'}</option>
-                <option value="income">{ar?'إيرادات':'Income'}</option>
-                <option value="expense">{ar?'مصروفات':'Expense'}</option>
-              </select>
-            </Field>
-            <Field label={ar?'الاسم بالإنجليزية':'Name (EN)'} full><input className="input" value={form.name} onChange={e=>setForm(p=>({...p,name:e.target.value}))}/></Field>
-            <Field label={ar?'الاسم بالعربية':'Name (AR)'} full><input className="input" value={form.name_ar} onChange={e=>setForm(p=>({...p,name_ar:e.target.value}))}/></Field>
-            <Field label={ar?'الرصيد الافتتاحي':'Opening Balance'}><input className="input" type="number" value={form.balance} onChange={e=>setForm(p=>({...p,balance:+e.target.value}))}/></Field>
-          </div>
-          <div style={{display:'flex',gap:8,marginTop:18}}>
-            <button className="btn btn-primary" onClick={save}>{ar?'حفظ':'Save'}</button>
-            <button className="btn btn-secondary" onClick={()=>setShowModal(false)}>{ar?'إلغاء':'Cancel'}</button>
+        <Modal title={editAcc?'Edit Account':'New Account'} onClose={()=>{setShowModal(false);setEditAcc(null);}}>
+          <div style={{minWidth:420,display:'flex',flexDirection:'column',gap:12}}>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+              <div><label className="form-label">Code *</label><input className="input" value={form.code} onChange={e=>setForm(p=>({...p,code:e.target.value}))} placeholder="e.g. 1010012001" disabled={!!editAcc}/></div>
+              <div><label className="form-label">Parent Code</label><input className="input" value={form.parent_code} onChange={e=>setForm(p=>({...p,parent_code:e.target.value}))} placeholder="e.g. 1010012"/></div>
+            </div>
+            <div><label className="form-label">Name (English) *</label><input className="input" value={form.name} onChange={e=>setForm(p=>({...p,name:e.target.value}))} placeholder="e.g. Cash in Banks"/></div>
+            <div><label className="form-label">Name (Arabic)</label><input className="input" value={form.name_ar} onChange={e=>setForm(p=>({...p,name_ar:e.target.value}))} placeholder="مثال: النقد في البنوك" dir="rtl"/></div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+              <div><label className="form-label">Type *</label>
+                <select className="input" value={form.account_type} onChange={e=>setForm(p=>({...p,account_type:e.target.value}))}>
+                  <option value="asset">Asset</option>
+                  <option value="liability">Liability</option>
+                  <option value="equity">Equity</option>
+                  <option value="income">Income</option>
+                  <option value="expense">Expense</option>
+                </select>
+              </div>
+              <div><label className="form-label">Opening Balance</label><input className="input" type="number" value={form.opening_balance} onChange={e=>setForm(p=>({...p,opening_balance:+e.target.value}))}/></div>
+            </div>
+            <div style={{display:'flex',alignItems:'center',gap:8}}>
+              <input type="checkbox" id="allowPost" checked={form.allow_posting} onChange={e=>setForm(p=>({...p,allow_posting:e.target.checked}))}/>
+              <label htmlFor="allowPost" style={{fontSize:13}}>Allow direct posting to this account</label>
+            </div>
+            <div style={{display:'flex',gap:8,marginTop:8}}>
+              <button className="btn btn-primary" onClick={save} disabled={saving} style={{flex:1}}>{saving?'Saving...':'Save Account'}</button>
+              <button className="btn btn-secondary" onClick={()=>{setShowModal(false);setEditAcc(null);}} style={{flex:1}}>Cancel</button>
+            </div>
           </div>
         </Modal>
       )}
@@ -1311,7 +1413,6 @@ function ChartOfAccounts(){
   );
 }
 
-/* ── Journal Entries ── */
 function JournalEntries(){
   const {ar}=useLang();
   const [rows,setRows]=useState([]);
