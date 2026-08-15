@@ -1324,7 +1324,7 @@ function ChartOfAccounts(){
             {SAR(Math.abs(node.balance))}
           </td>
           <td style={{padding:'8px 12px'}}>
-            <div style={{display:'flex',gap:4'}}>
+            <div style={{display:'flex',gap:4}}>
               {!node.is_posted&&<button className="btn btn-sm btn-secondary" style={{fontSize:11,padding:'2px 8px'}} onClick={()=>{setEditAcc(node);setForm({code:node.code,name:node.name,name_ar:node.name_ar||'',account_type:node.account_type,parent_code:node.parent_code||'',opening_balance:node.opening_balance||0,allow_posting:node.allow_posting});setShowModal(true);}}>Edit</button>}
               {!node.is_posted&&node.allow_posting&&<button className="btn btn-sm" style={{fontSize:11,padding:'2px 8px',background:'#eff6ff',color:'#2563eb',border:'none',cursor:'pointer'}} onClick={()=>post(node.id)}>Post</button>}
               {node.is_posted&&<button className="btn btn-sm" style={{fontSize:11,padding:'2px 8px',background:'#fef3c7',color:'#92400e',border:'none',cursor:'pointer'}} onClick={()=>reopen(node.id)}>Reopen</button>}
