@@ -1519,7 +1519,7 @@ function JournalEntries(){
                   </td>
                   <td style={{padding:'10px 12px'}} onClick={e=>e.stopPropagation()}>
                     <div style={{display:'flex',gap:4}}>
-                      {!r.is_posted&&<button className="btn btn-sm btn-secondary" style={{fontSize:11,padding:'2px 8px'}} onClick={()=>{setEditRow(r);setForm({journal_type:r.journal_type,date:r.date,description:r.description,reference:r.reference||'',lines:r.lines||[]});setShowModal(true);}}>Edit</button>}
+                      {!r.is_posted&&<button className="btn btn-sm btn-secondary" style={{fontSize:11,padding:'2px 8px'}} onClick={()=>{setEditRow(r);setForm({journal_type:typeof r.journal_type==='object'?r.journal_type?.value||'general':r.journal_type||'general',date:r.date,description:r.description,reference:r.reference||'',lines:(r.lines||[]).map(l=>({...l,account_id:String(l.account_id||'')}))});setShowModal(true);}}>Edit</button>}
                       {!r.is_posted&&<button className="btn btn-sm" style={{fontSize:11,padding:'2px 8px',background:'#eff6ff',color:'#2563eb',border:'none',cursor:'pointer'}} onClick={()=>post(r.id)}>Post</button>}
                       {r.is_posted&&<button className="btn btn-sm" style={{fontSize:11,padding:'2px 8px',background:'#fef3c7',color:'#92400e',border:'none',cursor:'pointer'}} onClick={()=>reopen(r.id)}>Reopen</button>}
                       {!r.is_posted&&<button className="btn btn-sm btn-danger" style={{fontSize:11,padding:'2px 8px'}} onClick={()=>del(r.id)}>Del</button>}
