@@ -1413,97 +1413,241 @@ function JournalEntries(){
   const [loading,setLoading]=useState(true);
   const [accounts,setAccounts]=useState([]);
   const [showModal,setShowModal]=useState(false);
+  const [viewModal,setViewModal]=useState(null);
+  const [editRow,setEditRow]=useState(null);
   const [msg,setMsg]=useState(null);
   const blank={journal_type:'general',date:today(),description:'',reference:'',lines:[{account_id:'',description:'',debit:0,credit:0},{account_id:'',description:'',debit:0,credit:0}]};
   const [form,setForm]=useState(blank);
+
   const load=()=>{
     setLoading(true);
-    Promise.all([API.get('/accounting/journals'),API.get('/accounting/accounts')])
-      .then(([j,a])=>{setRows(j.data);setAccounts(a.data);}).catch(()=>{}).finally(()=>setLoading(false));
+    Promise.all([API.get('/accounting/journals'),API.get('/accounting/accounts?tree=false')])
+      .then(([j,a])=>{setRows(j.data||[]);setAccounts(a.data.flat||a.data.accounts||[]);})
+      .catch(()=>{})
+      .finally(()=>setLoading(false));
   };
   useEffect(()=>{load();},[]);
-  const setLine=(i,k,v)=>setForm(p=>{const lines=[...p.lines];lines[i]={...lines[i],[k]:k==='description'?v:+v};return{...p,lines};});
-  const totalDebit=form.lines.reduce((a,l)=>a+l.debit,0);
-  const totalCredit=form.lines.reduce((a,l)=>a+l.credit,0);
-  const balanced=Math.abs(totalDebit-totalCredit)<0.01;
+
+  const setLine=(i,k,v)=>setForm(p=>{
+    const lines=[...p.lines];
+    lines[i]={...lines[i],[k]:k==='description'?v:+v};
+    return {...p,lines};
+  });
+
+  const addLine=()=>setForm(p=>({...p,lines:[...p.lines,{account_id:'',description:'',debit:0,credit:0}]}));
+  const removeLine=(i)=>setForm(p=>({...p,lines:p.lines.filter((_,j)=>j!==i)}));
+
+  const totalDebit=form.lines.reduce((a,l)=>a+(+l.debit||0),0);
+  const totalCredit=form.lines.reduce((a,l)=>a+(+l.credit||0),0);
+  const isBalanced=Math.abs(totalDebit-totalCredit)<0.01;
+
   const save=async()=>{
-    try{await API.post('/accounting/journals',form);setMsg({t:'s',m:ar?'تم الحفظ':'Saved!'});setShowModal(false);setForm(blank);load();}
-    catch(e){setMsg({t:'e',m:e.response?.data?.detail||'Failed'});}
-    finally{setTimeout(()=>setMsg(null),5000);}
+    if(!form.description){setMsg({t:'e',m:'Description is required'});setTimeout(()=>setMsg(null),3000);return;}
+    if(form.lines.length<2){setMsg({t:'e',m:'At least 2 lines required'});setTimeout(()=>setMsg(null),3000);return;}
+    if(!isBalanced){setMsg({t:'e',m:'Journal must be balanced (Debit = Credit)'});setTimeout(()=>setMsg(null),3000);return;}
+    try{
+      if(editRow){
+        await API.put('/accounting/journals/'+editRow.id,{journal_type:form.journal_type,date:form.date,description:form.description,reference:form.reference});
+        setMsg({t:'s',m:'Journal updated!'});
+      } else {
+        await API.post('/accounting/journals',form);
+        setMsg({t:'s',m:'Journal created!'});
+      }
+      setShowModal(false);setEditRow(null);setForm(blank);load();
+    }catch(e){setMsg({t:'e',m:e.response?.data?.detail||'Failed'});}
+    setTimeout(()=>setMsg(null),4000);
   };
-  const post=async id=>{try{await API.put(`/accounting/journals/${id}/post`);load();}catch{alert('Failed');}};
-  const del=async id=>{if(!confirm(ar?'حذف؟':'Delete?'))return;try{await API.delete(`/accounting/journals/${id}`);load();}catch(e){alert(e.response?.data?.detail||'Failed');}};
-  const typeL={general:ar?'عام':'General',sale:ar?'مبيعات':'Sale',purchase:ar?'مشتريات':'Purchase',bank:ar?'بنك':'Bank',cash:ar?'نقدية':'Cash'};
+
+  const del=async(id)=>{
+    if(!confirm('Delete this journal?'))return;
+    try{await API.delete('/accounting/journals/'+id);load();}
+    catch(e){alert(e.response?.data?.detail||'Cannot delete posted journal');}
+  };
+
+  const post=async(id)=>{
+    try{await API.post('/accounting/journals/'+id+'/post');load();setMsg({t:'s',m:'Journal posted and account balances updated!'});}
+    catch(e){alert(e.response?.data?.detail||'Failed');}
+    setTimeout(()=>setMsg(null),4000);
+  };
+
+  const reopen=async(id)=>{
+    try{await API.post('/accounting/journals/'+id+'/reopen');load();setMsg({t:'s',m:'Journal reopened!'});}
+    catch(e){alert(e.response?.data?.detail||'Failed');}
+    setTimeout(()=>setMsg(null),4000);
+  };
+
+  const typeColors={general:'#64748b',sale:'#16a34a',purchase:'#dc2626',bank:'#2563eb',cash:'#d97706'};
+  const leafAccounts=accounts.filter(a=>a.allow_posting!==false);
+
   return(
     <div style={{padding:28}}>
       <div className="page-header">
-        <div><h1 className="page-title">{ar?'قيود اليومية':'Journal Entries'}</h1><p className="page-sub">{rows.length} {ar?'قيد':'entries'}</p></div>
-        <button className="btn btn-primary" onClick={()=>{setForm(blank);setShowModal(true);}}><Ic p={I.plus} s={14}/>{ar?'قيد جديد':'New Entry'}</button>
+        <div><h1 className="page-title">{ar?'القيود اليومية':'Journal Entries'}</h1><p className="page-sub">{rows.length} {ar?'قيد':'entries'}</p></div>
+        <button className="btn btn-primary" onClick={()=>{setEditRow(null);setForm(blank);setShowModal(true);}}>+ {ar?'قيد جديد':'New Journal'}</button>
       </div>
-      {msg&&<div className={`alert alert-${msg.t==='s'?'success':'error'}`}>{msg.m}</div>}
+      {msg&&<div className={`alert alert-${msg.t==='s'?'success':'error'}`} style={{marginBottom:16}}>{msg.m}</div>}
       <div className="card" style={{overflow:'hidden'}}>
-        {loading?<p style={{padding:20,color:'#64748b',fontSize:13}}>{ar?'جارٍ التحميل':'Loading...'}</p>:(
-          <table>
-            <thead><tr><th>{ar?'رقم القيد':'Entry #'}</th><th>{ar?'التاريخ':'Date'}</th><th>{ar?'النوع':'Type'}</th><th>{ar?'الوصف':'Description'}</th><th style={{textAlign:'right'}}>{ar?'مدين':'Debit'}</th><th style={{textAlign:'right'}}>{ar?'دائن':'Credit'}</th><th>{ar?'الحالة':'Status'}</th><th></th></tr></thead>
+        {loading?<p style={{padding:20,color:'#64748b'}}>Loading...</p>:(
+          <table style={{width:'100%',borderCollapse:'collapse'}}>
+            <thead>
+              <tr style={{background:'#0f172a',color:'white'}}>
+                <th style={{padding:'10px 12px',textAlign:'left',fontSize:12}}>JRN #</th>
+                <th style={{padding:'10px 12px',textAlign:'left',fontSize:12}}>{ar?'النوع':'Type'}</th>
+                <th style={{padding:'10px 12px',textAlign:'left',fontSize:12}}>{ar?'التاريخ':'Date'}</th>
+                <th style={{padding:'10px 12px',textAlign:'left',fontSize:12}}>{ar?'الوصف':'Description'}</th>
+                <th style={{padding:'10px 12px',textAlign:'right',fontSize:12}}>{ar?'مدين':'Debit'}</th>
+                <th style={{padding:'10px 12px',textAlign:'right',fontSize:12}}>{ar?'دائن':'Credit'}</th>
+                <th style={{padding:'10px 12px',textAlign:'left',fontSize:12}}>{ar?'الحالة':'Status'}</th>
+                <th style={{padding:'10px 12px',textAlign:'left',fontSize:12}}>{ar?'إجراءات':'Actions'}</th>
+              </tr>
+            </thead>
             <tbody>
               {rows.map(r=>(
-                <tr key={r.id} onClick={()=>setSelectedInv(r)} style={{cursor:'pointer'}} onMouseEnter={e=>e.currentTarget.style.background='#f8fafc'} onMouseLeave={e=>e.currentTarget.style.background=''}>
-                  <td style={{fontFamily:'monospace',fontWeight:600,color:'#2563eb'}}>{r.journal_number}</td>
-                  <td>{r.date}</td>
-                  <td><span className="badge b-gray">{typeL[r.journal_type]||r.journal_type}</span></td>
-                  <td>{r.description}</td>
-                  <td style={{textAlign:'right'}}>{SAR(r.total_debit)}</td>
-                  <td style={{textAlign:'right'}}>{SAR(r.total_credit)}</td>
-                  <td><span className={`badge ${r.is_posted?'b-green':'b-yellow'}`}>{r.is_posted?(ar?'مرحّل':'Posted'):(ar?'مسودة':'Draft')}</span></td>
-                  <td><div style={{display:'flex',gap:4}}>
-                    {!r.is_posted&&<button className="btn btn-sm" style={{background:'#dcfce7',color:'#166534',border:'none',cursor:'pointer'}} onClick={()=>post(r.id)}>{ar?'ترحيل':'Post'}</button>}
-                    {!r.is_posted&&<button className="btn btn-danger btn-sm" onClick={()=>del(r.id)}><Ic p={I.trash} s={12}/></button>}
-                  </div></td>
+                <tr key={r.id} style={{borderBottom:'1px solid #f1f5f9',cursor:'pointer'}} onClick={()=>setViewModal(r)}>
+                  <td style={{padding:'10px 12px',fontFamily:'monospace',fontWeight:700,color:'#2563eb'}}>{r.journal_number}</td>
+                  <td style={{padding:'10px 12px'}}>
+                    <span style={{background:(typeColors[r.journal_type]||'#64748b')+'20',color:typeColors[r.journal_type]||'#64748b',padding:'2px 8px',borderRadius:4,fontSize:12,fontWeight:600,textTransform:'capitalize'}}>{r.journal_type}</span>
+                  </td>
+                  <td style={{padding:'10px 12px',color:'#64748b'}}>{r.date}</td>
+                  <td style={{padding:'10px 12px',fontWeight:500}}>{r.description}</td>
+                  <td style={{padding:'10px 12px',textAlign:'right',fontFamily:'monospace',color:'#16a34a'}}>{SAR(r.total_debit)}</td>
+                  <td style={{padding:'10px 12px',textAlign:'right',fontFamily:'monospace',color:'#dc2626'}}>{SAR(r.total_credit)}</td>
+                  <td style={{padding:'10px 12px'}}>
+                    {r.is_posted
+                      ?<span style={{background:'#dcfce7',color:'#16a34a',padding:'2px 8px',borderRadius:4,fontSize:12,fontWeight:700}}>POSTED</span>
+                      :<span style={{background:'#fef3c7',color:'#92400e',padding:'2px 8px',borderRadius:4,fontSize:12,fontWeight:600}}>DRAFT</span>}
+                  </td>
+                  <td style={{padding:'10px 12px'}} onClick={e=>e.stopPropagation()}>
+                    <div style={{display:'flex',gap:4}}>
+                      {!r.is_posted&&<button className="btn btn-sm btn-secondary" style={{fontSize:11,padding:'2px 8px'}} onClick={()=>{setEditRow(r);setForm({journal_type:r.journal_type,date:r.date,description:r.description,reference:r.reference||'',lines:r.lines||[]});setShowModal(true);}}>Edit</button>}
+                      {!r.is_posted&&<button className="btn btn-sm" style={{fontSize:11,padding:'2px 8px',background:'#eff6ff',color:'#2563eb',border:'none',cursor:'pointer'}} onClick={()=>post(r.id)}>Post</button>}
+                      {r.is_posted&&<button className="btn btn-sm" style={{fontSize:11,padding:'2px 8px',background:'#fef3c7',color:'#92400e',border:'none',cursor:'pointer'}} onClick={()=>reopen(r.id)}>Reopen</button>}
+                      {!r.is_posted&&<button className="btn btn-sm btn-danger" style={{fontSize:11,padding:'2px 8px'}} onClick={()=>del(r.id)}>Del</button>}
+                    </div>
+                  </td>
                 </tr>
               ))}
-              {rows.length===0&&<tr><td colSpan={8} style={{textAlign:'center',color:'#94a3b8',padding:36}}>{ar?'لا توجد قيود':'No journal entries'}</td></tr>}
+              {rows.length===0&&<tr><td colSpan={8} style={{textAlign:'center',color:'#94a3b8',padding:36}}>No journal entries yet</td></tr>}
             </tbody>
           </table>
         )}
       </div>
-      {showModal&&(
-        <Modal title={ar?'قيد يومية جديد':'New Journal Entry'} onClose={()=>setShowModal(false)}>
-          <div className="form-grid" style={{marginBottom:14}}>
-            <Field label={ar?'النوع':'Type'}><select className="input" value={form.journal_type} onChange={e=>setForm(p=>({...p,journal_type:e.target.value}))}>{Object.entries(typeL).map(([v,l])=><option key={v} value={v}>{l}</option>)}</select></Field>
-            <Field label={ar?'التاريخ':'Date'}><input className="input" type="date" value={form.date} onChange={e=>setForm(p=>({...p,date:e.target.value}))}/></Field>
-            <Field label={ar?'الوصف':'Description'} full><input className="input" value={form.description} onChange={e=>setForm(p=>({...p,description:e.target.value}))}/></Field>
-            <Field label={ar?'المرجع':'Reference'}><input className="input" value={form.reference} onChange={e=>setForm(p=>({...p,reference:e.target.value}))}/></Field>
+
+      {/* VIEW MODAL */}
+      {viewModal&&<Modal title={viewModal.journal_number} onClose={()=>setViewModal(null)}>
+        <div style={{minWidth:560}}>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12,marginBottom:16}}>
+            <div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Type</div><div style={{fontWeight:600,textTransform:'capitalize'}}>{viewModal.journal_type}</div></div>
+            <div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Date</div><div style={{fontWeight:600}}>{viewModal.date}</div></div>
+            <div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Reference</div><div>{viewModal.reference||'—'}</div></div>
+            <div style={{gridColumn:'1/-1'}}><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Description</div><div style={{fontWeight:600}}>{viewModal.description}</div></div>
           </div>
-          <div style={{overflowX:'auto'}}>
-            <table style={{width:'100%',fontSize:12,borderCollapse:'collapse'}}>
-              <thead><tr style={{background:'#f8fafc'}}><th style={{padding:'6px 8px',textAlign:'left',fontWeight:600,color:'#64748b'}}>{ar?'الحساب':'Account'}</th><th style={{padding:'6px 8px',textAlign:'left',fontWeight:600,color:'#64748b'}}>{ar?'الوصف':'Desc'}</th><th style={{padding:'6px 8px',textAlign:'right',fontWeight:600,color:'#64748b'}}>{ar?'مدين':'Debit'}</th><th style={{padding:'6px 8px',textAlign:'right',fontWeight:600,color:'#64748b'}}>{ar?'دائن':'Credit'}</th><th></th></tr></thead>
+          <table style={{width:'100%',borderCollapse:'collapse',marginBottom:16}}>
+            <thead><tr style={{background:'#f8fafc'}}>
+              <th style={{padding:'8px',textAlign:'left',fontSize:12,color:'#64748b'}}>Account</th>
+              <th style={{padding:'8px',textAlign:'left',fontSize:12,color:'#64748b'}}>Description</th>
+              <th style={{padding:'8px',textAlign:'right',fontSize:12,color:'#16a34a'}}>Debit</th>
+              <th style={{padding:'8px',textAlign:'right',fontSize:12,color:'#dc2626'}}>Credit</th>
+            </tr></thead>
+            <tbody>
+              {(viewModal.lines||[]).map((l,i)=>{
+                const acc=accounts.find(a=>a.id===l.account_id);
+                return(<tr key={i} style={{borderTop:'1px solid #f1f5f9'}}>
+                  <td style={{padding:'8px',fontSize:13}}><span style={{fontFamily:'monospace',color:'#2563eb'}}>{acc?.code||l.account_id}</span> {acc?.name||''}</td>
+                  <td style={{padding:'8px',fontSize:13,color:'#64748b'}}>{l.description||'—'}</td>
+                  <td style={{padding:'8px',textAlign:'right',fontFamily:'monospace',color:'#16a34a'}}>{l.debit>0?SAR(l.debit):'—'}</td>
+                  <td style={{padding:'8px',textAlign:'right',fontFamily:'monospace',color:'#dc2626'}}>{l.credit>0?SAR(l.credit):'—'}</td>
+                </tr>);
+              })}
+            </tbody>
+            <tfoot><tr style={{borderTop:'2px solid #e2e8f0',fontWeight:700}}>
+              <td colSpan={2} style={{padding:'8px'}}>TOTAL</td>
+              <td style={{padding:'8px',textAlign:'right',fontFamily:'monospace',color:'#16a34a'}}>{SAR(viewModal.total_debit)}</td>
+              <td style={{padding:'8px',textAlign:'right',fontFamily:'monospace',color:'#dc2626'}}>{SAR(viewModal.total_credit)}</td>
+            </tr></tfoot>
+          </table>
+          <div style={{display:'flex',gap:8}}>
+            {!viewModal.is_posted&&<button className="btn btn-primary" onClick={()=>{post(viewModal.id);setViewModal(null);}}>Post Journal</button>}
+            {viewModal.is_posted&&<button className="btn btn-secondary" onClick={()=>{reopen(viewModal.id);setViewModal(null);}}>Reopen</button>}
+            <button className="btn btn-secondary" onClick={()=>setViewModal(null)}>Close</button>
+          </div>
+        </div>
+      </Modal>}
+
+      {/* CREATE/EDIT MODAL */}
+      {showModal&&<Modal title={editRow?'Edit Journal':'New Journal Entry'} onClose={()=>{setShowModal(false);setEditRow(null);}}>
+        <div style={{minWidth:600}}>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginBottom:14}}>
+            <div><label className="form-label">Type</label>
+              <select className="input" value={form.journal_type} onChange={e=>setForm(p=>({...p,journal_type:e.target.value}))}>
+                <option value="general">General</option>
+                <option value="sale">Sale</option>
+                <option value="purchase">Purchase</option>
+                <option value="bank">Bank</option>
+                <option value="cash">Cash</option>
+              </select>
+            </div>
+            <div><label className="form-label">Date *</label><input className="input" type="date" value={form.date} onChange={e=>setForm(p=>({...p,date:e.target.value}))}/></div>
+            <div><label className="form-label">Reference</label><input className="input" value={form.reference} onChange={e=>setForm(p=>({...p,reference:e.target.value}))} placeholder="REF-001"/></div>
+          </div>
+          <div style={{marginBottom:14}}><label className="form-label">Description *</label><input className="input" value={form.description} onChange={e=>setForm(p=>({...p,description:e.target.value}))} placeholder="Journal description"/></div>
+          
+          <div style={{marginBottom:8,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <label className="form-label" style={{margin:0}}>Journal Lines</label>
+            <button onClick={addLine} style={{fontSize:12,color:'#2563eb',background:'none',border:'none',cursor:'pointer',fontWeight:600}}>+ Add Line</button>
+          </div>
+          
+          <div style={{border:'1px solid #e2e8f0',borderRadius:8,overflow:'hidden',marginBottom:14}}>
+            <table style={{width:'100%',borderCollapse:'collapse'}}>
+              <thead><tr style={{background:'#f8fafc'}}>
+                <th style={{padding:'8px',textAlign:'left',fontSize:11,color:'#64748b',fontWeight:600}}>Account</th>
+                <th style={{padding:'8px',textAlign:'left',fontSize:11,color:'#64748b',fontWeight:600}}>Description</th>
+                <th style={{padding:'8px',textAlign:'right',fontSize:11,color:'#16a34a',fontWeight:600}}>Debit</th>
+                <th style={{padding:'8px',textAlign:'right',fontSize:11,color:'#dc2626',fontWeight:600}}>Credit</th>
+                <th style={{padding:'8px',width:30}}></th>
+              </tr></thead>
               <tbody>
                 {form.lines.map((line,i)=>(
-                  <tr key={i}>
-                    <td style={{padding:'4px 6px'}}><select className="input" style={{fontSize:12}} value={line.account_id} onChange={e=>setLine(i,'account_id',e.target.value)}><option value="">{ar?'اختر':'Select...'}</option>{accounts.map(a=><option key={a.id} value={a.id}>{a.code} — {ar&&a.name_ar?a.name_ar:a.name}</option>)}</select></td>
-                    <td style={{padding:'4px 6px'}}><input className="input" style={{fontSize:12}} value={line.description} onChange={e=>setLine(i,'description',e.target.value)}/></td>
-                    <td style={{padding:'4px 6px'}}><input className="input" style={{fontSize:12,textAlign:'right'}} type="number" value={line.debit} onChange={e=>setLine(i,'debit',e.target.value)}/></td>
-                    <td style={{padding:'4px 6px'}}><input className="input" style={{fontSize:12,textAlign:'right'}} type="number" value={line.credit} onChange={e=>setLine(i,'credit',e.target.value)}/></td>
-                    <td style={{padding:'4px 6px'}}>{form.lines.length>2&&<button onClick={()=>setForm(p=>({...p,lines:p.lines.filter((_,j)=>j!==i)}))} style={{background:'none',border:'none',cursor:'pointer',color:'#dc2626',fontSize:16}}>×</button>}</td>
+                  <tr key={i} style={{borderTop:'1px solid #f1f5f9'}}>
+                    <td style={{padding:'4px 8px'}}>
+                      <select style={{border:'none',background:'transparent',fontSize:12,width:'100%',outline:'none'}} value={line.account_id} onChange={e=>setLine(i,'account_id',e.target.value)}>
+                        <option value="">Select account...</option>
+                        {leafAccounts.map(a=><option key={a.id} value={a.id}>{a.code} - {a.name}</option>)}
+                      </select>
+                    </td>
+                    <td style={{padding:'4px 8px'}}><input style={{border:'none',background:'transparent',fontSize:12,width:'100%',outline:'none'}} value={line.description} onChange={e=>setLine(i,'description',e.target.value)} placeholder="Description"/></td>
+                    <td style={{padding:'4px 8px'}}><input style={{border:'none',background:'transparent',fontSize:12,width:90,textAlign:'right',outline:'none'}} type="number" value={line.debit||''} onChange={e=>setLine(i,'debit',e.target.value)} placeholder="0.00"/></td>
+                    <td style={{padding:'4px 8px'}}><input style={{border:'none',background:'transparent',fontSize:12,width:90,textAlign:'right',outline:'none'}} type="number" value={line.credit||''} onChange={e=>setLine(i,'credit',e.target.value)} placeholder="0.00"/></td>
+                    <td style={{padding:'4px 8px'}}>{form.lines.length>2&&<button onClick={()=>removeLine(i)} style={{background:'none',border:'none',color:'#dc2626',cursor:'pointer',fontSize:14}}>×</button>}</td>
                   </tr>
                 ))}
               </tbody>
-              <tfoot><tr style={{borderTop:'2px solid #e2e8f0',background:'#f8fafc'}}><td colSpan={2} style={{padding:'8px',fontWeight:700,fontSize:12}}>{ar?'الإجمالي':'Total'}</td><td style={{padding:'8px',textAlign:'right',fontWeight:700,color:balanced?'#059669':'#dc2626'}}>{SAR(totalDebit)}</td><td style={{padding:'8px',textAlign:'right',fontWeight:700,color:balanced?'#059669':'#dc2626'}}>{SAR(totalCredit)}</td><td></td></tr></tfoot>
+              <tfoot><tr style={{borderTop:'2px solid #e2e8f0',background:'#f8fafc'}}>
+                <td colSpan={2} style={{padding:'8px',fontSize:12,fontWeight:700}}>TOTAL</td>
+                <td style={{padding:'8px',textAlign:'right',fontFamily:'monospace',fontWeight:700,color:'#16a34a'}}>{SAR(totalDebit)}</td>
+                <td style={{padding:'8px',textAlign:'right',fontFamily:'monospace',fontWeight:700,color:'#dc2626'}}>{SAR(totalCredit)}</td>
+                <td></td>
+              </tr></tfoot>
             </table>
           </div>
-          <button onClick={()=>setForm(p=>({...p,lines:[...p.lines,{account_id:'',description:'',debit:0,credit:0}]}))} style={{fontSize:12,color:'#2563eb',background:'none',border:'none',cursor:'pointer',padding:'6px 0',marginTop:6}}>{ar?'+ إضافة سطر':'+ Add line'}</button>
-          {!balanced&&<div style={{background:'#fee2e2',color:'#991b1b',padding:'8px 12px',borderRadius:8,fontSize:12,marginTop:8}}>{ar?'القيد غير متوازن':'Not balanced — debit must equal credit'}</div>}
-          <div style={{display:'flex',gap:8,marginTop:14}}>
-            <button className="btn btn-primary" onClick={save} disabled={!balanced||!form.description}>{ar?'حفظ':'Save'}</button>
-            <button className="btn btn-secondary" onClick={()=>setShowModal(false)}>{ar?'إلغاء':'Cancel'}</button>
+
+          {!isBalanced&&totalDebit>0&&<div style={{background:'#fef2f2',border:'1px solid #fecaca',borderRadius:8,padding:'8px 12px',marginBottom:12,fontSize:13,color:'#dc2626'}}>
+            ⚠️ Journal not balanced. Difference: {SAR(Math.abs(totalDebit-totalCredit))}
+          </div>}
+          {isBalanced&&totalDebit>0&&<div style={{background:'#f0fdf4',border:'1px solid #bbf7d0',borderRadius:8,padding:'8px 12px',marginBottom:12,fontSize:13,color:'#16a34a'}}>
+            ✓ Balanced — Debit = Credit = {SAR(totalDebit)}
+          </div>}
+
+          <div style={{display:'flex',gap:8}}>
+            <button className="btn btn-primary" onClick={save} disabled={!isBalanced&&totalDebit>0} style={{flex:1}}>{editRow?'Update':'Create'} Journal</button>
+            <button className="btn btn-secondary" onClick={()=>{setShowModal(false);setEditRow(null);}} style={{flex:1}}>Cancel</button>
           </div>
-        </Modal>
-      )}
+        </div>
+      </Modal>}
     </div>
   );
 }
 
-/* AccTable replaced by Section component */
 function AccTable({title,rows,total,color}){
   const {ar}=useLang();
   if(!Array.isArray(rows)) return null;
