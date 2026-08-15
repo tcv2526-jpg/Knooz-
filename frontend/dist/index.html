@@ -1305,8 +1305,8 @@ function ChartOfAccounts(){
               {!hasChildren&&<span style={{width:16}}></span>}
               <span style={{fontFamily:'monospace',fontSize:12,color:'#64748b',minWidth:80}}>{node.code}</span>
               <span style={{fontWeight:isParent?700:400,fontSize:isParent?13:12}}>{ar&&node.name_ar?node.name_ar:node.name}</span>
-              {node.is_posted&&<span style={{background:'#dcfce7',color:'#16a34a',fontSize:10,padding:'1px 6px',borderRadius:4,fontWeight:600}}>POSTED</span>}
-              {!node.allow_posting&&<span style={{background:'#fef3c7',color:'#92400e',fontSize:10,padding:'1px 6px',borderRadius:4}}>Summary</span>}
+              {!!node.is_posted&&<span style={{background:'#dcfce7',color:'#16a34a',fontSize:10,padding:'1px 6px',borderRadius:4,fontWeight:600}}>POSTED</span>}
+              {node.allow_posting===false&&<span style={{background:'#fef3c7',color:'#92400e',fontSize:10,padding:'1px 6px',borderRadius:4}}>Summary</span>}
             </div>
           </td>
           <td style={{padding:'8px 12px',textAlign:'center'}}>
@@ -1325,10 +1325,10 @@ function ChartOfAccounts(){
           </td>
           <td style={{padding:'8px 12px'}}>
             <div style={{display:'flex',gap:4}}>
-              {!node.is_posted&&<button className="btn btn-sm btn-secondary" style={{fontSize:11,padding:'2px 8px'}} onClick={()=>{setEditAcc(node);setForm({code:node.code,name:node.name,name_ar:node.name_ar||'',account_type:node.account_type,parent_code:node.parent_code||'',opening_balance:node.opening_balance||0,allow_posting:node.allow_posting});setShowModal(true);}}>Edit</button>}
-              {!node.is_posted&&node.allow_posting&&<button className="btn btn-sm" style={{fontSize:11,padding:'2px 8px',background:'#eff6ff',color:'#2563eb',border:'none',cursor:'pointer'}} onClick={()=>post(node.id)}>Post</button>}
-              {node.is_posted&&<button className="btn btn-sm" style={{fontSize:11,padding:'2px 8px',background:'#fef3c7',color:'#92400e',border:'none',cursor:'pointer'}} onClick={()=>reopen(node.id)}>Reopen</button>}
-              {!node.is_posted&&!hasChildren&&<button className="btn btn-sm btn-danger" style={{fontSize:11,padding:'2px 8px'}} onClick={()=>del(node.id)}>Del</button>}
+              {!node.is_posted&&node.id&&<button className="btn btn-sm btn-secondary" style={{fontSize:11,padding:'2px 8px'}} onClick={()=>{setEditAcc(node);setForm({code:node.code,name:node.name,name_ar:node.name_ar||'',account_type:node.account_type,parent_code:node.parent_code||'',opening_balance:node.opening_balance||0,allow_posting:node.allow_posting});setShowModal(true);}}>Edit</button>}
+              {!node.is_posted&&node.allow_posting===true&&<button className="btn btn-sm" style={{fontSize:11,padding:'2px 8px',background:'#eff6ff',color:'#2563eb',border:'none',cursor:'pointer'}} onClick={()=>post(node.id)}>Post</button>}
+              {!!node.is_posted&&<button className="btn btn-sm" style={{fontSize:11,padding:'2px 8px',background:'#fef3c7',color:'#92400e',border:'none',cursor:'pointer'}} onClick={()=>reopen(node.id)}>Reopen</button>}
+              {!node.is_posted&&!hasChildren&&node.id&&<button className="btn btn-sm btn-danger" style={{fontSize:11,padding:'2px 8px'}} onClick={()=>del(node.id)}>Del</button>}
             </div>
           </td>
         </tr>
