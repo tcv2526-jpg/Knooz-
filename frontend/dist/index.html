@@ -1519,7 +1519,7 @@ function JournalEntries(){
                   </td>
                   <td style={{padding:'10px 12px'}} onClick={e=>e.stopPropagation()}>
                     <div style={{display:'flex',gap:4}}>
-                      {!r.is_posted&&<button className="btn btn-sm btn-secondary" style={{fontSize:11,padding:'2px 8px'}} onClick={()=>{setEditRow(r);setForm({journal_type:typeof r.journal_type==='object'?r.journal_type?.value||'general':r.journal_type||'general',date:r.date,description:r.description,reference:r.reference||'',lines:(r.lines||[]).map(l=>({...l,account_id:String(l.account_id||'')}))});setShowModal(true);}}>Edit</button>}
+                      {!r.is_posted&&<button className="btn btn-sm btn-secondary" style={{fontSize:11,padding:'2px 8px'}} onClick={()=>{setEditRow(r);setForm({journal_type:typeof r.journal_type==='object'?r.journal_type?.value||'general':r.journal_type||'general',date:r.date,description:r.description,reference:r.reference||'',lines:(r.lines||[]).map(l=>({...l,account_id:String(l.account_id||''),description:l.description||'',debit:Number(l.debit)||0,credit:Number(l.credit)||0}))});setShowModal(true);}}>Edit</button>}
                       {!r.is_posted&&<button className="btn btn-sm" style={{fontSize:11,padding:'2px 8px',background:'#eff6ff',color:'#2563eb',border:'none',cursor:'pointer'}} onClick={()=>post(r.id)}>Post</button>}
                       {r.is_posted&&<button className="btn btn-sm" style={{fontSize:11,padding:'2px 8px',background:'#fef3c7',color:'#92400e',border:'none',cursor:'pointer'}} onClick={()=>reopen(r.id)}>Reopen</button>}
                       {!r.is_posted&&<button className="btn btn-sm btn-danger" style={{fontSize:11,padding:'2px 8px'}} onClick={()=>del(r.id)}>Del</button>}
@@ -1615,9 +1615,9 @@ function JournalEntries(){
                         {leafAccounts.map(a=><option key={a.id} value={a.id}>{a.code} - {a.name}</option>)}
                       </select>
                     </td>
-                    <td style={{padding:'4px 8px'}}><input style={{border:'none',background:'transparent',fontSize:12,width:'100%',outline:'none'}} value={line.description} onChange={e=>setLine(i,'description',e.target.value)} placeholder="Description"/></td>
-                    <td style={{padding:'4px 8px'}}><input style={{border:'none',background:'transparent',fontSize:12,width:90,textAlign:'right',outline:'none'}} type="number" value={line.debit||''} onChange={e=>setLine(i,'debit',e.target.value)} placeholder="0.00"/></td>
-                    <td style={{padding:'4px 8px'}}><input style={{border:'none',background:'transparent',fontSize:12,width:90,textAlign:'right',outline:'none'}} type="number" value={line.credit||''} onChange={e=>setLine(i,'credit',e.target.value)} placeholder="0.00"/></td>
+                    <td style={{padding:'4px 8px'}}><input style={{border:'none',background:'transparent',fontSize:12,width:'100%',outline:'none'}} value={line.description||''} onChange={e=>setLine(i,'description',e.target.value)} placeholder="Description"/></td>
+                    <td style={{padding:'4px 8px'}}><input style={{border:'none',background:'transparent',fontSize:12,width:90,textAlign:'right',outline:'none'}} type="number" value={line.debit===0?'':line.debit||''} onChange={e=>setLine(i,'debit',e.target.value)} placeholder="0.00"/></td>
+                    <td style={{padding:'4px 8px'}}><input style={{border:'none',background:'transparent',fontSize:12,width:90,textAlign:'right',outline:'none'}} type="number" value={line.credit===0?'':line.credit||''} onChange={e=>setLine(i,'credit',e.target.value)} placeholder="0.00"/></td>
                     <td style={{padding:'4px 8px'}}>{form.lines.length>2&&<button onClick={()=>removeLine(i)} style={{background:'none',border:'none',color:'#dc2626',cursor:'pointer',fontSize:14}}>×</button>}</td>
                   </tr>
                 ))}
